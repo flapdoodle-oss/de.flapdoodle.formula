@@ -457,7 +457,12 @@
             <artifactId>de.flapdoodle.graph</artifactId>
             <version>1.2.3</version>
         </dependency>
-		
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.1-jre</version>
+        </dependency>
+
         <dependency>
             <groupId>org.immutables</groupId>
             <artifactId>value</artifactId>
@@ -472,12 +477,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>31.1-jre</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>de.flapdoodle.testdoc</groupId>
             <artifactId>de.flapdoodle.testdoc</artifactId>
