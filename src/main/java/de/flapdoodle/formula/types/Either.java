@@ -2,6 +2,7 @@ package de.flapdoodle.formula.types;
 
 import org.immutables.value.Value;
 
+import javax.annotation.Nullable;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
@@ -9,8 +10,10 @@ public abstract class Either<L, R> {
 
 	public abstract boolean isLeft();
 
+	@Nullable
 	public abstract L left();
 
+	@Nullable
 	public abstract R right();
 
 	@Value.Immutable
@@ -18,6 +21,7 @@ public abstract class Either<L, R> {
 
 		@Override
 		@Value.Parameter
+		@Nullable
 		public abstract L left();
 
 		@Value.Auxiliary
@@ -36,6 +40,7 @@ public abstract class Either<L, R> {
 
 		@Override
 		@Value.Parameter
+		@Nullable
 		public abstract R right();
 
 		@Value.Auxiliary

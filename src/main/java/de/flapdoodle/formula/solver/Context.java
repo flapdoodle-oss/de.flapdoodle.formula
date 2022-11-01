@@ -1,5 +1,6 @@
 package de.flapdoodle.formula.solver;
 
+import com.google.common.base.Preconditions;
 import de.flapdoodle.formula.ErrorMessage;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.types.Either;
@@ -47,6 +48,10 @@ public abstract class Context {
 
 	public boolean hasValidationErrors(Value<?> id) {
 		return validatedValuesWithErrors().contains(id);
+	}
+
+	public List<ErrorMessage> validationErrors(Value<?> id) {
+		return Preconditions.checkNotNull(errorMessages().get(id),"no error messages set for %s", id);
 	}
 
 	public static Context empty() {
