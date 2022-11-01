@@ -16,5 +16,27 @@
  */
 package de.flapdoodle.formula;
 
-public interface ValueType<T> {
+import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Parameter;
+
+import java.util.Optional;
+
+public interface Value<T> {
+
+	@Immutable(builder = false)
+	abstract class Named<T> implements Value<T>, ValueSink<T>, ValueSource<T> {
+		@Parameter
+		protected abstract Optional<String> name();
+
+		@Parameter
+		protected abstract Class<T> type();
+	}
+
+	static <T> Named<T> ofType(Class<T> type) {
+		return ImmutableNamed.of(Optional.empty(), type);
+	}
+
+	static <T> Named<T> named(String name, Class<T> type) {
+		return ImmutableNamed.of(Optional.of(name), type);
+	}
 }
