@@ -125,7 +125,7 @@ class SolverTest {
 		assertThat(domainObject.getSum()).isNull();
 	}
 
-	private Calculation.ValueLookup calculationLookup(Context context, DomainObject domainObject) {
+	private Calculation.ValueLookup calculationLookup(ContextView context, DomainObject domainObject) {
 		return new Calculation.ValueLookup() {
 			@Override public <T> T get(Value<T> id) {
 				if (id instanceof ObjectProperty) {
