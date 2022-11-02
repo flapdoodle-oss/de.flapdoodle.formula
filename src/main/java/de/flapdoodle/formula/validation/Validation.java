@@ -17,7 +17,8 @@
 package de.flapdoodle.formula.validation;
 
 import com.google.common.collect.ImmutableList;
-import de.flapdoodle.formula.*;
+import de.flapdoodle.formula.Value;
+import de.flapdoodle.formula.ValueSource;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,14 +34,14 @@ public interface Validation<D> {
 	List<ErrorMessage> validate(Validator validator, Optional<D> unvalidatedValue, ValueLookup values);
 
 	interface ValueLookup {
-		<T> Validator.ValidatedValue<T> get(ValueSource<T> id);
+		<T> ValidatedValue<T> get(ValueSource<T> id);
 	}
 
 	@org.immutables.value.Value.Immutable(builder = false)
 	abstract class Self<X> implements Validation<X> {
 
 		@org.immutables.value.Value.Parameter
-		protected abstract Validator.Self<X> validation();
+		protected abstract Validations.Self<X> validation();
 
 		@Override
 		public List<ValueSource<?>> sources() {
@@ -54,7 +55,7 @@ public interface Validation<D> {
 
 		public static <X> Self<X> with(
 			Value<X> destination,
-			Validator.Self<X> validation
+			Validations.Self<X> validation
 		) {
 			return ImmutableSelf.of(destination, validation);
 		}
@@ -66,7 +67,7 @@ public interface Validation<D> {
 		protected abstract ValueSource<A> source();
 
 		@org.immutables.value.Value.Parameter
-		protected abstract Validator.RelatedTo1<X, A> validation();
+		protected abstract Validations.RelatedTo1<X, A> validation();
 
 		@Override
 		public List<ValueSource<?>> sources() {
@@ -81,7 +82,7 @@ public interface Validation<D> {
 		public static <X, A> RelatedTo1<X, A> with(
 			Value<X> destination,
 			ValueSource<A> source,
-			Validator.RelatedTo1<X, A> validation
+			Validations.RelatedTo1<X, A> validation
 		) {
 			return ImmutableRelatedTo1.of(destination, source, validation);
 		}
@@ -96,7 +97,7 @@ public interface Validation<D> {
 		protected abstract ValueSource<B> b();
 
 		@org.immutables.value.Value.Parameter
-		protected abstract Validator.RelatedTo2<X, A, B> validation();
+		protected abstract Validations.RelatedTo2<X, A, B> validation();
 
 		@Override
 		public List<ValueSource<?>> sources() {
@@ -112,7 +113,7 @@ public interface Validation<D> {
 			Value<X> destination,
 			ValueSource<A> a,
 			ValueSource<B> b,
-			Validator.RelatedTo2<X, A, B> validation
+			Validations.RelatedTo2<X, A, B> validation
 		) {
 			return ImmutableRelatedTo2.of(destination, a, b, validation);
 		}

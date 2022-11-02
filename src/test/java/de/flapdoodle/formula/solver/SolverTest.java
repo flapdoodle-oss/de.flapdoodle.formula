@@ -20,7 +20,9 @@ import com.google.common.collect.ImmutableList;
 import de.flapdoodle.formula.*;
 import de.flapdoodle.formula.calculate.Calculate;
 import de.flapdoodle.formula.calculate.Calculation;
+import de.flapdoodle.formula.validation.ErrorMessage;
 import de.flapdoodle.formula.validation.Validate;
+import de.flapdoodle.formula.values.Named;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
@@ -34,7 +36,7 @@ class SolverTest {
 	private final ObjectProperty<DomainObject, Integer> aProperty = DomainObject.property("a", DomainObject::getA, DomainObject::setA);
 	private final ObjectProperty<DomainObject, Integer> bProperty = DomainObject.property("b", DomainObject::getB, DomainObject::setB);
 
-	private final Value.Named<Integer> sumValue = Value.named("sum", Integer.class);
+	private final Named<Integer> sumValue = Value.named("sum", Integer.class);
 
 	@Test
 	void calculateSumAndSetResultInDomainObject() {

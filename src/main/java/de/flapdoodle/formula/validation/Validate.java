@@ -36,7 +36,7 @@ public abstract class Validate {
 			this.destination = destination;
 		}
 
-		public Validation.Self<X> by(Validator.Self<X> validator) {
+		public Validation.Self<X> by(Validations.Self<X> validator) {
 			return Validation.Self.with(destination, validator);
 		}
 		public <A> WithRelationTo1<X, A> using(ValueSource<A> a) {
@@ -57,7 +57,7 @@ public abstract class Validate {
 			this.a = a;
 		}
 
-		public Validation.RelatedTo1<X, A> by(Validator.RelatedTo1<X, A> validator) {
+		public Validation.RelatedTo1<X, A> by(Validations.RelatedTo1<X, A> validator) {
       return Validation.RelatedTo1.with(destination, a, validator);
     }
   }
@@ -73,7 +73,7 @@ public abstract class Validate {
 			this.b = b;
 		}
 
-		public Validation.RelatedTo2<X, A, B> by(Validator.RelatedTo2<X, A, B> validator) {
+		public Validation.RelatedTo2<X, A, B> by(Validations.RelatedTo2<X, A, B> validator) {
 			return Validation.RelatedTo2.with(destination, a, b, validator);
 		}
 	}

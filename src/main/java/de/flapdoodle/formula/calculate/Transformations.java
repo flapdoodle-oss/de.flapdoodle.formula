@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.flapdoodle.formula;
+package de.flapdoodle.formula.calculate;
 
 import javax.annotation.Nullable;
 import java.util.function.BiFunction;

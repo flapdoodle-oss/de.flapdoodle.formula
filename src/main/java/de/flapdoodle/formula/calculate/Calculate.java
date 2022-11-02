@@ -16,7 +16,6 @@
  */
 package de.flapdoodle.formula.calculate;
 
-import de.flapdoodle.formula.Transformations;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
 

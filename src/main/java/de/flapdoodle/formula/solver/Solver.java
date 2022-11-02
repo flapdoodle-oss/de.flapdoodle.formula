@@ -19,9 +19,13 @@ package de.flapdoodle.formula.solver;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import de.flapdoodle.formula.*;
+import de.flapdoodle.formula.Unvalidated;
+import de.flapdoodle.formula.Value;
+import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.calculate.Calculation;
 import de.flapdoodle.formula.types.Either;
+import de.flapdoodle.formula.validation.ErrorMessage;
+import de.flapdoodle.formula.validation.ValidatedValue;
 import de.flapdoodle.formula.validation.Validation;
 import de.flapdoodle.formula.validation.Validator;
 import de.flapdoodle.graph.Graphs;
@@ -109,12 +113,12 @@ public abstract class Solver {
 	private static Validation.ValueLookup validationLookup(Context context) {
 		return new Validation.ValueLookup() {
 			@Override
-			public <T> Validator.ValidatedValue<T> get(ValueSource<T> id) {
+			public <T> ValidatedValue<T> get(ValueSource<T> id) {
 				return id instanceof Unvalidated
-					? Validator.ValidatedValue.builder(id)
+					? ValidatedValue.builder(id)
 					.value(Optional.ofNullable(context.getValue(id)))
 					.build()
-					: Validator.ValidatedValue.builder(id)
+					: ValidatedValue.builder(id)
 					.value(Optional.ofNullable(context.getValidated(id)))
 					.invalidReferences(invalidReferences(context, id))
 					.build();

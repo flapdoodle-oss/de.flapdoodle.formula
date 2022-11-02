@@ -17,9 +17,9 @@
 package de.flapdoodle.formula.solver;
 
 import com.google.common.base.Preconditions;
-import de.flapdoodle.formula.ErrorMessage;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.types.Either;
+import de.flapdoodle.formula.validation.ErrorMessage;
 
 import javax.annotation.Nullable;
 import java.util.List;

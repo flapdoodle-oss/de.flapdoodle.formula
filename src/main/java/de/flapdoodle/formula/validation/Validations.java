@@ -14,16 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.flapdoodle.formula;
+package de.flapdoodle.formula.validation;
 
-import de.flapdoodle.formula.values.Named;
+import java.util.List;
+import java.util.Optional;
 
-public interface Value<T> {
+public interface Validations {
 
-	static <T> Named<T> ofType(Class<T> type) {
-		return Named.ofType(type);
+	interface Self<T> {
+		List<ErrorMessage> validate(Validator validator, Optional<T> value);
 	}
-	static <T> Named<T> named(String name, Class<T> type) {
-		return Named.named(name, type);
+
+	interface RelatedTo1<T, A> {
+		List<ErrorMessage> validate(Validator validator,Optional<T> value, ValidatedValue<A> a);
+	}
+
+	interface RelatedTo2<T, A, B> {
+		List<ErrorMessage> validate(Validator validator,Optional<T> value, ValidatedValue<A> a, ValidatedValue<B> b);
 	}
 }

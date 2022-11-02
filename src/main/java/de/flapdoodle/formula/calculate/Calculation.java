@@ -17,7 +17,9 @@
 package de.flapdoodle.formula.calculate;
 
 import com.google.common.collect.ImmutableList;
-import de.flapdoodle.formula.*;
+import de.flapdoodle.formula.Value;
+import de.flapdoodle.formula.ValueSink;
+import de.flapdoodle.formula.ValueSource;
 
 import java.util.List;
 import java.util.stream.Collectors;

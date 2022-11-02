@@ -14,42 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.flapdoodle.formula;
+package de.flapdoodle.formula.validation;
 
+import de.flapdoodle.formula.ValueSource;
+import org.immutables.builder.Builder;
 import org.immutables.value.Value;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Value.Immutable
-public interface ErrorMessage {
-	String key();
+public abstract class ValidatedValue<T> {
+	@Builder.Parameter
+	public abstract ValueSource<T> source();
 
-	@Value.Default
-	default List<Object> args() {
-		return Collections.emptyList();
-	}
+	public abstract Optional<T> value();
 
-	@Value.Default
-	default Set<ValueSource<?>> invalidSources() {
-		return Collections.emptySet();
-	}
+	public abstract Set<ValueSource<?>> invalidReferences();
 
-	static ErrorMessage of(String key) {
-		return ImmutableErrorMessage.builder()
-			.key(key)
-			.build();
-	}
-
-	static ErrorMessage of(String key, Object arg) {
-		return ImmutableErrorMessage.builder()
-			.key(key)
-			.addArgs(arg)
-			.build();
-	}
-
-	static ImmutableErrorMessage.Builder builder() {
-		return ImmutableErrorMessage.builder();
+	public static <T> ImmutableValidatedValue.Builder<T> builder(ValueSource<T> source) {
+		return ImmutableValidatedValue.builder(source);
 	}
 }
