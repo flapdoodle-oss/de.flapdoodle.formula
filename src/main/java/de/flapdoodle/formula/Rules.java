@@ -16,6 +16,10 @@
  */
 package de.flapdoodle.formula;
 
+import de.flapdoodle.formula.calculate.Calculation;
+import de.flapdoodle.formula.calculate.CalculationMap;
+import de.flapdoodle.formula.validation.Validation;
+import de.flapdoodle.formula.validation.ValidationMap;
 import org.immutables.value.Value;
 
 import java.util.List;

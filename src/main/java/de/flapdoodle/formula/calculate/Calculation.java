@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.flapdoodle.formula;
+package de.flapdoodle.formula.calculate;
 
 import com.google.common.collect.ImmutableList;
+import de.flapdoodle.formula.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +38,7 @@ public interface Calculation<D> {
 	}
 
 	@org.immutables.value.Value.Immutable(builder = false)
-	abstract class Direct<A, X> implements Calculation<X> {
+	abstract class Direct<A, X> implements Calculation<X> { 
 		@org.immutables.value.Value.Parameter
 		protected abstract ValueSource<A> source();
 

@@ -14,7 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.flapdoodle.formula;
+package de.flapdoodle.formula.calculate;
+
+import de.flapdoodle.formula.Transformations;
+import de.flapdoodle.formula.ValueSink;
+import de.flapdoodle.formula.ValueSource;
 
 public abstract class Calculate {
 	private Calculate() {

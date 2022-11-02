@@ -18,11 +18,12 @@ package de.flapdoodle.formula.solver;
 
 import com.google.common.collect.ImmutableList;
 import de.flapdoodle.formula.*;
+import de.flapdoodle.formula.calculate.Calculate;
+import de.flapdoodle.formula.calculate.Calculation;
+import de.flapdoodle.formula.validation.Validate;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 

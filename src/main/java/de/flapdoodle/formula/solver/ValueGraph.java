@@ -18,6 +18,10 @@ package de.flapdoodle.formula.solver;
 
 import com.google.common.base.Preconditions;
 import de.flapdoodle.formula.*;
+import de.flapdoodle.formula.calculate.Calculation;
+import de.flapdoodle.formula.calculate.CalculationMap;
+import de.flapdoodle.formula.validation.Validation;
+import de.flapdoodle.formula.validation.ValidationMap;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 

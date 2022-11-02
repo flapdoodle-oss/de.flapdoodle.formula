@@ -14,8 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.flapdoodle.formula;
+package de.flapdoodle.formula.validation;
 
+import de.flapdoodle.formula.ErrorMessage;
+import de.flapdoodle.formula.ValueSource;
 import org.immutables.builder.Builder;
 import org.immutables.value.Value;
 

@@ -17,6 +17,8 @@
 package de.flapdoodle.formula;
 
 import com.google.common.collect.ImmutableMap;
+import de.flapdoodle.formula.calculate.Calculate;
+import de.flapdoodle.formula.calculate.Calculation;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
