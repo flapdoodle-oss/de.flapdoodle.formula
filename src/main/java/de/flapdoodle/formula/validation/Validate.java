@@ -36,8 +36,8 @@ public abstract class Validate {
 			this.destination = destination;
 		}
 
-		public Validation.Self<X> by(Validations.Self<X> validator) {
-			return Validation.Self.with(destination, validator);
+		public Validations.Self<X> by(Validations.V0<X> validator) {
+			return Validations.Self.with(destination, validator);
 		}
 		public <A> WithRelationTo1<X, A> using(ValueSource<A> a) {
 			return new WithRelationTo1<>(destination, a);
@@ -48,21 +48,21 @@ public abstract class Validate {
 		}
 	}
 
-  public static class WithRelationTo1<X , A> {
-      private Value<X> destination;
-      private ValueSource<A> a;
+	public static class WithRelationTo1<X, A> {
+		private Value<X> destination;
+		private ValueSource<A> a;
 
 		public WithRelationTo1(Value<X> destination, ValueSource<A> a) {
 			this.destination = destination;
 			this.a = a;
 		}
 
-		public Validation.RelatedTo1<X, A> by(Validations.RelatedTo1<X, A> validator) {
-      return Validation.RelatedTo1.with(destination, a, validator);
-    }
-  }
+		public Validations.RelatedTo1<X, A> by(Validations.V1<X, A> validator) {
+			return Validations.RelatedTo1.with(destination, a, validator);
+		}
+	}
 
-	public static class WithRelationTo2<X , A, B> {
+	public static class WithRelationTo2<X, A, B> {
 		private Value<X> destination;
 		private ValueSource<A> a;
 		private ValueSource<B> b;
@@ -73,8 +73,8 @@ public abstract class Validate {
 			this.b = b;
 		}
 
-		public Validation.RelatedTo2<X, A, B> by(Validations.RelatedTo2<X, A, B> validator) {
-			return Validation.RelatedTo2.with(destination, a, b, validator);
+		public Validations.RelatedTo2<X, A, B> by(Validations.V2<X, A, B> validator) {
+			return Validations.RelatedTo2.with(destination, a, b, validator);
 		}
 	}
 }

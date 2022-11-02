@@ -14,11 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.flapdoodle.formula;
+package de.flapdoodle.formula.calculate;
 
 import com.google.common.collect.ImmutableMap;
-import de.flapdoodle.formula.calculate.Calculate;
-import de.flapdoodle.formula.calculate.Calculation;
+import de.flapdoodle.formula.Value;
+import de.flapdoodle.formula.ValueSink;
+import de.flapdoodle.formula.ValueSource;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -31,7 +32,7 @@ class CalculateTest {
 		ValueSink<String> destination = Value.named("dest", String.class);
 		ValueSource<String> source = Value.named("source", String.class);
 
-		Calculation.Direct<String, String> calculation = Calculate.value(destination).from(source);
+		Calculations.Direct<String, String> calculation = Calculate.value(destination).from(source);
 
 		assertThat(calculation.sources()).containsExactly(source);
 		assertThat(calculation.destination()).isEqualTo(destination);
@@ -44,7 +45,7 @@ class CalculateTest {
 		ValueSink<String> destination = Value.named("dest", String.class);
 		ValueSource<Integer> source = Value.named("source", Integer.class);
 
-		Calculation.Direct<Integer, String> calculation = Calculate.value(destination)
+		Calculations.Direct<Integer, String> calculation = Calculate.value(destination)
 			.using(source)
 			.by(it -> it.toString());
 
@@ -60,7 +61,7 @@ class CalculateTest {
 		ValueSource<Integer> source_a = Value.named("a", Integer.class);
 		ValueSource<Integer> source_b = Value.named("b", Integer.class);
 
-		Calculation.Merge2<Integer, Integer, String> calculation = Calculate.value(destination)
+		Calculations.Merge2<Integer, Integer, String> calculation = Calculate.value(destination)
 			.using(source_a, source_b)
 			.by((a, b) -> "a: " + a + ", b: " + b);
 
@@ -77,7 +78,7 @@ class CalculateTest {
 		ValueSource<Integer> source_b = Value.named("b", Integer.class);
 		ValueSource<Integer> source_c = Value.named("c", Integer.class);
 
-		Calculation.Merge3<Integer, Integer, Integer, String> calculation = Calculate.value(destination)
+		Calculations.Merge3<Integer, Integer, Integer, String> calculation = Calculate.value(destination)
 			.using(source_a, source_b, source_c)
 			.by((a, b, c) -> "a: " + a + ", b: " + b + ", c: " + c);
 

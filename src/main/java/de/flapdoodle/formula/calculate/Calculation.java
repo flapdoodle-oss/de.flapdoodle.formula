@@ -16,13 +16,10 @@
  */
 package de.flapdoodle.formula.calculate;
 
-import com.google.common.collect.ImmutableList;
 import de.flapdoodle.formula.Value;
-import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public interface Calculation<D> {
 	@org.immutables.value.Value.Parameter
@@ -39,122 +36,4 @@ public interface Calculation<D> {
 		<T> T get(Value<T> id);
 	}
 
-	@org.immutables.value.Value.Immutable(builder = false)
-	abstract class Direct<A, X> implements Calculation<X> { 
-		@org.immutables.value.Value.Parameter
-		protected abstract ValueSource<A> source();
-
-		@org.immutables.value.Value.Parameter
-		protected abstract Transformations.F1<A, X> transformation();
-
-		@Override
-		public List<ValueSource<?>> sources() {
-			return ImmutableList.of(source());
-		}
-
-		@Override
-		public X calculate(ValueLookup values) {
-			return transformation().apply(values.get(source()));
-		}
-
-		public static <A, X> Direct<A, X> with(
-			ValueSource<A> source,
-			ValueSink<X> destination,
-			Transformations.F1<A, X> transformation
-		) {
-			return ImmutableDirect.of(destination, source, transformation);
-		}
-	}
-
-	@org.immutables.value.Value.Immutable(builder = false)
-	abstract class Merge2<A, B, X> implements Calculation<X> {
-		@org.immutables.value.Value.Parameter
-		protected abstract ValueSource<A> a();
-
-		@org.immutables.value.Value.Parameter
-		protected abstract ValueSource<B> b();
-
-		@org.immutables.value.Value.Parameter
-		protected abstract Transformations.F2<A, B, X> transformation();
-
-		@Override
-		public List<ValueSource<?>> sources() {
-			return ImmutableList.of(a(), b());
-		}
-
-		@Override
-		public X calculate(ValueLookup values) {
-			return transformation().apply(values.get(a()), values.get(b()));
-		}
-
-		public static <A, B, X> Merge2<A, B, X> with(
-			ValueSource<A> a,
-			ValueSource<B> b,
-			ValueSink<X> destination,
-			Transformations.F2<A, B, X> transformation
-		) {
-			return ImmutableMerge2.of(destination, a, b, transformation);
-		}
-	}
-
-	@org.immutables.value.Value.Immutable(builder = false)
-	abstract class Merge3<A, B, C, X> implements Calculation<X> {
-		@org.immutables.value.Value.Parameter
-		protected abstract ValueSource<A> a();
-
-		@org.immutables.value.Value.Parameter
-		protected abstract ValueSource<B> b();
-
-		@org.immutables.value.Value.Parameter
-		protected abstract ValueSource<C> c();
-
-		@org.immutables.value.Value.Parameter
-		protected abstract Transformations.F3<A, B, C, X> transformation();
-
-		@Override
-		public List<ValueSource<?>> sources() {
-			return ImmutableList.of(a(), b(), c());
-		}
-
-		@Override
-		public X calculate(ValueLookup values) {
-			return transformation().apply(values.get(a()), values.get(b()), values.get(c()));
-		}
-
-		public static <A, B, C, X> Merge3<A, B, C, X> with(
-			ValueSource<A> a,
-			ValueSource<B> b,
-			ValueSource<C> c,
-			ValueSink<X> destination,
-			Transformations.F3<A, B, C, X> transformation
-		) {
-			return ImmutableMerge3.of(destination, a, b, c, transformation);
-		}
-	}
-
-	// TODO is this of any use?
-	@org.immutables.value.Value.Immutable(builder = false)
-	abstract class Aggregated<X> implements Calculation<List<X>> {
-		@org.immutables.value.Value.Parameter
-		protected abstract List<ValueSource<X>> sourceList();
-
-		@Override
-		public List<? extends ValueSource<?>> sources() {
-			return sourceList();
-		}
-
-		@Override
-		public List<X> calculate(ValueLookup values) {
-			return sourceList().stream()
-				.map(id -> values.get(id))
-				.collect(Collectors.toList());
-		}
-
-		public static <X> Aggregated<X> with(
-			List<? extends ValueSource<X>> sourceList,
-			ValueSink<List<X>> destination
-		) {
-			return ImmutableAggregated.of(destination, sourceList);
-		}
-	}
 }

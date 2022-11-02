@@ -16,7 +16,6 @@
  */
 package de.flapdoodle.formula.validation;
 
-import com.google.common.collect.ImmutableList;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSource;
 
@@ -35,87 +34,5 @@ public interface Validation<D> {
 
 	interface ValueLookup {
 		<T> ValidatedValue<T> get(ValueSource<T> id);
-	}
-
-	@org.immutables.value.Value.Immutable(builder = false)
-	abstract class Self<X> implements Validation<X> {
-
-		@org.immutables.value.Value.Parameter
-		protected abstract Validations.Self<X> validation();
-
-		@Override
-		public List<ValueSource<?>> sources() {
-			return ImmutableList.of();
-		}
-
-		@Override
-		public List<ErrorMessage> validate(Validator validator, Optional<X> unvalidatedValue, ValueLookup values) {
-			return validation().validate(validator, unvalidatedValue);
-		}
-
-		public static <X> Self<X> with(
-			Value<X> destination,
-			Validations.Self<X> validation
-		) {
-			return ImmutableSelf.of(destination, validation);
-		}
-	}
-
-	@org.immutables.value.Value.Immutable(builder = false)
-	abstract class RelatedTo1<X, A> implements Validation<X> {
-		@org.immutables.value.Value.Parameter
-		protected abstract ValueSource<A> source();
-
-		@org.immutables.value.Value.Parameter
-		protected abstract Validations.RelatedTo1<X, A> validation();
-
-		@Override
-		public List<ValueSource<?>> sources() {
-			return ImmutableList.of(source());
-		}
-
-		@Override
-		public List<ErrorMessage> validate(Validator validator, Optional<X> unvalidatedValue, ValueLookup values) {
-			return validation().validate(validator, unvalidatedValue, values.get(source()));
-		}
-
-		public static <X, A> RelatedTo1<X, A> with(
-			Value<X> destination,
-			ValueSource<A> source,
-			Validations.RelatedTo1<X, A> validation
-		) {
-			return ImmutableRelatedTo1.of(destination, source, validation);
-		}
-	}
-
-	@org.immutables.value.Value.Immutable(builder = false)
-	abstract class RelatedTo2<X, A, B> implements Validation<X> {
-		@org.immutables.value.Value.Parameter
-		protected abstract ValueSource<A> a();
-
-		@org.immutables.value.Value.Parameter
-		protected abstract ValueSource<B> b();
-
-		@org.immutables.value.Value.Parameter
-		protected abstract Validations.RelatedTo2<X, A, B> validation();
-
-		@Override
-		public List<ValueSource<?>> sources() {
-			return ImmutableList.of(a(), b());
-		}
-
-		@Override
-		public List<ErrorMessage> validate(Validator validator, Optional<X> unvalidatedValue, ValueLookup values) {
-			return validation().validate(validator, unvalidatedValue, values.get(a()), values.get(b()));
-		}
-
-		public static <X, A, B> RelatedTo2<X, A, B> with(
-			Value<X> destination,
-			ValueSource<A> a,
-			ValueSource<B> b,
-			Validations.RelatedTo2<X, A, B> validation
-		) {
-			return ImmutableRelatedTo2.of(destination, a, b, validation);
-		}
 	}
 }

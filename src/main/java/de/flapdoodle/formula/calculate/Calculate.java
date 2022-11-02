@@ -35,8 +35,8 @@ public abstract class Calculate {
 			this.destination = destination;
 		}
 
-		public Calculation.Direct<X, X> from(ValueSource<X> a) {
-			return new WithDirect<>(destination, a).by(Transformations.identity());
+		public Calculations.Direct<X, X> from(ValueSource<X> a) {
+			return new WithDirect<>(destination, a).by(Calculations.identity());
 		}
 
 		public <A> WithDirect<X, A> using(ValueSource<A> a) {
@@ -61,8 +61,8 @@ public abstract class Calculate {
 			this.a = a;
 		}
 
-		public Calculation.Direct<A, X> by(Transformations.F1<A, X> transformation) {
-			return Calculation.Direct.with(a, destination, transformation);
+		public Calculations.Direct<A, X> by(Calculations.F1<A, X> transformation) {
+			return Calculations.Direct.with(a, destination, transformation);
 		}
 	}
 
@@ -77,8 +77,8 @@ public abstract class Calculate {
 			this.b = b;
 		}
 
-		public Calculation.Merge2<A, B, X> by(Transformations.F2<A,B,X> transformation) {
-			return Calculation.Merge2.with(a, b, destination, transformation);
+		public Calculations.Merge2<A, B, X> by(Calculations.F2<A,B,X> transformation) {
+			return Calculations.Merge2.with(a, b, destination, transformation);
 		}
 	}
 
@@ -95,8 +95,8 @@ public abstract class Calculate {
 			this.c = c;
 		}
 
-		public Calculation.Merge3<A, B, C, X> by(Transformations.F3<A,B,C,X> transformation) {
-			return Calculation.Merge3.with(a, b, c, destination, transformation);
+		public Calculations.Merge3<A, B, C, X> by(Calculations.F3<A,B,C,X> transformation) {
+			return Calculations.Merge3.with(a, b, c, destination, transformation);
 		}
 	}
 

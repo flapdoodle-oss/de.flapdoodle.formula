@@ -16,20 +16,108 @@
  */
 package de.flapdoodle.formula.validation;
 
+import com.google.common.collect.ImmutableList;
+import de.flapdoodle.formula.Value;
+import de.flapdoodle.formula.ValueSource;
+import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Parameter;
+
 import java.util.List;
 import java.util.Optional;
 
-public interface Validations {
+public abstract class Validations {
 
-	interface Self<T> {
+	public interface V0<T> {
 		List<ErrorMessage> validate(Validator validator, Optional<T> value);
 	}
 
-	interface RelatedTo1<T, A> {
+	public interface V1<T, A> {
 		List<ErrorMessage> validate(Validator validator,Optional<T> value, ValidatedValue<A> a);
 	}
 
-	interface RelatedTo2<T, A, B> {
+	public interface V2<T, A, B> {
 		List<ErrorMessage> validate(Validator validator,Optional<T> value, ValidatedValue<A> a, ValidatedValue<B> b);
+	}
+
+	@Immutable(builder = false)
+	abstract static class Self<X> implements Validation<X> {
+
+		@Parameter
+		protected abstract V0<X> validation();
+
+		@Override
+		public List<ValueSource<?>> sources() {
+			return ImmutableList.of();
+		}
+
+		@Override
+		public List<ErrorMessage> validate(Validator validator, Optional<X> unvalidatedValue, ValueLookup values) {
+			return validation().validate(validator, unvalidatedValue);
+		}
+
+		public static <X> Self<X> with(
+			Value<X> destination,
+			V0<X> validation
+		) {
+			return ImmutableSelf.of(destination, validation);
+		}
+	}
+
+	@Immutable(builder = false)
+	abstract static class RelatedTo1<X, A> implements Validation<X> {
+		@Parameter
+		protected abstract ValueSource<A> source();
+
+		@Parameter
+		protected abstract V1<X, A> validation();
+
+		@Override
+		public List<ValueSource<?>> sources() {
+			return ImmutableList.of(source());
+		}
+
+		@Override
+		public List<ErrorMessage> validate(Validator validator, Optional<X> unvalidatedValue, ValueLookup values) {
+			return validation().validate(validator, unvalidatedValue, values.get(source()));
+		}
+
+		public static <X, A> RelatedTo1<X, A> with(
+			Value<X> destination,
+			ValueSource<A> source,
+			V1<X, A> validation
+		) {
+			return ImmutableRelatedTo1.of(destination, source, validation);
+		}
+	}
+
+	@Immutable(builder = false)
+	abstract static class RelatedTo2<X, A, B> implements Validation<X> {
+		@Parameter
+		protected abstract ValueSource<A> a();
+
+		@Parameter
+		protected abstract ValueSource<B> b();
+
+		@Parameter
+		protected abstract V2<X, A, B> validation();
+
+		@Override
+		public List<ValueSource<?>> sources() {
+			return ImmutableList.of(a(), b());
+		}
+
+		@Override
+		public List<ErrorMessage> validate(Validator validator, Optional<X> unvalidatedValue, ValueLookup values) {
+			return validation().validate(validator, unvalidatedValue, values.get(a()), values.get(b()));
+		}
+
+		public static <X, A, B> RelatedTo2<X, A, B> with(
+			Value<X> destination,
+			ValueSource<A> a,
+			ValueSource<B> b,
+			V2<X, A, B> validation
+		) {
+			return ImmutableRelatedTo2.of(destination, a, b, validation);
+		}
 	}
 }
