@@ -5,7 +5,6 @@ import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
 import org.immutables.value.Value.Immutable;
 
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 

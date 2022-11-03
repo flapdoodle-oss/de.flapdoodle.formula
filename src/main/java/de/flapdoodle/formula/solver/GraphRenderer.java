@@ -25,7 +25,6 @@ import org.jgrapht.graph.DefaultEdge;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
 public abstract class GraphRenderer {
