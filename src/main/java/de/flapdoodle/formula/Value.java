@@ -26,4 +26,5 @@ public interface Value<T> {
 	static <T> Named<T> named(String name, Class<T> type) {
 		return Named.named(name, type);
 	}
+	static <T> Unvalidated<T> unvalidated(ValueSource<T> source) { return Unvalidated.wrap(source); }
 }

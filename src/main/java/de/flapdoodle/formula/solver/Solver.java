@@ -30,26 +30,22 @@ import de.flapdoodle.formula.validation.Validation;
 import de.flapdoodle.formula.validation.Validator;
 import de.flapdoodle.graph.Graphs;
 import de.flapdoodle.graph.VerticesAndEdges;
+import org.immutables.value.Value.Immutable;
 import org.jgrapht.graph.DefaultEdge;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
-@org.immutables.value.Value.Immutable
+@Immutable
 public abstract class Solver {
 
-	@org.immutables.value.Value.Default
-	protected Function<ContextView, Calculation.ValueLookup> calculationLookupFactory() {
-		return context -> context::getValidated;
+	interface ValueLookup {
+		<T> @Nullable T get(Value<T> id);
 	}
 
-	@org.immutables.value.Value.Default
-	protected Function<ContextView, Validation.ValueLookup> validationLookupFactory() {
-		return context -> validationLookup(context);
-	}
+	protected abstract ValueLookup valueLookup();
 
 	public static ImmutableSolver.Builder builder() {
 		return ImmutableSolver.builder();
@@ -63,17 +59,12 @@ public abstract class Solver {
 		Collection<VerticesAndEdges<Value<?>, DefaultEdge>> roots = Graphs.rootsOf(valueGraph.graph());
 
 		Context context = Context.empty();
-		ContextHolder view=new ContextHolder(context);
-		
-		Calculation.ValueLookup valueLookup = calculationLookupFactory().apply(view);
-		Validation.ValueLookup validationValueLookup = validationLookupFactory().apply(view);
 
 		for (VerticesAndEdges<Value<?>, DefaultEdge> it : roots) {
 			Preconditions.checkArgument(it.loops().isEmpty(), "loops found: %s", it.loops());
 
 			for (Value<?> node : it.vertices()) {
-				context = process(valueLookup, validationValueLookup, valueGraph, node, context);
-				view.update(context);
+				context = process(valueLookup(), valueGraph, node, context);
 			}
 		}
 
@@ -81,34 +72,65 @@ public abstract class Solver {
 	}
 
 	private static Context process(
-		Calculation.ValueLookup valueLookup,
-		Validation.ValueLookup validationValueLookup,
+		ValueLookup lookup,
 		ValueGraph valueGraph,
 		Value<?> node,
 		Context context
 	) {
 		if (node instanceof Unvalidated) {
-			return processUnvalidated(valueLookup, (Unvalidated<?>) node, context);
+			return processUnvalidated(lookup, (Unvalidated<?>) node, context);
 		}
-		return processProcessed(valueLookup, validationValueLookup, valueGraph, node, context);
+		return processProcessed(lookup, valueGraph, node, context);
 	}
 
-	private static <T> Context processProcessed(Calculation.ValueLookup valueLookup, Validation.ValueLookup validationValueLookup, ValueGraph valueGraph, Value<T> destination, Context context) {
+	private static <T> Context processProcessed(ValueLookup lookup, ValueGraph valueGraph, Value<T> destination, Context context) {
 		Calculation<T> calculation = valueGraph.calculationOrNull(destination);
 		Validation<T> validation = valueGraph.validationOrNull(destination);
 
+		Calculation.ValueLookup calculationLookup = calculationLookup(context, lookup);
+		Validation.ValueLookup validationLookup = validationValueLookup(context, lookup);
+
 		if (calculation != null || validation != null) {
 			T calculated = calculation != null
-				? calculation.calculate(valueLookup)
-				: valueLookup.get(destination);
+				? calculation.calculate(calculationLookup)
+				: calculationLookup.get(destination);
 
 			Either<T, List<ErrorMessage>> validated = validation != null
-				? validate(validationValueLookup, validation, calculated)
+				? validate(validationLookup, validation, calculated)
 				: Either.left(calculated);
 
 			return context.addValidated(destination, validated);
 		} else
 			return context;
+	}
+
+	private static Calculation.ValueLookup calculationLookup(Context context, ValueLookup lookup) {
+		return new Calculation.ValueLookup() {
+			@Override public <T> @Nullable T get(Value<T> id) {
+				return value(context,lookup,id);
+			}
+		};
+	}
+
+	private static <T> @Nullable T value(Context context, ValueLookup lookup, Value<T> id) {
+		return context.hasValidated(id)
+			? context.getValidated(id)
+			: lookup.get(id);
+	}
+
+	private static Validation.ValueLookup validationValueLookup(Context context, ValueLookup lookup) {
+		return new Validation.ValueLookup() {
+			@Override public <T> ValidatedValue<T> get(ValueSource<T> id) {
+				return id instanceof Unvalidated
+					? ValidatedValue.builder(id)
+					.value(Optional.ofNullable(context.getValue(id)))
+					.build()
+					: ValidatedValue.builder(id)
+					.value(Optional.ofNullable(value(context, lookup, id)))
+					.invalidReferences(invalidReferences(context, id))
+					.build();
+			}
+		};
 	}
 
 	private static <T> Either<T, List<ErrorMessage>> validate(Validation.ValueLookup valueLookup, Validation<T> validation, T calculated) {
@@ -118,58 +140,16 @@ public abstract class Solver {
 			: Either.right(errorMessages);
 	}
 
-	private static Validator validator() {
-		return new Validator() {
-		};
-	}
-
-	private static Validation.ValueLookup validationLookup(ContextView context) {
-		return new Validation.ValueLookup() {
-			@Override
-			public <T> ValidatedValue<T> get(ValueSource<T> id) {
-				return id instanceof Unvalidated
-					? ValidatedValue.builder(id)
-					.value(Optional.ofNullable(context.getValue(id)))
-					.build()
-					: ValidatedValue.builder(id)
-					.value(Optional.ofNullable(context.getValidated(id)))
-					.invalidReferences(invalidReferences(context, id))
-					.build();
-			}
-		};
-	}
-
-	private static <T> Iterable<? extends ValueSource<?>> invalidReferences(ContextView context, ValueSource<T> id) {
+	private static <T> Iterable<? extends ValueSource<?>> invalidReferences(Context context, ValueSource<T> id) {
 		return context.hasValidationErrors(id) ? ImmutableList.of(id) : ImmutableSet.of();
 	}
 
-	private static <T> Context processUnvalidated(Calculation.ValueLookup valueLookup, Unvalidated<T> node, Context context) {
-		return context.addValue(node, valueLookup.get(node));
+	private static <T> Context processUnvalidated(ValueLookup lookup, Unvalidated<T> node, Context context) {
+		return context.addValue(node, lookup.get(node.wrapped()));
 	}
 
-	private static class ContextHolder implements ContextView {
-
-		private ContextView delegate;
-
-		public ContextHolder(ContextView delegate) {
-			this.delegate = delegate;
-		}
-
-		void update(ContextView delegate) {
-			this.delegate = delegate;
-		}
-
-		@Override
-		public <T> @Nullable T getValue(Value<T> id) {
-			return delegate.getValue(id);
-		}
-		@Override
-		public <T> @Nullable T getValidated(Value<T> id) {
-			return delegate.getValidated(id);
-		}
-		@Override
-		public boolean hasValidationErrors(Value<?> id) {
-			return delegate.hasValidationErrors(id);
-		}
+	private static Validator validator() {
+		return new Validator() {
+		};
 	}
 }

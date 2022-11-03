@@ -18,22 +18,26 @@ package de.flapdoodle.formula.calculate;
 
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSource;
+import org.immutables.value.Value.Auxiliary;
+import org.immutables.value.Value.Lazy;
+import org.immutables.value.Value.Parameter;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public interface Calculation<D> {
-	@org.immutables.value.Value.Parameter
+	@Parameter
 	Value<D> destination();
 
-	@org.immutables.value.Value.Lazy
+	@Lazy
 	List<? extends ValueSource<?>> sources();
 
-	@org.immutables.value.Value.Auxiliary
+	@Auxiliary
 	D calculate(ValueLookup values);
 
 	@FunctionalInterface
 	interface ValueLookup {
-		<T> T get(Value<T> id);
+		<T> @Nullable T get(Value<T> id);
 	}
 
 }

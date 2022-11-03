@@ -17,15 +17,21 @@
 package de.flapdoodle.formula.solver;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.calculate.Calculation;
 import de.flapdoodle.formula.calculate.CalculationMap;
 import de.flapdoodle.formula.validation.Validation;
 import de.flapdoodle.formula.validation.ValidationMap;
+import de.flapdoodle.graph.Graphs;
+import de.flapdoodle.graph.Loop;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ValueGraph {
 	private final DefaultDirectedGraph<Value<?>, DefaultEdge> graph;
@@ -41,6 +47,15 @@ public class ValueGraph {
 		this.graph = graph;
 		this.calculationMap = calculationMap;
 		this.validationMap = validationMap;
+
+		List<Loop<Value<?>, DefaultEdge>> loops = Graphs.rootsOf(graph).stream()
+			.flatMap(it -> it.loops().stream())
+			.collect(Collectors.toList());
+
+		if (!loops.isEmpty()) {
+			String asDot = GraphRenderer.renderGraphAsDot(graph);
+			throw new IllegalArgumentException(Strings.lenientFormat("loops detected: %s\n-8<-------\n%s\n->8-------\n", loops, asDot));
+		}
 	}
 
 	public <T> Calculation<T> calculation(Value<T> key) {

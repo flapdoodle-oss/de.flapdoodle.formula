@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 @org.immutables.value.Value.Immutable
-public abstract class Context implements ContextView {
+public abstract class Context {
 	@org.immutables.value.Value.Default
 	protected ValueContainer values() {
 		return ValueContainer.empty();
@@ -44,7 +44,6 @@ public abstract class Context implements ContextView {
 		return ImmutableContext.copyOf(this).withValues(values().add(id, value));
 	}
 
-	@Override
 	public <T> @Nullable T getValue(Value<T> id) {
 		return values().get(id);
 	}
@@ -59,12 +58,14 @@ public abstract class Context implements ContextView {
 			.build());
 	}
 
-	@Override
 	public <T> @Nullable T getValidated(Value<T> id) {
 		return validatedValues().get(id);
 	}
 
-	@Override
+	public boolean hasValidated(Value<?> id) {
+		return validatedValues().keys().contains(id);
+	}
+
 	public boolean hasValidationErrors(Value<?> id) {
 		return validatedValuesWithErrors().contains(id);
 	}

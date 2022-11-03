@@ -16,6 +16,14 @@
  */
 package de.flapdoodle.formula;
 
+import org.immutables.value.Value;
+
+@Value.Immutable
 public interface Unvalidated<T> extends ValueSource<T> {
-	
+	@Value.Parameter
+	ValueSource<T> wrapped();
+
+	static <T> Unvalidated<T> wrap(ValueSource<T> id) {
+		return ImmutableUnvalidated.of(id);
+	}
 }

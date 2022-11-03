@@ -16,10 +16,12 @@
  */
 package de.flapdoodle.formula;
 
+import com.google.common.collect.ImmutableList;
 import de.flapdoodle.formula.calculate.Calculation;
 import de.flapdoodle.formula.calculate.CalculationMap;
 import de.flapdoodle.formula.validation.Validation;
 import de.flapdoodle.formula.validation.ValidationMap;
+import de.flapdoodle.formula.validation.Validations;
 import org.immutables.value.Value;
 
 import java.util.List;
@@ -36,6 +38,13 @@ public abstract class Rules {
 			.withCalculations(calculations().add(calculation));
 	}
 
+	public ImmutableRules add(Calculation<?> calculation, Calculation<?> ... other) {
+		return addCalculations(ImmutableList.<Calculation<?>>builder()
+			.add(calculation)
+			.add(other)
+			.build());
+	}
+
 	public ImmutableRules addCalculations(List<Calculation<?>> calculations) {
 		return ImmutableRules.copyOf(this)
 			.withCalculations(calculations().addAll(calculations));
@@ -44,6 +53,13 @@ public abstract class Rules {
 	public ImmutableRules add(Validation<?> validation) {
 		return ImmutableRules.copyOf(this)
 			.withValidations(validations().add(validation));
+	}
+
+	public ImmutableRules add(Validation<?> validation, Validation<?> ... other) {
+		return addValidations(ImmutableList.<Validation<?>>builder()
+			.add(validation)
+			.add(other)
+			.build());
 	}
 
 	public ImmutableRules addValidations(List<Validation<?>> validations) {

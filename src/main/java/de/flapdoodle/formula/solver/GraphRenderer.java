@@ -25,11 +25,21 @@ import org.jgrapht.graph.DefaultEdge;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 public abstract class GraphRenderer {
 	private GraphRenderer() {
 		// no instance
+	}
+
+	public static String renderGraphAsDot(DefaultDirectedGraph<Value<?>, DefaultEdge> graph) {
+		return renderGraphAsDot(graph, it -> {
+			if (it instanceof Unvalidated) {
+				return ((Unvalidated<?>) it).wrapped().toString();
+			}
+			return it.toString();
+		});
 	}
 
 	public static String renderGraphAsDot(DefaultDirectedGraph<Value<?>, DefaultEdge> graph, Function<Value<?>, String> labelOfValue) {
