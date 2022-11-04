@@ -42,21 +42,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class HowToCalculateOnObjectTreeTest {
 
 	@Test
-	void testMe() {
+	void sumOfItemsInCard() {
 		ImmutableCard card = Card.builder()
 			.addItems(Item.builder().name("box").quantity(2).price(10.5).build())
 			.addItems(Item.builder().name("book").quantity(1).price(9.95).build())
 			.addItems(Item.builder().name("nail").quantity(10).price(2.55).build())
 			.build();
 
-		ValueGraph valueGraph = GraphBuilder.build(rulesFor(card));
-
-//		String dot = GraphRenderer.renderGraphAsDot(valueGraph.graph());
-//		System.out.println("------------------");
-//		System.out.println(dot);
-//		System.out.println("------------------");
-
-		Solver.Result result = Solver.solve(valueGraph, valueLookup(card));
+		Solver.Result result = Solver.solve(GraphBuilder.build(rulesFor(card)), valueLookup(card));
 
 		Card updated = card;
 
