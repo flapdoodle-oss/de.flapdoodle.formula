@@ -18,7 +18,7 @@ package de.flapdoodle.formula.values.properties;
 
 import org.immutables.value.Value;
 
-public interface ReadableProperty<O, T> {
+public interface IsReadable<O, T> {
 	@Value.Auxiliary
 	T get(O instance);
 }

@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 @Value.Immutable
-public abstract class ModifiableProperty<O, T> implements ReadableProperty<O, T>, WritableProperty<O, T> {
+public abstract class ModifiableProperty<O, T> implements IsReadable<O, T>, IsWritable<O, T> {
 	@Value.Parameter
 	protected abstract Class<O> type();
 

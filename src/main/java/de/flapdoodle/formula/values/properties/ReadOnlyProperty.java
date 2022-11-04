@@ -24,7 +24,7 @@ import org.immutables.value.Value;
 import java.util.function.Function;
 
 @Value.Immutable
-public abstract class ReadOnlyProperty<O, T> implements ReadableProperty<O, T> {
+public abstract class ReadOnlyProperty<O, T> implements IsReadable<O, T> {
 	@Value.Parameter
 	protected abstract Class<O> type();
 
