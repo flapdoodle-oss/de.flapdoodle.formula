@@ -17,6 +17,8 @@
 package de.flapdoodle.formula.values.properties;
 
 import com.google.common.base.Preconditions;
+import de.flapdoodle.formula.types.Id;
+import de.flapdoodle.formula.values.domain.HasId;
 import de.flapdoodle.formula.values.matcher.CopyOnChangeValue;
 import de.flapdoodle.formula.values.matcher.Matcher;
 import org.immutables.value.Value;
@@ -59,6 +61,10 @@ public abstract class CopyOnChangeProperty<O, T> implements IsReadable<O, T>, Is
 	@Value.Auxiliary
 	public CopyOnChangeValue<O, T> matching(Matcher<O> matcher) {
 		return CopyOnChangeValue.of(matcher, this);
+	}
+
+	public de.flapdoodle.formula.values.domain.CopyOnChangeValue<O, T> withId(Id<O> id) {
+		return de.flapdoodle.formula.values.domain.CopyOnChangeValue.of(id, this);
 	}
 
 	public static <O, T> ImmutableCopyOnChangeProperty<O,T> of(Class<O> type, String name, Function<O, T> getter, BiFunction<O, T, O> copyOnWrite) {

@@ -17,6 +17,7 @@
 package de.flapdoodle.formula.values.properties;
 
 import com.google.common.base.Preconditions;
+import de.flapdoodle.formula.types.Id;
 import de.flapdoodle.formula.values.matcher.Matcher;
 import de.flapdoodle.formula.values.matcher.ReadOnlyValue;
 import org.immutables.value.Value;
@@ -48,6 +49,10 @@ public abstract class ReadOnlyProperty<O, T> implements IsReadable<O, T> {
 	@Value.Auxiliary
 	public ReadOnlyValue<O, T> matching(Matcher<O> matcher) {
 		return ReadOnlyValue.of(matcher, this);
+	}
+
+	public de.flapdoodle.formula.values.domain.ReadOnlyValue<O, T> withId(Id<O> id) {
+		return de.flapdoodle.formula.values.domain.ReadOnlyValue.of(id, this);
 	}
 
 	public static <O, T> ImmutableReadOnlyProperty<O,T> of(Class<O> type, String name, Function<O, T> getter) {
