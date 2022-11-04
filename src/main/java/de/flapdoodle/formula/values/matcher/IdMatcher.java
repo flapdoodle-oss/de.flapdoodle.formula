@@ -14,13 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.flapdoodle.formula.values.properties;
+package de.flapdoodle.formula.values.matcher;
 
 import de.flapdoodle.formula.types.Id;
-import de.flapdoodle.formula.types.Maybe;
 import org.immutables.value.Value;
 
-import java.util.Optional;
 import java.util.function.Function;
 
 @Value.Immutable

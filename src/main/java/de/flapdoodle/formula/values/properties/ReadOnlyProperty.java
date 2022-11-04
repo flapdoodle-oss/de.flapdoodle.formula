@@ -17,6 +17,8 @@
 package de.flapdoodle.formula.values.properties;
 
 import com.google.common.base.Preconditions;
+import de.flapdoodle.formula.values.matcher.Matcher;
+import de.flapdoodle.formula.values.matcher.ReadOnlyValue;
 import org.immutables.value.Value;
 
 import java.util.function.Function;

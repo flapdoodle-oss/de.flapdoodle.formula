@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.flapdoodle.formula.values.properties;
+package de.flapdoodle.formula.values.matcher;
 
 import de.flapdoodle.formula.types.Maybe;
+import de.flapdoodle.formula.values.properties.ReadOnlyProperty;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
