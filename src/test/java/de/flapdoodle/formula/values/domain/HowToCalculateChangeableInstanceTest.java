@@ -36,13 +36,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static de.flapdoodle.formula.values.properties.Properties.copyOnChange;
+import static de.flapdoodle.formula.values.properties.Properties.readOnly;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HowToCalculateChangeableInstanceTest {
 
 	@Test
 	void sumOfItemsInCard() {
-		ImmutableCard card = Card.builder()
+		Card card = Card.builder()
 			.addItems(Item.builder().name("box").quantity(2).price(10.5).build())
 			.addItems(Item.builder().name("book").quantity(1).price(9.95).build())
 			.addItems(Item.builder().name("nail").quantity(10).price(2.55).build())
@@ -78,7 +80,7 @@ public class HowToCalculateChangeableInstanceTest {
 			public <T> @Nullable T get(de.flapdoodle.formula.Value<T> id) {
 				if (id instanceof ReadableValue) {
 					return card.findValue((ReadableValue<?, ? extends T>) id)
-						.getOrThrow(new IllegalArgumentException("not found: "+id));
+						.getOrThrow(new IllegalArgumentException("not found: " + id));
 				}
 				throw new IllegalArgumentException("not implemented");
 			}
@@ -92,7 +94,7 @@ public class HowToCalculateChangeableInstanceTest {
 
 	@Immutable
 	public interface Card extends ChangeableInstance<Card>, HasRules {
-		CopyOnChangeProperty<Card, Double> sumWithoutTax = Properties.copyOnChange(Card.class, "sumWithoutTax", Card::sum,
+		CopyOnChangeProperty<Card, Double> sumWithoutTax = copyOnChange(Card.class, "sumWithoutTax", Card::sum,
 			(item, value) -> ImmutableCard.copyOf(item).withSumWithoutTax(value));
 
 		@Default
@@ -123,34 +125,35 @@ public class HowToCalculateChangeableInstanceTest {
 		@Override
 		default <T> Maybe<T> findValue(ReadableValue<?, T> id) {
 			if (id.id().equals(id())) {
-				return Maybe.some(((ReadableValue<Card, T>)id).get(this));
+				return Maybe.some(((ReadableValue<Card, T>) id).get(this));
 			}
 
 			for (Item item : items()) {
 				Maybe<T> result = item.findValue(id);
 				if (result.hasSome()) return result;
 			}
-			
+
 			return Maybe.none();
 		}
 
 		@Override
 		@Auxiliary
 		default Rules addRules(Rules current) {
-				for (Item item : items()) {
-					current = item.addRules(current);
-				}
+			for (Item item : items()) {
+				current = item.addRules(current);
+			}
 
-				return current
-					.add(Calculate.value(Card.sumWithoutTax.withId(id()))
-						.aggregating(items().stream()
-							.map(item -> Item.sumProperty.withId(item.id()))
-							.collect(Collectors.toList()))
-						.by(list -> list.stream()
-							.filter(Objects::nonNull)
-							.mapToDouble(it -> it)
-							.sum()))
-					;
+			return current
+				.add(Calculate
+					.value(Card.sumWithoutTax.withId(id()))
+					.aggregating(items().stream()
+						.map(item -> Item.sumProperty.withId(item.id()))
+						.collect(Collectors.toList()))
+					.by(list -> list.stream()
+						.filter(Objects::nonNull)
+						.mapToDouble(it -> it)
+						.sum()))
+				;
 		}
 
 		static ImmutableCard.Builder builder() {
@@ -160,10 +163,9 @@ public class HowToCalculateChangeableInstanceTest {
 
 	@Immutable
 	public interface Item extends ChangeableInstance<Item>, HasRules {
-		CopyOnChangeProperty<Item, Double> sumProperty = Properties.copyOnChange(Item.class, "sum", Item::sum,
-			(item, value) -> ImmutableItem.copyOf(item).withSum(value));
-		ReadOnlyProperty<Item, Double> priceProperty = Properties.readOnly(Item.class, "price", Item::price);
-		ReadOnlyProperty<Item, Integer> quantityProperty = Properties.readOnly(Item.class, "quantity", Item::quantity);
+		CopyOnChangeProperty<Item, Double> sumProperty = copyOnChange(Item.class, "sum", Item::sum, (item, value) -> ImmutableItem.copyOf(item).withSum(value));
+		ReadOnlyProperty<Item, Double> priceProperty = readOnly(Item.class, "price", Item::price);
+		ReadOnlyProperty<Item, Integer> quantityProperty = readOnly(Item.class, "quantity", Item::quantity);
 
 		@Default
 		@Override
@@ -192,7 +194,7 @@ public class HowToCalculateChangeableInstanceTest {
 		@Override
 		default <T> Maybe<T> findValue(ReadableValue<?, T> id) {
 			if (id.id().equals(id())) {
-				return Maybe.some(((ReadableValue<Item, T>)id).get(this));
+				return Maybe.some(((ReadableValue<Item, T>) id).get(this));
 			}
 			return Maybe.none();
 		}
@@ -201,7 +203,8 @@ public class HowToCalculateChangeableInstanceTest {
 		@Auxiliary
 		default Rules addRules(Rules current) {
 			return current
-				.add(Calculate.value(Item.sumProperty.withId(id()))
+				.add(Calculate
+					.value(Item.sumProperty.withId(id()))
 					.using(Item.priceProperty.withId(id()), Item.quantityProperty.withId(id()))
 					.by((price, count) -> (price != null && count != null) ? price * count : null));
 		}
