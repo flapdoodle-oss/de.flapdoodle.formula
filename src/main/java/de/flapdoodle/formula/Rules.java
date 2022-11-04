@@ -23,7 +23,10 @@ import de.flapdoodle.formula.validation.Validation;
 import de.flapdoodle.formula.validation.ValidationMap;
 import org.immutables.value.Value;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Value.Immutable(builder = false)
 public abstract class Rules {

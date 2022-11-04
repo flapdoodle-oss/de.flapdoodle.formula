@@ -38,24 +38,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-@Immutable
 public abstract class Solver {
 
-	interface ValueLookup {
+	private Solver() {
+		// no instance
+	}
+
+	public interface ValueLookup {
 		<T> @Nullable T get(Value<T> id);
 	}
 
-	protected abstract ValueLookup valueLookup();
-
-	public static ImmutableSolver.Builder builder() {
-		return ImmutableSolver.builder();
-	}
-
-	public static Solver instance() {
-		return builder().build();
-	}
-
-	public Context solve(ValueGraph valueGraph) {
+	public static Context solve(ValueGraph valueGraph, ValueLookup lookup) {
 		Collection<VerticesAndEdges<Value<?>, DefaultEdge>> roots = Graphs.rootsOf(valueGraph.graph());
 
 		Context context = Context.empty();
@@ -64,7 +57,7 @@ public abstract class Solver {
 			Preconditions.checkArgument(it.loops().isEmpty(), "loops found: %s", it.loops());
 
 			for (Value<?> node : it.vertices()) {
-				context = process(valueLookup(), valueGraph, node, context);
+				context = process(lookup, valueGraph, node, context);
 			}
 		}
 

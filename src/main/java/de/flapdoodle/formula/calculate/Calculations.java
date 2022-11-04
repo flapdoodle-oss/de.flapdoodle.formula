@@ -144,11 +144,13 @@ public abstract class Calculations {
 		}
 	}
 
-	// TODO is this of any use?
 	@Immutable(builder = false)
-	abstract static class Aggregated<X> implements Calculation<List<X>> {
+	abstract static class Aggregated<S, X> implements Calculation<X> {
 		@Parameter
-		protected abstract List<ValueSource<X>> sourceList();
+		protected abstract List<ValueSource<S>> sourceList();
+
+		@Parameter
+		protected abstract F1<List<S>, X> aggregation();
 
 		@Override
 		public List<? extends ValueSource<?>> sources() {
@@ -156,17 +158,19 @@ public abstract class Calculations {
 		}
 
 		@Override
-		public List<X> calculate(ValueLookup values) {
-			return sourceList().stream()
+		public X calculate(ValueLookup values) {
+			List<S> sourceValues = sourceList().stream()
 				.map(id -> values.get(id))
 				.collect(Collectors.toList());
+			return aggregation().apply(sourceValues);
 		}
 
-		public static <X> Aggregated<X> with(
-			List<? extends ValueSource<X>> sourceList,
-			ValueSink<List<X>> destination
+		public static <S, X> Aggregated<S, X> with(
+			List<? extends ValueSource<S>> sourceList,
+			ValueSink<X> destination,
+			F1<List<S>, X> aggregation
 		) {
-			return ImmutableAggregated.of(destination, sourceList);
+			return ImmutableAggregated.of(destination, sourceList, aggregation);
 		}
 	}
 }

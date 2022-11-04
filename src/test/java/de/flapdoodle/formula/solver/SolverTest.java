@@ -59,10 +59,7 @@ class SolverTest {
 		System.out.println(dot);
 		System.out.println("------------------");
 
-		Context context = Solver.builder()
-			.valueLookup(valueLookup(domainObject))
-			.build()
-			.solve(valueGraph);
+		Context context = Solver.solve(valueGraph, valueLookup(domainObject));
 
 		assertThat(context.validatedValues().keys())
 			.containsExactlyInAnyOrder(sumProperty, sumValue);
@@ -96,10 +93,7 @@ class SolverTest {
 		System.out.println(dot);
 		System.out.println("------------------");
 
-		Context context = Solver.builder()
-			.valueLookup(valueLookup(domainObject))
-			.build()
-			.solve(valueGraph);
+		Context context = Solver.solve(valueGraph, valueLookup(domainObject));
 
 		assertThat(context.validatedValues().keys())
 			.containsExactlyInAnyOrder(sumProperty, sumValue, aProperty);
@@ -136,10 +130,7 @@ class SolverTest {
 		System.out.println(dot);
 		System.out.println("------------------");
 
-		Context context = Solver.builder()
-			.valueLookup(valueLookup(domainObject))
-			.build()
-			.solve(valueGraph);
+		Context context = Solver.solve(valueGraph, valueLookup(domainObject));
 
 		assertThat(context.validatedValues().keys())
 			.containsExactlyInAnyOrder(sumProperty, sumValue, aProperty, bProperty);
@@ -167,10 +158,7 @@ class SolverTest {
 				.orElse(ImmutableList.of(ErrorMessage.of("not-set")))))
 		);
 
-		Context context = Solver.builder()
-			.valueLookup(valueLookup(domainObject))
-			.build()
-			.solve(valueGraph);
+		Context context = Solver.solve(valueGraph, valueLookup(domainObject));
 
 		assertThat(context.validatedValues().keys())
 			.containsExactlyInAnyOrder(sumProperty, sumValue);

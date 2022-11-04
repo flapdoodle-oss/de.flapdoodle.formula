@@ -19,6 +19,8 @@ package de.flapdoodle.formula.calculate;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
 
+import java.util.List;
+
 public abstract class Calculate {
 	private Calculate() {
 		// no instance
@@ -49,6 +51,10 @@ public abstract class Calculate {
 
 		public <A, B, C> WithMerge3<X, A, B, C> using(ValueSource<A> a, ValueSource<B> b, ValueSource<C> c) {
 			return new WithMerge3<>(destination, a, b, c);
+		}
+
+		public <S> WithSources<X, S> aggregating(List<? extends ValueSource<S>> sources) {
+			return new WithSources<>(destination, sources);
 		}
 	}
 
@@ -100,4 +106,17 @@ public abstract class Calculate {
 		}
 	}
 
+	public static class WithSources<X , S> {
+		private final ValueSink<X> destination;
+		private final List<? extends ValueSource<S>> sourceList;
+
+		public WithSources(ValueSink<X> destination, List<? extends ValueSource<S>> sourceList) {
+			this.destination = destination;
+			this.sourceList = sourceList;
+		}
+
+		public Calculations.Aggregated<S, X> by(Calculations.F1<List<S>,X> aggregation) {
+			return Calculations.Aggregated.with(sourceList, destination, aggregation);
+		}
+	}
 }
