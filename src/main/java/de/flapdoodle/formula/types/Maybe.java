@@ -26,6 +26,11 @@ public abstract class Maybe<T> {
 	public abstract T get();
 	public abstract <R> Maybe<R> map(Function<T, R> mapping);
 
+	public T getOrThrow(IllegalArgumentException e) {
+		if (!hasSome()) throw e;
+		return get();
+	}
+
 	@Value.Immutable
 	public static abstract class Some<T> extends Maybe<T> {
 		@Value.Parameter
