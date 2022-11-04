@@ -1,6 +1,7 @@
 package de.flapdoodle.formula.values.properties;
 
 import de.flapdoodle.formula.types.Id;
+import de.flapdoodle.formula.types.Maybe;
 import org.immutables.value.Value;
 
 import java.util.Optional;
@@ -18,12 +19,12 @@ public abstract class IdMatcher<O> implements Matcher<O> {
 	public String toString() {
 		return getClass().getSimpleName()+"{"+id()+"}";
 	}
+
 	@Override
-	public Optional<O> match(Object maybeInstance) {
+	public boolean match(Object maybeInstance) {
 		return id().asInstance(maybeInstance)
-			.flatMap(it -> id().equals(idExtractor().apply(it))
-				? Optional.of(it)
-				: Optional.empty());
+			.map(it -> id().equals(idExtractor().apply(it)))
+			.orElse(false);
 	}
 
 	public static <O> IdMatcher<O> matching(O instance, Function<O, Id<O>> idExtractor) {

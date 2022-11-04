@@ -34,9 +34,7 @@ import org.immutables.value.Value.Immutable;
 import org.jgrapht.graph.DefaultEdge;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public abstract class Solver {
 
@@ -48,10 +46,36 @@ public abstract class Solver {
 		<T> @Nullable T get(Value<T> id);
 	}
 
-	public static Context solve(ValueGraph valueGraph, ValueLookup lookup) {
-		Collection<VerticesAndEdges<Value<?>, DefaultEdge>> roots = Graphs.rootsOf(valueGraph.graph());
+	public interface Result {
+		Set<Value<?>> validatedValues();
+		Map<Value<?>, List<ErrorMessage>> validationErrors();
 
-		Context context = Context.empty();
+		@org.immutables.value.Value.Auxiliary
+		<T> @Nullable T get(Value<T> id);
+	}
+
+	public static Result solve(ValueGraph valueGraph, ValueLookup lookup) {
+		return asResult(solve(Context.empty(), valueGraph, lookup));
+	}
+
+	private static Result asResult(Context context) {
+		return new Result() {
+			@Override
+			public Set<Value<?>> validatedValues() {
+				return context.validatedValues().keys();
+			}
+			@Override
+			public Map<Value<?>, List<ErrorMessage>> validationErrors() {
+				return context.errorMessages();
+			}
+			@Override
+			public <T> @Nullable T get(Value<T> id) {
+				return context.validatedValues().get(id);
+			}
+		};
+	}
+	static Context solve(Context context, ValueGraph valueGraph, ValueLookup lookup) {
+		Collection<VerticesAndEdges<Value<?>, DefaultEdge>> roots = Graphs.rootsOf(valueGraph.graph());
 
 		for (VerticesAndEdges<Value<?>, DefaultEdge> it : roots) {
 			Preconditions.checkArgument(it.loops().isEmpty(), "loops found: %s", it.loops());

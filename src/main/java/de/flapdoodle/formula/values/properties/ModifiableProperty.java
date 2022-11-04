@@ -7,7 +7,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 @Value.Immutable
-public abstract class ChangableProperty<O, T> implements ReadableProperty<O, T>, WritableProperty<O, T> {
+public abstract class ModifiableProperty<O, T> implements ReadableProperty<O, T>, WritableProperty<O, T> {
 	@Value.Parameter
 	protected abstract Class<O> type();
 
@@ -32,7 +32,7 @@ public abstract class ChangableProperty<O, T> implements ReadableProperty<O, T>,
 		setter().accept(instance, value);
 	}
 
-	public static <O, T> ImmutableChangableProperty<O,T> of(Class<O> type, String name, Function<O, T> getter, BiConsumer<O, T> setter) {
-		return ImmutableChangableProperty.of(type, name, getter, setter);
+	public static <O, T> ImmutableModifiableProperty<O,T> of(Class<O> type, String name, Function<O, T> getter, BiConsumer<O, T> setter) {
+		return ImmutableModifiableProperty.of(type, name, getter, setter);
 	}
 }

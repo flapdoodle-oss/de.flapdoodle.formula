@@ -1,7 +1,7 @@
 package de.flapdoodle.formula.values.properties;
 
-import java.util.Optional;
+import de.flapdoodle.formula.types.Maybe;
 
 public interface Matcher<O> {
-	Optional<O> match(Object instance);
+	boolean match(Object instance);
 }

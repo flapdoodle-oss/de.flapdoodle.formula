@@ -1,5 +1,6 @@
 package de.flapdoodle.formula.howto;
 
+import com.google.common.collect.ImmutableList;
 import de.flapdoodle.formula.Rules;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSink;
@@ -7,7 +8,9 @@ import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.calculate.Calculate;
 import de.flapdoodle.formula.solver.*;
 import de.flapdoodle.formula.types.Id;
+import de.flapdoodle.formula.types.Maybe;
 import de.flapdoodle.formula.values.properties.*;
+import org.assertj.core.api.Assertions;
 import org.immutables.value.Value.Default;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
@@ -17,6 +20,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class HowToCalculateOnObjectTreeTest {
 
@@ -28,19 +33,55 @@ public class HowToCalculateOnObjectTreeTest {
 			.addItems(Item.builder().name("nail").quantity(10).price(2.55).build())
 			.build();
 
-		System.out.println("--------------------");
-		System.out.println(card);
-		System.out.println("--------------------");
-
 		ValueGraph valueGraph = GraphBuilder.build(rulesFor(card));
 
-		String dot = GraphRenderer.renderGraphAsDot(valueGraph.graph());
-		System.out.println("------------------");
-		System.out.println(dot);
-		System.out.println("------------------");
+//		String dot = GraphRenderer.renderGraphAsDot(valueGraph.graph());
+//		System.out.println("------------------");
+//		System.out.println(dot);
+//		System.out.println("------------------");
 
-		Context result = Solver.solve(valueGraph, valueLookup(card));
+		Solver.Result result = Solver.solve(valueGraph, valueLookup(card));
 
+		Card updated = card;
+
+		for (Value<?> id : result.validatedValues()) {
+			if (id instanceof ChangeableValue) {
+				updated = update(updated, (ChangeableValue) id, result.get(id));
+			}
+		}
+
+		assertThat(updated.items().get(0).sum())
+			.isEqualTo(2*10.5);
+		assertThat(updated.items().get(1).sum())
+			.isEqualTo(1*9.95);
+		assertThat(updated.items().get(2).sum())
+			.isEqualTo(10*2.55);
+
+		assertThat(updated.sumWithoutTax())
+			.isEqualTo(2*10.5+9.95+10*2.55);
+	}
+	private <T> Card update(Card updated, ChangeableValue<?,T> id, T value) {
+		Maybe<? extends ChangeableValue<Card, T>> matchCard = id.matching(updated);
+		if (matchCard.hasSome()) {
+			return matchCard.map(c -> c.change(updated, value)).get();
+		}
+
+		List<Item> items = updated.items();
+
+		for (int i = 0; i < items.size(); i++) {
+			Item item = items.get(i);
+			Maybe<? extends ChangeableValue<Item, T>> matchItem = id.matching(item);
+			if (matchItem.hasSome()) {
+				return ImmutableCard.copyOf(updated)
+					.withItems(ImmutableList.<Item>builder()
+						.addAll(items.subList(0,i))
+						.add(matchItem.map(m -> m.change(item, value)).get())
+						.addAll(items.subList(i+1, items.size()))
+						.build());
+			}
+		}
+
+		return updated;
 	}
 
 	private Solver.ValueLookup valueLookup(Card card) {
@@ -56,17 +97,18 @@ public class HowToCalculateOnObjectTreeTest {
 	}
 
 	private <T> T valueOf(Card card, ReadableValue<?, T> id) {
-		if (id.match(card).isPresent()) {
-			ReadableValue<Card, T> matchingId = (ReadableValue<Card, T>) id;
-			return matchingId.get(card);
-		} else {
-			for (Item item : card.items()) {
-				if (id.match(item).isPresent()) {
-					ReadableValue<Item, T> matchingId = (ReadableValue<Item, T>) id;
-					return matchingId.get(item);
-				}
+		Maybe<T> matchCard = id.matching(card)
+			.map(m -> m.get(card));
+
+		if (matchCard.hasSome()) return matchCard.get();
+
+		for (Item item : card.items()) {
+			Maybe<? extends ReadableValue<Item, T>> matchItem = id.matching(item);
+			if (matchItem.hasSome()) {
+				return matchItem.map(i -> i.get(item)).get();
 			}
 		}
+
 		throw new IllegalArgumentException("could not find "+id);
 	}
 
@@ -94,7 +136,7 @@ public class HowToCalculateOnObjectTreeTest {
 		return current
 			.add(Calculate.value(Item.sumProperty.matching(matchItem))
 					.using(Item.priceProperty.matching(matchItem), Item.quantityProperty.matching(matchItem))
-					.by((price, count) -> 0.0));
+					.by((price, count) -> (price!=null && count!=null) ? price * count : null));
 	}
 
 	@Immutable
@@ -103,9 +145,9 @@ public class HowToCalculateOnObjectTreeTest {
 		protected abstract Id<? super O> id();
 
 		@Parameter
-		protected abstract ChangableProperty<O, T> property();
+		protected abstract ModifiableProperty<O, T> property();
 
-		public static <O extends HasId<? super O>, T> InstanceAttribute<O, T> of(O instance, ChangableProperty<O, T> property) {
+		public static <O extends HasId<? super O>, T> InstanceAttribute<O, T> of(O instance, ModifiableProperty<O, T> property) {
 			return ImmutableInstanceAttribute.of(instance.id(), property);
 		}
 	}

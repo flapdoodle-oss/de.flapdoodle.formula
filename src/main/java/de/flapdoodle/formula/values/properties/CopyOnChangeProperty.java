@@ -7,7 +7,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 @Value.Immutable
-public abstract class CopyOnChangeProperty<O, T> implements ReadableProperty<O, T>, CopyOnWriteProperty<O, T> {
+public abstract class CopyOnChangeProperty<O, T> implements ReadableProperty<O, T>, ChangeableProperty<O, T> {
 	@Value.Parameter
 	protected abstract Class<O> type();
 
