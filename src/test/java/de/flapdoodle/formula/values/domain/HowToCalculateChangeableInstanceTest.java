@@ -16,57 +16,75 @@
  */
 package de.flapdoodle.formula.values.domain;
 
+import com.google.common.base.Preconditions;
 import de.flapdoodle.formula.Rules;
 import de.flapdoodle.formula.Value;
-import de.flapdoodle.formula.calculate.Calculate;
 import de.flapdoodle.formula.solver.GraphBuilder;
 import de.flapdoodle.formula.solver.GraphRenderer;
 import de.flapdoodle.formula.solver.Solver;
 import de.flapdoodle.formula.solver.ValueGraph;
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.types.Id;
-import de.flapdoodle.formula.types.Maybe;
-import de.flapdoodle.formula.values.Related;
-import de.flapdoodle.formula.values.properties.CopyOnChangeProperty;
-import de.flapdoodle.formula.values.properties.Properties;
-import de.flapdoodle.formula.values.properties.ReadOnlyProperty;
-import org.immutables.value.Value.Auxiliary;
-import org.immutables.value.Value.Default;
-import org.immutables.value.Value.Immutable;
+import de.flapdoodle.formula.types.TypeCounter;
+import de.flapdoodle.testdoc.Includes;
+import de.flapdoodle.testdoc.Recorder;
+import de.flapdoodle.testdoc.Recording;
+import de.flapdoodle.testdoc.TabSize;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static de.flapdoodle.formula.values.properties.Properties.copyOnChange;
-import static de.flapdoodle.formula.values.properties.Properties.readOnly;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HowToCalculateChangeableInstanceTest {
 
+	@RegisterExtension
+	public static Recording recording = Recorder.with("HowToCalculateChangeableInstanceTest.md", TabSize.spaces(2));
+
+
+	private Id.ClearTypeCounter clearTypeCounter;
+
+	@BeforeEach
+	void localTypeCounter() {
+		clearTypeCounter = Id.with(new TypeCounter());
+	}
+
+	@AfterEach
+	void clearStuff() {
+		Preconditions.checkNotNull(clearTypeCounter,"clearTypeCounter not set");
+		clearTypeCounter.close();
+	}
+
 	@Test
 	void sumOfItemsInCard() {
+		recording.include(Card.class, Includes.WithoutPackage, Includes.WithoutImports, Includes.Trim);
+		recording.include(Item.class, Includes.WithoutPackage, Includes.WithoutImports, Includes.Trim);
+		recording.include(CardValueLookup.class, Includes.WithoutPackage, Includes.WithoutImports, Includes.Trim);
+		
+		recording.begin("domainobject");
 		Card card = Card.builder()
 			.addItems(Item.builder().name("box").quantity(2).price(10.5).build())
 			.addItems(Item.builder().name("book").quantity(1).price(9.95).build())
 			.addItems(Item.builder().name("nail").quantity(10).price(2.55).build())
 			.build();
+		recording.end();
 
-		ValueGraph valueGraph = GraphBuilder.build(card.addRules(Rules.empty()));
+		recording.begin("graph");
+		ValueGraph valueGraph = GraphBuilder.build(card.addRulesTo(Rules.empty()));
+		recording.end();
 
-		String dot = GraphRenderer.renderGraphAsDot(valueGraph.graph(), valuesAsLabel());
-		System.out.println("-----------------------------");
-		System.out.println(dot);
-		System.out.println("-----------------------------");
+		String dot = GraphRenderer.renderGraphAsDot(valueGraph.graph(), HasHumanReadableLabel::asHumanReadable);
+		recording.output("graph.dot", dot);
 
+		recording.begin("solve");
 		Solver.Result result = Solver.solve(
 			valueGraph,
-			valueLookup(card)
+			new CardValueLookup(card)
 		);
+		recording.end();
 
+		recording.begin("change");
 		Card updated = card;
 
 		for (Value<?> id : result.validatedValues()) {
@@ -74,7 +92,9 @@ public class HowToCalculateChangeableInstanceTest {
 				updated = updated.change((ChangeableValue) id, result.get(id));
 			}
 		}
+		recording.end();
 
+		recording.begin("check");
 		assertThat(updated.items().get(0).sum()).isEqualTo(2 * 10.5);
 		assertThat(updated.items().get(0).isCheapest()).isFalse();
 
@@ -86,180 +106,6 @@ public class HowToCalculateChangeableInstanceTest {
 
 		assertThat(updated.sumWithoutTax())
 			.isEqualTo(2 * 10.5 + 9.95 + 10 * 2.55);
-	}
-	private Function<Value<?>, String> valuesAsLabel() {
-		return value -> {
-			if (value instanceof HasHumanReadableLabel) {
-				return ((HasHumanReadableLabel) value).asHumanReadable();
-			}
-			return value.toString();
-		};
-	}
-
-	private Solver.ValueLookup valueLookup(Card card) {
-		return new Solver.ValueLookup() {
-			@Override
-			public <T> @Nullable T get(de.flapdoodle.formula.Value<T> id) {
-				if (id instanceof ReadableValue) {
-					return card.findValue((ReadableValue<?, ? extends T>) id)
-						.getOrThrow(new IllegalArgumentException("not found: " + id));
-				}
-				throw new IllegalArgumentException("not implemented");
-			}
-		};
-	}
-
-	interface HasRules {
-		@Auxiliary
-		Rules addRules(Rules current);
-	}
-
-	@Immutable
-	public interface Card extends ChangeableInstance<Card>, HasRules {
-		CopyOnChangeProperty<Card, Double> sumWithoutTax = copyOnChange(Card.class, "sumWithoutTax", Card::sum,
-			(item, value) -> ImmutableCard.copyOf(item).withSumWithoutTax(value));
-
-		@Default
-		default Id<Card> id() {
-			return Id.idFor(Card.class);
-		}
-
-		List<Item> items();
-
-		@Nullable Double sumWithoutTax();
-
-		@Nullable Double tax();
-
-		@Nullable Double sum();
-
-		@Override
-		default <T> Card change(ChangeableValue<?, T> id, T value) {
-			if (id.id().equals(id())) {
-				return ((ChangeableValue<Card, T>) id).change(this, value);
-			}
-
-			return ImmutableCard.copyOf(this)
-				.withItems(items().stream()
-					.map(item -> item.change(id, value))
-					.collect(Collectors.toList()));
-		}
-
-		@Override
-		default <T> Maybe<T> findValue(ReadableValue<?, T> id) {
-			if (id.id().equals(id())) {
-				return Maybe.some(((ReadableValue<Card, T>) id).get(this));
-			}
-
-			for (Item item : items()) {
-				Maybe<T> result = item.findValue(id);
-				if (result.hasSome()) return result;
-			}
-
-			return Maybe.none();
-		}
-
-		@Override
-		@Auxiliary
-		default Rules addRules(Rules current) {
-			Related<Double, Id<Card>> min = Value.named("min", Double.class).relatedTo(id());
-			Related<Double, Id<Card>> max = Value.named("max", Double.class).relatedTo(id());
-
-			for (Item item : items()) {
-				current = item.addRules(current);
-				current = current.add(
-					Calculate.value(Item.isCheapestProperty.withId(item.id()))
-						.using(min, Item.sumProperty.withId(item.id()))
-						.by(Objects::equals)
-				);
-			}
-
-			List<CopyOnChangeValue<Item, Double>> itemSumIds = items().stream()
-				.map(item -> Item.sumProperty.withId(item.id()))
-				.collect(Collectors.toList());
-
-			return current
-				.add(Calculate
-					.value(Card.sumWithoutTax.withId(id()))
-					.aggregating(itemSumIds)
-					.by(list -> list.stream()
-						.filter(Objects::nonNull)
-						.mapToDouble(it -> it)
-						.sum()))
-				.add(Calculate
-					.value(min)
-					.aggregating(itemSumIds)
-					.by(list -> list.stream()
-						.filter(Objects::nonNull)
-						.mapToDouble(it -> it)
-						.min().orElse(0.0))
-				)
-				.add(Calculate
-					.value(max)
-					.aggregating(itemSumIds)
-					.by(list -> list.stream()
-						.filter(Objects::nonNull)
-						.mapToDouble(it -> it)
-						.max().orElse(0.0))
-				)
-				;
-		}
-
-		static ImmutableCard.Builder builder() {
-			return ImmutableCard.builder();
-		}
-	}
-
-	@Immutable
-	public interface Item extends ChangeableInstance<Item>, HasRules {
-		CopyOnChangeProperty<Item, Double> sumProperty = copyOnChange(Item.class, "sum", Item::sum, (item, value) -> ImmutableItem.copyOf(item).withSum(value));
-		ReadOnlyProperty<Item, Double> priceProperty = readOnly(Item.class, "price", Item::price);
-		ReadOnlyProperty<Item, Integer> quantityProperty = readOnly(Item.class, "quantity", Item::quantity);
-		CopyOnChangeProperty<Item, Boolean> isCheapestProperty = copyOnChange(Item.class, "isCheapest", Item::isCheapest, (item, value) -> ImmutableItem.copyOf(item).withIsCheapest(value));
-
-		@Default
-		@Override
-		default Id<Item> id() {
-			return Id.idFor(Item.class);
-		}
-
-		@Nullable String name();
-
-		@Nullable Integer quantity();
-
-		@Nullable Double price();
-
-		@Nullable Double sum();
-
-		@Nullable Boolean isCheapest();
-
-		@Override
-		default <T> Item change(ChangeableValue<?, T> id, T value) {
-			if (id.id().equals(id())) {
-				return ((ChangeableValue<Item, T>) id).change(this, value);
-			}
-			return this;
-		}
-
-		@Override
-		default <T> Maybe<T> findValue(ReadableValue<?, T> id) {
-			if (id.id().equals(id())) {
-				return Maybe.some(((ReadableValue<Item, T>) id).get(this));
-			}
-			return Maybe.none();
-		}
-
-		@Override
-		@Auxiliary
-		default Rules addRules(Rules current) {
-			return current
-				.add(Calculate
-					.value(Item.sumProperty.withId(id()))
-					.using(Item.priceProperty.withId(id()), Item.quantityProperty.withId(id()))
-					.by((price, count) -> (price != null && count != null) ? price * count : null));
-		}
-
-		static ImmutableItem.Builder builder() {
-			return ImmutableItem.builder();
-		}
+		recording.end();
 	}
 }

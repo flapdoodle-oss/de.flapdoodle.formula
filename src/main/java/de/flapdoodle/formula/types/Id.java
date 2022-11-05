@@ -47,9 +47,20 @@ public abstract class Id<O> implements HasHumanReadableLabel {
 		return type().getSimpleName()+"#"+count();
 	}
 	
-	private static Map<Class<?>, Integer> typeCounterMap = Maps.newConcurrentMap();
+	private static TypeCounter typeCounter = new TypeCounter();
+	private static ThreadLocal<TypeCounter> localTypeCounter = new InheritableThreadLocal<>();
 
 	public static <O> Id<O> idFor(Class<O> type) {
-		return ImmutableId.of(type, typeCounterMap.compute(type, (key, value) -> value != null ? value + 1 : 0));
+		TypeCounter currentCounter = localTypeCounter.get();
+		return ImmutableId.of(type, (currentCounter!=null ? currentCounter : typeCounter).count(type));
+	}
+
+	public static ClearTypeCounter with(TypeCounter typeCounter) {
+		localTypeCounter.set(typeCounter);
+		return () -> localTypeCounter.set(null);
+	}
+
+	public interface ClearTypeCounter extends AutoCloseable {
+		@Override void close();
 	}
 }
