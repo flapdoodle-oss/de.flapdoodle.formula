@@ -16,6 +16,7 @@
  */
 package de.flapdoodle.formula.values.domain;
 
+import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.types.Id;
 import de.flapdoodle.formula.values.properties.ReadOnlyProperty;
 import org.immutables.value.Value;
@@ -23,7 +24,7 @@ import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 
 @Immutable
-public abstract class ReadOnlyValue<O, T> implements ReadableValue<O, T> {
+public abstract class ReadOnlyValue<O, T> implements ReadableValue<O, T>, HasHumanReadableLabel {
 	@Parameter
 	public abstract Id<O> id();
 
@@ -34,6 +35,11 @@ public abstract class ReadOnlyValue<O, T> implements ReadableValue<O, T> {
 	@Value.Auxiliary
 	public T get(O instance) {
 		return property().get(instance);
+	}
+
+	@Override
+	public String asHumanReadable() {
+		return property().asHumanReadable()+" {"+id().asHumanReadable()+"}";
 	}
 
 	public static <O, T> ImmutableReadOnlyValue<O, T> of(Id<O> id, ReadOnlyProperty<O, T> property) {

@@ -16,18 +16,20 @@
  */
 package de.flapdoodle.formula.values;
 
+import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
-import org.immutables.value.Value;
+import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Parameter;
 
 import java.util.Optional;
 
-@Value.Immutable(builder = false)
-public abstract class Named<T> implements de.flapdoodle.formula.Value<T>, ValueSink<T>, ValueSource<T> {
-	@Value.Parameter
+@Immutable(builder = false)
+public abstract class Named<T> implements Value<T>, ValueSink<T>, ValueSource<T> {
+	@Parameter
 	protected abstract Optional<String> name();
 
-	@Value.Parameter
+	@Parameter
 	protected abstract Class<T> type();
 
 	public static <T> Named<T> ofType(Class<T> type) {

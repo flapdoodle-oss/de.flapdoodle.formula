@@ -16,18 +16,24 @@
  */
 package de.flapdoodle.formula.values.domain;
 
+import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.types.Id;
 import de.flapdoodle.formula.values.properties.CopyOnChangeProperty;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 
 @Immutable
-public abstract class CopyOnChangeValue<O, T> implements ChangeableValue<O, T> {
+public abstract class CopyOnChangeValue<O, T> implements ChangeableValue<O, T>, HasHumanReadableLabel {
 	@Parameter
 	public abstract Id<O> id();
 	@Parameter
 	protected abstract CopyOnChangeProperty<O, T> property();
 
+	@Override
+	public String asHumanReadable() {
+		return property().asHumanReadable()+" {"+id().asHumanReadable()+"}";
+	}
+	
 	@Override
 	public T get(O instance) {
 		return property().get(instance);

@@ -30,7 +30,6 @@ import de.flapdoodle.formula.validation.Validation;
 import de.flapdoodle.formula.validation.Validator;
 import de.flapdoodle.graph.Graphs;
 import de.flapdoodle.graph.VerticesAndEdges;
-import org.immutables.value.Value.Immutable;
 import org.jgrapht.graph.DefaultEdge;
 
 import javax.annotation.Nullable;

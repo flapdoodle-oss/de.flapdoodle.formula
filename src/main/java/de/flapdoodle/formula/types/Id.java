@@ -20,11 +20,10 @@ import com.google.common.collect.Maps;
 import org.immutables.value.Value;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 @Value.Immutable
-public abstract class Id<O> {
+public abstract class Id<O> implements HasHumanReadableLabel {
 	@Value.Parameter
 	protected abstract Class<O> type();
 
@@ -38,9 +37,16 @@ public abstract class Id<O> {
 			: Optional.empty();
 	}
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		return getClass().getSimpleName()+"{type="+type().getSimpleName()+", count="+count()+"}";
 	}
+
+	@Override
+	public String asHumanReadable() {
+		return type().getSimpleName()+"#"+count();
+	}
+	
 	private static Map<Class<?>, Integer> typeCounterMap = Maps.newConcurrentMap();
 
 	public static <O> Id<O> idFor(Class<O> type) {

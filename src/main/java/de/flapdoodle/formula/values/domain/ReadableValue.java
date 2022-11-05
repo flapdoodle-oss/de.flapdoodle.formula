@@ -18,7 +18,6 @@ package de.flapdoodle.formula.values.domain;
 
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSource;
-import de.flapdoodle.formula.types.Maybe;
 import org.immutables.value.Value.Auxiliary;
 
 public interface ReadableValue<O, T> extends Value<T>, ValueSource<T>, HasId<O> {

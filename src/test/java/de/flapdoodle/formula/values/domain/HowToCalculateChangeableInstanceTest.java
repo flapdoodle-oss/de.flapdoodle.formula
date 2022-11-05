@@ -20,9 +20,13 @@ import de.flapdoodle.formula.Rules;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.calculate.Calculate;
 import de.flapdoodle.formula.solver.GraphBuilder;
+import de.flapdoodle.formula.solver.GraphRenderer;
 import de.flapdoodle.formula.solver.Solver;
+import de.flapdoodle.formula.solver.ValueGraph;
+import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.types.Id;
 import de.flapdoodle.formula.types.Maybe;
+import de.flapdoodle.formula.values.Related;
 import de.flapdoodle.formula.values.properties.CopyOnChangeProperty;
 import de.flapdoodle.formula.values.properties.Properties;
 import de.flapdoodle.formula.values.properties.ReadOnlyProperty;
@@ -34,6 +38,7 @@ import org.junit.jupiter.api.Test;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static de.flapdoodle.formula.values.properties.Properties.copyOnChange;
@@ -50,8 +55,15 @@ public class HowToCalculateChangeableInstanceTest {
 			.addItems(Item.builder().name("nail").quantity(10).price(2.55).build())
 			.build();
 
+		ValueGraph valueGraph = GraphBuilder.build(card.addRules(Rules.empty()));
+
+		String dot = GraphRenderer.renderGraphAsDot(valueGraph.graph(), valuesAsLabel());
+		System.out.println("-----------------------------");
+		System.out.println(dot);
+		System.out.println("-----------------------------");
+
 		Solver.Result result = Solver.solve(
-			GraphBuilder.build(card.addRules(Rules.empty())),
+			valueGraph,
 			valueLookup(card)
 		);
 
@@ -63,15 +75,25 @@ public class HowToCalculateChangeableInstanceTest {
 			}
 		}
 
-		assertThat(updated.items().get(0).sum())
-			.isEqualTo(2 * 10.5);
-		assertThat(updated.items().get(1).sum())
-			.isEqualTo(1 * 9.95);
-		assertThat(updated.items().get(2).sum())
-			.isEqualTo(10 * 2.55);
+		assertThat(updated.items().get(0).sum()).isEqualTo(2 * 10.5);
+		assertThat(updated.items().get(0).isCheapest()).isFalse();
+
+		assertThat(updated.items().get(1).sum()).isEqualTo(1 * 9.95);
+		assertThat(updated.items().get(1).isCheapest()).isTrue();
+
+		assertThat(updated.items().get(2).sum()).isEqualTo(10 * 2.55);
+		assertThat(updated.items().get(2).isCheapest()).isFalse();
 
 		assertThat(updated.sumWithoutTax())
 			.isEqualTo(2 * 10.5 + 9.95 + 10 * 2.55);
+	}
+	private Function<Value<?>, String> valuesAsLabel() {
+		return value -> {
+			if (value instanceof HasHumanReadableLabel) {
+				return ((HasHumanReadableLabel) value).asHumanReadable();
+			}
+			return value.toString();
+		};
 	}
 
 	private Solver.ValueLookup valueLookup(Card card) {
@@ -139,20 +161,46 @@ public class HowToCalculateChangeableInstanceTest {
 		@Override
 		@Auxiliary
 		default Rules addRules(Rules current) {
+			Related<Double, Id<Card>> min = Value.named("min", Double.class).relatedTo(id());
+			Related<Double, Id<Card>> max = Value.named("max", Double.class).relatedTo(id());
+
 			for (Item item : items()) {
 				current = item.addRules(current);
+				current = current.add(
+					Calculate.value(Item.isCheapestProperty.withId(item.id()))
+						.using(min, Item.sumProperty.withId(item.id()))
+						.by(Objects::equals)
+				);
 			}
+
+			List<CopyOnChangeValue<Item, Double>> itemSumIds = items().stream()
+				.map(item -> Item.sumProperty.withId(item.id()))
+				.collect(Collectors.toList());
 
 			return current
 				.add(Calculate
 					.value(Card.sumWithoutTax.withId(id()))
-					.aggregating(items().stream()
-						.map(item -> Item.sumProperty.withId(item.id()))
-						.collect(Collectors.toList()))
+					.aggregating(itemSumIds)
 					.by(list -> list.stream()
 						.filter(Objects::nonNull)
 						.mapToDouble(it -> it)
 						.sum()))
+				.add(Calculate
+					.value(min)
+					.aggregating(itemSumIds)
+					.by(list -> list.stream()
+						.filter(Objects::nonNull)
+						.mapToDouble(it -> it)
+						.min().orElse(0.0))
+				)
+				.add(Calculate
+					.value(max)
+					.aggregating(itemSumIds)
+					.by(list -> list.stream()
+						.filter(Objects::nonNull)
+						.mapToDouble(it -> it)
+						.max().orElse(0.0))
+				)
 				;
 		}
 
@@ -166,6 +214,7 @@ public class HowToCalculateChangeableInstanceTest {
 		CopyOnChangeProperty<Item, Double> sumProperty = copyOnChange(Item.class, "sum", Item::sum, (item, value) -> ImmutableItem.copyOf(item).withSum(value));
 		ReadOnlyProperty<Item, Double> priceProperty = readOnly(Item.class, "price", Item::price);
 		ReadOnlyProperty<Item, Integer> quantityProperty = readOnly(Item.class, "quantity", Item::quantity);
+		CopyOnChangeProperty<Item, Boolean> isCheapestProperty = copyOnChange(Item.class, "isCheapest", Item::isCheapest, (item, value) -> ImmutableItem.copyOf(item).withIsCheapest(value));
 
 		@Default
 		@Override

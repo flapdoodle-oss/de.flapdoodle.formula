@@ -17,8 +17,13 @@
 package de.flapdoodle.formula;
 
 import de.flapdoodle.formula.values.Named;
+import de.flapdoodle.formula.values.Related;
 
 public interface Value<T> {
+
+	default <B> Related<T, B> relatedTo(B base) {
+		return Related.to(this, base);
+	}
 
 	static <T> Named<T> ofType(Class<T> type) {
 		return Named.ofType(type);

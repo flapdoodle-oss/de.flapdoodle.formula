@@ -17,17 +17,16 @@
 package de.flapdoodle.formula.values.properties;
 
 import com.google.common.base.Preconditions;
+import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.types.Id;
-import de.flapdoodle.formula.values.domain.HasId;
-import de.flapdoodle.formula.values.matcher.CopyOnChangeValue;
-import de.flapdoodle.formula.values.matcher.Matcher;
+import de.flapdoodle.formula.values.domain.CopyOnChangeValue;
 import org.immutables.value.Value;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 @Value.Immutable
-public abstract class CopyOnChangeProperty<O, T> implements IsReadable<O, T>, IsChangeable<O, T> {
+public abstract class CopyOnChangeProperty<O, T> implements IsReadable<O, T>, IsChangeable<O, T>, HasHumanReadableLabel {
 	@Value.Parameter
 	protected abstract Class<O> type();
 
@@ -44,6 +43,11 @@ public abstract class CopyOnChangeProperty<O, T> implements IsReadable<O, T>, Is
 	public String toString() {
 		return getClass().getSimpleName()+"{"+type().getSimpleName()+"."+name()+"}";
 	}
+
+	@Override public String asHumanReadable() {
+		return type().getSimpleName()+"."+name()+"#rw";
+	}
+	
 	@Override
 	@Value.Auxiliary
 	public T get(O instance) {
@@ -58,13 +62,8 @@ public abstract class CopyOnChangeProperty<O, T> implements IsReadable<O, T>, Is
 		return copyOnWrite().apply(instance, value);
 	}
 
-	@Value.Auxiliary
-	public CopyOnChangeValue<O, T> matching(Matcher<O> matcher) {
-		return CopyOnChangeValue.of(matcher, this);
-	}
-
-	public de.flapdoodle.formula.values.domain.CopyOnChangeValue<O, T> withId(Id<O> id) {
-		return de.flapdoodle.formula.values.domain.CopyOnChangeValue.of(id, this);
+	public CopyOnChangeValue<O, T> withId(Id<O> id) {
+		return CopyOnChangeValue.of(id, this);
 	}
 
 	public static <O, T> ImmutableCopyOnChangeProperty<O,T> of(Class<O> type, String name, Function<O, T> getter, BiFunction<O, T, O> copyOnWrite) {

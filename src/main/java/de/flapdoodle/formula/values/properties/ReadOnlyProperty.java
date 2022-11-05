@@ -17,15 +17,15 @@
 package de.flapdoodle.formula.values.properties;
 
 import com.google.common.base.Preconditions;
+import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.types.Id;
-import de.flapdoodle.formula.values.matcher.Matcher;
-import de.flapdoodle.formula.values.matcher.ReadOnlyValue;
+import de.flapdoodle.formula.values.domain.ReadOnlyValue;
 import org.immutables.value.Value;
 
 import java.util.function.Function;
 
 @Value.Immutable
-public abstract class ReadOnlyProperty<O, T> implements IsReadable<O, T> {
+public abstract class ReadOnlyProperty<O, T> implements IsReadable<O, T>, HasHumanReadableLabel {
 	@Value.Parameter
 	protected abstract Class<O> type();
 
@@ -35,10 +35,16 @@ public abstract class ReadOnlyProperty<O, T> implements IsReadable<O, T> {
 	@Value.Parameter
 	protected abstract Function<O, T> getter();
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		return getClass().getSimpleName()+"{"+type().getSimpleName()+"."+name()+"}";
 	}
 
+	@Override
+	public String asHumanReadable() {
+		return type().getSimpleName()+"."+name()+"()";
+	}
+	
 	@Override
 	@Value.Auxiliary
 	public T get(O instance) {
@@ -46,13 +52,8 @@ public abstract class ReadOnlyProperty<O, T> implements IsReadable<O, T> {
 		return getter().apply(instance);
 	}
 
-	@Value.Auxiliary
-	public ReadOnlyValue<O, T> matching(Matcher<O> matcher) {
-		return ReadOnlyValue.of(matcher, this);
-	}
-
-	public de.flapdoodle.formula.values.domain.ReadOnlyValue<O, T> withId(Id<O> id) {
-		return de.flapdoodle.formula.values.domain.ReadOnlyValue.of(id, this);
+	public ReadOnlyValue<O, T> withId(Id<O> id) {
+		return ReadOnlyValue.of(id, this);
 	}
 
 	public static <O, T> ImmutableReadOnlyProperty<O,T> of(Class<O> type, String name, Function<O, T> getter) {
