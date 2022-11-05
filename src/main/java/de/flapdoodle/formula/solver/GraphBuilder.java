@@ -63,7 +63,7 @@ public abstract class GraphBuilder {
 				.flatMap(it -> it.sources().stream()),
 			validations.values().stream()
 				.flatMap(it -> it.sources().stream())
-		).collect(Collectors.toSet());
+		).collect(ImmutableSet.toImmutableSet());
 
 		ImmutableSet<Value<?>> validatedOrCalculated = ImmutableSet.<Value<?>>builder()
 			.addAll(calculations.keys())

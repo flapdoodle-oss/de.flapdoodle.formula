@@ -217,12 +217,12 @@ String dot = GraphRenderer.renderGraphAsDot(valueGraph.graph(), HasHumanReadable
 digraph "calculation" {
 	rankdir=LR;
 
-	"id0"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.quantity() {Item#2}" ];
-	"id1"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.price() {Item#2}" ];
+	"id0"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.price() {Item#0}" ];
+	"id1"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.quantity() {Item#0}" ];
 	"id2"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.price() {Item#1}" ];
-	"id3"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.price() {Item#0}" ];
-	"id4"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.quantity() {Item#1}" ];
-	"id5"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.quantity() {Item#0}" ];
+	"id3"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.quantity() {Item#1}" ];
+	"id4"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.price() {Item#2}" ];
+	"id5"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.quantity() {Item#2}" ];
 	"id6"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.sum#rw {Item#0}" ];
 	"id7"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.isCheapest#rw {Item#0}" ];
 	"id8"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Named{name=min, type=class java.lang.Double}->Cart#0" ];
@@ -233,16 +233,16 @@ digraph "calculation" {
 	"id13"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Cart.sumWithoutTax#rw {Cart#0}" ];
 	"id14"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Named{name=max, type=class java.lang.Double}->Cart#0" ];
 
-	"id3" -> "id6";
-	"id5" -> "id6";
+	"id0" -> "id6";
+	"id1" -> "id6";
 	"id8" -> "id7";
 	"id6" -> "id7";
 	"id2" -> "id9";
-	"id4" -> "id9";
+	"id3" -> "id9";
 	"id8" -> "id10";
 	"id9" -> "id10";
-	"id1" -> "id11";
-	"id0" -> "id11";
+	"id4" -> "id11";
+	"id5" -> "id11";
 	"id8" -> "id12";
 	"id11" -> "id12";
 	"id6" -> "id13";
