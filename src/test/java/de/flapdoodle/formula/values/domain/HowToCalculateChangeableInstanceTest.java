@@ -16,6 +16,7 @@
  */
 package de.flapdoodle.formula.values.domain;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import de.flapdoodle.formula.Rules;
 import de.flapdoodle.formula.Value;
@@ -57,13 +58,14 @@ public class HowToCalculateChangeableInstanceTest {
 	}
 
 	@Test
-	void sumOfItemsInCard() {
-		recording.include(Card.class, Includes.WithoutPackage, Includes.WithoutImports, Includes.Trim);
+	void sumOfItemsInCart() {
+		recording.include(Value.class, Includes.WithoutPackage, Includes.WithoutImports, Includes.Trim);
+		recording.include(Cart.class, Includes.WithoutPackage, Includes.WithoutImports, Includes.Trim);
 		recording.include(Item.class, Includes.WithoutPackage, Includes.WithoutImports, Includes.Trim);
-		recording.include(CardValueLookup.class, Includes.WithoutPackage, Includes.WithoutImports, Includes.Trim);
+		recording.include(CartValueLookup.class, Includes.WithoutPackage, Includes.WithoutImports, Includes.Trim);
 		
 		recording.begin("domainobject");
-		Card card = Card.builder()
+		Cart cart = Cart.builder()
 			.addItems(Item.builder().name("box").quantity(2).price(10.5).build())
 			.addItems(Item.builder().name("book").quantity(1).price(9.95).build())
 			.addItems(Item.builder().name("nail").quantity(10).price(2.55).build())
@@ -71,21 +73,23 @@ public class HowToCalculateChangeableInstanceTest {
 		recording.end();
 
 		recording.begin("graph");
-		ValueGraph valueGraph = GraphBuilder.build(card.addRulesTo(Rules.empty()));
+		ValueGraph valueGraph = GraphBuilder.build(cart.addRulesTo(Rules.empty()));
 		recording.end();
 
+		recording.begin("render");
 		String dot = GraphRenderer.renderGraphAsDot(valueGraph.graph(), HasHumanReadableLabel::asHumanReadable);
-		recording.output("graph.dot", dot);
+		recording.end();
+		recording.output("render.dot", dot);
 
 		recording.begin("solve");
 		Solver.Result result = Solver.solve(
 			valueGraph,
-			new CardValueLookup(card)
+			new CartValueLookup(cart)
 		);
 		recording.end();
 
 		recording.begin("change");
-		Card updated = card;
+		Cart updated = cart;
 
 		for (Value<?> id : result.validatedValues()) {
 			if (id instanceof ChangeableValue) {

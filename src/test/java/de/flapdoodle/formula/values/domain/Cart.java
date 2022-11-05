@@ -32,13 +32,13 @@ import java.util.stream.Collectors;
 import static de.flapdoodle.formula.values.properties.Properties.copyOnChange;
 
 @Value.Immutable
-public interface Card extends ChangeableInstance<Card>, HasRules {
-	CopyOnChangeProperty<Card, Double> sumWithoutTax = copyOnChange(Card.class, "sumWithoutTax", Card::sum,
-		(item, value) -> ImmutableCard.copyOf(item).withSumWithoutTax(value));
+public interface Cart extends ChangeableInstance<Cart>, HasRules {
+	CopyOnChangeProperty<Cart, Double> sumWithoutTax = copyOnChange(Cart.class, "sumWithoutTax", Cart::sum,
+		(item, value) -> ImmutableCart.copyOf(item).withSumWithoutTax(value));
 
 	@Value.Default
-	default Id<Card> id() {
-		return Id.idFor(Card.class);
+	default Id<Cart> id() {
+		return Id.idFor(Cart.class);
 	}
 
 	List<Item> items();
@@ -50,12 +50,12 @@ public interface Card extends ChangeableInstance<Card>, HasRules {
 	@Nullable Double sum();
 
 	@Override
-	default <T> Card change(ChangeableValue<?, T> id, T value) {
+	default <T> Cart change(ChangeableValue<?, T> id, T value) {
 		if (id.id().equals(id())) {
-			return ((ChangeableValue<Card, T>) id).change(this, value);
+			return ((ChangeableValue<Cart, T>) id).change(this, value);
 		}
 
-		return ImmutableCard.copyOf(this)
+		return ImmutableCart.copyOf(this)
 			.withItems(items().stream()
 				.map(item -> item.change(id, value))
 				.collect(Collectors.toList()));
@@ -64,7 +64,7 @@ public interface Card extends ChangeableInstance<Card>, HasRules {
 	@Override
 	default <T> Maybe<T> findValue(ReadableValue<?, T> id) {
 		if (id.id().equals(id())) {
-			return Maybe.some(((ReadableValue<Card, T>) id).get(this));
+			return Maybe.some(((ReadableValue<Cart, T>) id).get(this));
 		}
 
 		for (Item item : items()) {
@@ -78,8 +78,8 @@ public interface Card extends ChangeableInstance<Card>, HasRules {
 	@Override
 	@Value.Auxiliary
 	default Rules addRulesTo(Rules current) {
-		Related<Double, Id<Card>> min = de.flapdoodle.formula.Value.named("min", Double.class).relatedTo(id());
-		Related<Double, Id<Card>> max = de.flapdoodle.formula.Value.named("max", Double.class).relatedTo(id());
+		Related<Double, Id<Cart>> min = de.flapdoodle.formula.Value.named("min", Double.class).relatedTo(id());
+		Related<Double, Id<Cart>> max = de.flapdoodle.formula.Value.named("max", Double.class).relatedTo(id());
 
 		for (Item item : items()) {
 			current = item.addRulesTo(current);
@@ -96,7 +96,7 @@ public interface Card extends ChangeableInstance<Card>, HasRules {
 
 		return current
 			.add(Calculate
-				.value(Card.sumWithoutTax.withId(id()))
+				.value(Cart.sumWithoutTax.withId(id()))
 				.aggregating(itemSumIds)
 				.by(list -> list.stream()
 					.filter(Objects::nonNull)
@@ -121,7 +121,7 @@ public interface Card extends ChangeableInstance<Card>, HasRules {
 			;
 	}
 
-	static ImmutableCard.Builder builder() {
-		return ImmutableCard.builder();
+	static ImmutableCart.Builder builder() {
+		return ImmutableCart.builder();
 	}
 }

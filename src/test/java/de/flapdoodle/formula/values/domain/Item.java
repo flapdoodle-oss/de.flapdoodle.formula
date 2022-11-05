@@ -34,8 +34,7 @@ public interface Item extends ChangeableInstance<Item>, HasRules {
 	CopyOnChangeProperty<Item, Double> sumProperty = copyOnChange(Item.class, "sum", Item::sum, (item, value) -> ImmutableItem.copyOf(item).withSum(value));
 	ReadOnlyProperty<Item, Double> priceProperty = readOnly(Item.class, "price", Item::price);
 	ReadOnlyProperty<Item, Integer> quantityProperty = readOnly(Item.class, "quantity", Item::quantity);
-	CopyOnChangeProperty<Item, Boolean> isCheapestProperty = copyOnChange(Item.class, "isCheapest", Item::isCheapest,
-		(item, value) -> ImmutableItem.copyOf(item).withIsCheapest(value));
+	CopyOnChangeProperty<Item, Boolean> isCheapestProperty = copyOnChange(Item.class, "isCheapest", Item::isCheapest, (item, value) -> ImmutableItem.copyOf(item).withIsCheapest(value));
 
 	@Value.Default
 	@Override
