@@ -1,4 +1,4 @@
-# How to execute calculations on immutable object trees
+# How to execute Calculations on Immutable Object Trees
 
 If you want to so some calculations in object trees, things can get messy. To make things easier, we can use a graph to
 determine where to start and how to propagate further, we separate calculation and procurement and mix even validation
@@ -26,7 +26,7 @@ In this sample we use an immutable shopping cart which we change with the calcul
 
 As this stuff should run on java 8, we use [immutables.org](http://immutables.org) instead of Lombok or java records.
 
-## Lets create a shopping cart                                                                                              
+## Let's create a Shopping Cart                                                                                              
 
 We need an item class, which stores properties like `quantity` and `price`.
 
@@ -260,7 +260,7 @@ digraph "calculation" {
 
 ![Calculation as Graph](HowToCalculateChangeableInstanceTest.png)                     
 
-## Do the math                     
+## Do the Math                     
 
 We still need some glue code to get the values from the current shopping cart:
 
@@ -304,7 +304,7 @@ for (Value<?> id : result.validatedValues()) {
 }
 ```
 
-## Trust is good, control is better
+## Trust is good, Control is better
 
 As this documentation is generated from a running test, we can prove that
 all calculations are done the right way:

@@ -18,5 +18,5 @@ Snapshots (Repository http://oss.sonatype.org/content/repositories/snapshots)
 		<version>1.0.1-SNAPSHOT</version>
 	</dependency>
 
-### [HowTo](HowToCalculateChangeableInstanceTest.md)
+### [Calculations on Immutable Object Trees](HowToCalculateChangeableInstanceTest.md)
 
