@@ -258,7 +258,9 @@ digraph "calculation" {
 
 ```
 
-![Calculation as Graph](HowToCalculateChangeableInstanceTest.png)                     
+![Calculation as Graph](HowToCalculateChangeableInstanceTest.png)
+
+![Calculation as Graph - clustered](HowToCalculateChangeableInstanceTest-cluster.png)
 
 ## Do the Math                     
 

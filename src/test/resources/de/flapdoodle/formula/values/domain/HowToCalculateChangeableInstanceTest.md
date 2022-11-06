@@ -55,7 +55,9 @@ ${sumOfItemsInCart.render}
 ${sumOfItemsInCart.render.dot}
 ```
 
-![Calculation as Graph](HowToCalculateChangeableInstanceTest.png)                     
+![Calculation as Graph](HowToCalculateChangeableInstanceTest.png)
+
+![Calculation as Graph - clustered](HowToCalculateChangeableInstanceTest-cluster.png)
 
 ## Do the Math                     
 

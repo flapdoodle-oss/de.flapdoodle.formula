@@ -1,0 +1,94 @@
+digraph "calculation" {
+	rankdir=LR;
+	nodesep=0.5;
+//  margin="15.5,15.5"
+	//ranksep="1.2 equally";
+	splines=ortho;
+	 	
+	subgraph items {
+    color=black;
+    label = "Items";
+    cluster=true;	
+		
+		subgraph item_0 {
+		  style=filled;
+		  color=lightgrey;
+		  node [style=filled,color=white];
+		  label = "Item#0";
+	    cluster=true;	
+		  
+			"id1"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.quantity() {Item#0}" ];
+			"id3"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.price() {Item#0}" ];
+			"id6"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.sum#rw {Item#0}" ];		
+			"id7"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.isCheapest#rw {Item#0}" ];
+			
+			"id1" -> "id6";
+			"id3" -> "id6";
+			"id6" -> "id7";
+		}
+	
+		subgraph item_1 {
+		  style=filled;
+		  color=lightgrey;
+		  node [style=filled,color=white];
+		  label = "Item#1";
+	    cluster=true;	
+		  
+			"id0"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.quantity() {Item#1}" ];
+			"id4"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.price() {Item#1}" ];
+			"id9"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.sum#rw {Item#1}" ];
+			"id10"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.isCheapest#rw {Item#1}" ];
+		
+			"id4" -> "id9";
+			"id0" -> "id9";
+			"id9" -> "id10";
+		}
+		
+		subgraph item_2 {
+		  style=filled;
+		  color=lightgrey;
+		  node [style=filled,color=white];
+		  label = "Item#2";
+	    cluster=true;	
+		  
+			"id2"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.quantity() {Item#2}" ];
+			"id5"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.price() {Item#2}" ];
+			"id11"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.sum#rw {Item#2}" ];
+			"id12"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.isCheapest#rw {Item#2}" ];
+		
+			"id5" -> "id11";
+			"id2" -> "id11";
+			"id11" -> "id12";
+		}
+			
+	}
+  
+  subgraph cluster_3 {
+    style=filled;
+    color=lightgrey;
+    node [style=filled,color=white];
+    label = "Card#0";
+
+		"id8"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Named{name=min, type=class java.lang.Double}->Card#0" ];
+		"id13"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Card.sumWithoutTax#rw {Card#0}" ];
+		"id14"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Named{name=max, type=class java.lang.Double}->Card#0" ];
+		
+		"id8" -> "id7";
+		"id8" -> "id10";
+		"id8" -> "id12";
+  }
+	
+
+	"id6" -> "id13";
+	"id9" -> "id13";
+	"id11" -> "id13";
+
+	"id6" -> "id8";
+	"id9" -> "id8";
+	"id11" -> "id8";
+	
+	"id6" -> "id14";
+	"id9" -> "id14";
+	"id11" -> "id14";
+}
+
