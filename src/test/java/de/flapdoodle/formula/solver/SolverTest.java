@@ -45,7 +45,7 @@ class SolverTest {
 		domainObject.setA(1);
 		domainObject.setB(2);
 
-		ValueGraph valueGraph = GraphBuilder.build(Rules.empty()
+		ValueGraph valueGraph = ValueDependencyGraphBuilder.build(Rules.empty()
 			.add(
 				Calculate.value(sumValue)
 					.using(aProperty, bProperty)
@@ -74,7 +74,7 @@ class SolverTest {
 		domainObject.setA(1);
 		domainObject.setB(2);
 
-		ValueGraph valueGraph = GraphBuilder.build(Rules.empty()
+		ValueGraph valueGraph = ValueDependencyGraphBuilder.build(Rules.empty()
 			.add(
 				Calculate.value(sumValue)
 					.using(aProperty, bProperty)
@@ -108,7 +108,7 @@ class SolverTest {
 		domainObject.setA(1);
 		domainObject.setB(2);
 
-		ValueGraph valueGraph = GraphBuilder.build(Rules.empty()
+		ValueGraph valueGraph = ValueDependencyGraphBuilder.build(Rules.empty()
 			.add(
 				Calculate.value(sumValue)
 					.using(aProperty, bProperty)
@@ -145,7 +145,7 @@ class SolverTest {
 		domainObject.setA(7);
 		domainObject.setB(4);
 
-		ValueGraph valueGraph = GraphBuilder.build(Rules.empty()
+		ValueGraph valueGraph = ValueDependencyGraphBuilder.build(Rules.empty()
 			.add(
 				Calculate.value(sumValue)
 					.using(aProperty, bProperty)

@@ -16,11 +16,11 @@
  */
 package de.flapdoodle.formula.values.domain;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import de.flapdoodle.formula.Rules;
 import de.flapdoodle.formula.Value;
-import de.flapdoodle.formula.solver.GraphBuilder;
+import de.flapdoodle.formula.explain.RuleDependencyGraph;
+import de.flapdoodle.formula.solver.ValueDependencyGraphBuilder;
 import de.flapdoodle.formula.solver.GraphRenderer;
 import de.flapdoodle.formula.solver.Solver;
 import de.flapdoodle.formula.solver.ValueGraph;
@@ -73,13 +73,19 @@ public class HowToCalculateChangeableInstanceTest {
 		recording.end();
 
 		recording.begin("graph");
-		ValueGraph valueGraph = GraphBuilder.build(cart.addRulesTo(Rules.empty()));
+		Rules rules = cart.addRulesTo(Rules.empty());
+		ValueGraph valueGraph = ValueDependencyGraphBuilder.build(rules);
 		recording.end();
 
 		recording.begin("render");
 		String dot = GraphRenderer.renderGraphAsDot(valueGraph.graph(), HasHumanReadableLabel::asHumanReadable);
 		recording.end();
 		recording.output("render.dot", dot);
+
+		recording.begin("explain");
+		String explainDot = RuleDependencyGraph.explain(rules);
+		recording.end();
+		recording.output("explain.dot", explainDot);
 
 		recording.begin("solve");
 		Solver.Result result = Solver.solve(

@@ -77,7 +77,7 @@ public interface Item extends ChangeableInstance<Item>, HasRules {
       .add(Calculate
         .value(Item.sumProperty.withId(id()))
         .using(Item.priceProperty.withId(id()), Item.quantityProperty.withId(id()))
-        .by((price, count) -> (price != null && count != null) ? price * count : null));
+        .by(Calculations.explained((price, quantity) -> (price != null && quantity != null) ? price * quantity : null,"price*quantity")));
   }
 
   static ImmutableItem.Builder builder() {
@@ -146,7 +146,7 @@ public interface Cart extends ChangeableInstance<Cart>, HasRules {
       current = current.add(
         Calculate.value(Item.isCheapestProperty.withId(item.id()))
           .using(min, Item.sumProperty.withId(item.id()))
-          .by(Objects::equals)
+          .by(Calculations.explained(Objects::equals,"min==sum"))
       );
     }
 
@@ -158,25 +158,25 @@ public interface Cart extends ChangeableInstance<Cart>, HasRules {
       .add(Calculate
         .value(Cart.sumWithoutTax.withId(id()))
         .aggregating(itemSumIds)
-        .by(list -> list.stream()
+        .by(Calculations.explained(list -> list.stream()
           .filter(Objects::nonNull)
           .mapToDouble(it -> it)
-          .sum()))
+          .sum(),"sum(...)")))
       .add(Calculate
         .value(min)
         .aggregating(itemSumIds)
-        .by(list -> list.stream()
+        .by(Calculations.explained(list -> list.stream()
           .filter(Objects::nonNull)
           .mapToDouble(it -> it)
-          .min().orElse(0.0))
+          .min().orElse(0.0),"min"))
       )
       .add(Calculate
         .value(max)
         .aggregating(itemSumIds)
-        .by(list -> list.stream()
+        .by(Calculations.explained(list -> list.stream()
           .filter(Objects::nonNull)
           .mapToDouble(it -> it)
-          .max().orElse(0.0))
+          .max().orElse(0.0),"max"))
       )
       ;
   }
@@ -202,7 +202,8 @@ With this sample data we can create all rules, as you can see in the `addRulesTo
 which should not change if we change any value. With all rules we can create a graph from it:
 
 ```java
-ValueGraph valueGraph = GraphBuilder.build(cart.addRulesTo(Rules.empty()));
+Rules rules = cart.addRulesTo(Rules.empty());
+ValueGraph valueGraph = ValueDependencyGraphBuilder.build(rules);
 ```
                                                                                           
 If a graph can be build, you can render it as a [graphviz/dot](https://graphviz.org/doc/info/lang.html) graph:
@@ -261,6 +262,79 @@ digraph "calculation" {
 ![Calculation as Graph](HowToCalculateChangeableInstanceTest.png)
 
 ![Calculation as Graph - clustered](HowToCalculateChangeableInstanceTest-cluster.png)
+
+Or you can render a more detailed graph:
+
+```java
+String explainDot = RuleDependencyGraph.explain(rules);
+```
+
+.. which results in:
+
+```text
+digraph "rules" {
+	rankdir=LR;
+
+	"id0"[ fillcolor="gray81", style="filled", shape="rectangle", label="Item.price() {Item#0}" ];
+	"id1"[ fillcolor="gray81", style="filled", shape="rectangle", label="Item.quantity() {Item#0}" ];
+	"id2"[ fillcolor="gray81", style="filled", shape="rectangle", label="Item.price() {Item#1}" ];
+	"id3"[ fillcolor="gray81", style="filled", shape="rectangle", label="Item.quantity() {Item#1}" ];
+	"id4"[ fillcolor="gray81", style="filled", shape="rectangle", label="Item.price() {Item#2}" ];
+	"id5"[ fillcolor="gray81", style="filled", shape="rectangle", label="Item.quantity() {Item#2}" ];
+	"id6"[ fillcolor="gray81", style="filled", shape="rectangle", label="Item.sum#rw {Item#0}" ];
+	"id7"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="price*quantity" ];
+	"id8"[ fillcolor="gray81", style="filled", shape="rectangle", label="Item.isCheapest#rw {Item#0}" ];
+	"id9"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="min==sum" ];
+	"id10"[ fillcolor="gray81", style="filled", shape="rectangle", label="Named{name=min, type=class java.lang.Double}->Cart#0" ];
+	"id11"[ fillcolor="gray81", style="filled", shape="rectangle", label="Item.sum#rw {Item#1}" ];
+	"id12"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="price*quantity" ];
+	"id13"[ fillcolor="gray81", style="filled", shape="rectangle", label="Item.isCheapest#rw {Item#1}" ];
+	"id14"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="min==sum" ];
+	"id15"[ fillcolor="gray81", style="filled", shape="rectangle", label="Item.sum#rw {Item#2}" ];
+	"id16"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="price*quantity" ];
+	"id17"[ fillcolor="gray81", style="filled", shape="rectangle", label="Item.isCheapest#rw {Item#2}" ];
+	"id18"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="min==sum" ];
+	"id19"[ fillcolor="gray81", style="filled", shape="rectangle", label="Cart.sumWithoutTax#rw {Cart#0}" ];
+	"id20"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="sum(...)" ];
+	"id21"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="min" ];
+	"id22"[ fillcolor="gray81", style="filled", shape="rectangle", label="Named{name=max, type=class java.lang.Double}->Cart#0" ];
+	"id23"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="max" ];
+
+	"id7" -> "id6";
+	"id0" -> "id7";
+	"id1" -> "id7";
+	"id9" -> "id8";
+	"id10" -> "id9";
+	"id6" -> "id9";
+	"id12" -> "id11";
+	"id2" -> "id12";
+	"id3" -> "id12";
+	"id14" -> "id13";
+	"id10" -> "id14";
+	"id11" -> "id14";
+	"id16" -> "id15";
+	"id4" -> "id16";
+	"id5" -> "id16";
+	"id18" -> "id17";
+	"id10" -> "id18";
+	"id15" -> "id18";
+	"id20" -> "id19";
+	"id6" -> "id20";
+	"id11" -> "id20";
+	"id15" -> "id20";
+	"id21" -> "id10";
+	"id6" -> "id21";
+	"id11" -> "id21";
+	"id15" -> "id21";
+	"id23" -> "id22";
+	"id6" -> "id23";
+	"id11" -> "id23";
+	"id15" -> "id23";
+}
+
+```
+
+![Calculation as Graph - explained](HowToCalculateChangeableInstanceTest-explained.png)
 
 ## Do the Math                     
 

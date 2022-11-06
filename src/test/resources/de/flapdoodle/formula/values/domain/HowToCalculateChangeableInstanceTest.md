@@ -59,6 +59,20 @@ ${sumOfItemsInCart.render.dot}
 
 ![Calculation as Graph - clustered](HowToCalculateChangeableInstanceTest-cluster.png)
 
+Or you can render a more detailed graph:
+
+```java
+${sumOfItemsInCart.explain}
+```
+
+.. which results in:
+
+```text
+${sumOfItemsInCart.explain.dot}
+```
+
+![Calculation as Graph - explained](HowToCalculateChangeableInstanceTest-explained.png)
+
 ## Do the Math                     
 
 We still need some glue code to get the values from the current shopping cart:

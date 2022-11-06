@@ -19,6 +19,8 @@ package de.flapdoodle.formula.calculate;
 import com.google.common.collect.ImmutableList;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
+import de.flapdoodle.formula.types.HasHumanReadableLabel;
+import org.immutables.value.Value;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 
@@ -50,9 +52,8 @@ public abstract class Calculations {
 		@Nullable R apply(@Nullable A a, @Nullable B b, @Nullable C c);
 	}
 
-	
 	@Immutable(builder = false)
-	abstract static class Direct<A, X> implements Calculation<X> {
+	abstract static class Direct<A, X> implements Calculation<X>, HasHumanReadableLabel {
 		@Parameter
 		protected abstract ValueSource<A> source();
 
@@ -69,6 +70,11 @@ public abstract class Calculations {
 			return transformation().apply(values.get(source()));
 		}
 
+		@Override
+		public String asHumanReadable() {
+			return HasHumanReadableLabel.asHumanReadable(transformation());
+		}
+
 		public static <A, X> Direct<A, X> with(
 			ValueSource<A> source,
 			ValueSink<X> destination,
@@ -79,7 +85,7 @@ public abstract class Calculations {
 	}
 
 	@Immutable(builder = false)
-	abstract static class Merge2<A, B, X> implements Calculation<X> {
+	abstract static class Merge2<A, B, X> implements Calculation<X>, HasHumanReadableLabel {
 		@Parameter
 		protected abstract ValueSource<A> a();
 
@@ -99,6 +105,11 @@ public abstract class Calculations {
 			return transformation().apply(values.get(a()), values.get(b()));
 		}
 
+		@Override
+		public String asHumanReadable() {
+			return HasHumanReadableLabel.asHumanReadable(transformation());
+		}
+
 		public static <A, B, X> Merge2<A, B, X> with(
 			ValueSource<A> a,
 			ValueSource<B> b,
@@ -110,7 +121,7 @@ public abstract class Calculations {
 	}
 
 	@Immutable(builder = false)
-	abstract static class Merge3<A, B, C, X> implements Calculation<X> {
+	abstract static class Merge3<A, B, C, X> implements Calculation<X>, HasHumanReadableLabel {
 		@Parameter
 		protected abstract ValueSource<A> a();
 
@@ -133,6 +144,11 @@ public abstract class Calculations {
 			return transformation().apply(values.get(a()), values.get(b()), values.get(c()));
 		}
 
+		@Override
+		public String asHumanReadable() {
+			return HasHumanReadableLabel.asHumanReadable(transformation());
+		}
+
 		public static <A, B, C, X> Merge3<A, B, C, X> with(
 			ValueSource<A> a,
 			ValueSource<B> b,
@@ -145,7 +161,7 @@ public abstract class Calculations {
 	}
 
 	@Immutable(builder = false)
-	abstract static class Aggregated<S, X> implements Calculation<X> {
+	abstract static class Aggregated<S, X> implements Calculation<X>, HasHumanReadableLabel {
 		@Parameter
 		protected abstract List<ValueSource<S>> sourceList();
 
@@ -165,6 +181,11 @@ public abstract class Calculations {
 			return aggregation().apply(sourceValues);
 		}
 
+		@Override
+		public String asHumanReadable() {
+			return HasHumanReadableLabel.asHumanReadable(aggregation());
+		}
+
 		public static <S, X> Aggregated<S, X> with(
 			List<? extends ValueSource<S>> sourceList,
 			ValueSink<X> destination,
@@ -172,5 +193,54 @@ public abstract class Calculations {
 		) {
 			return ImmutableAggregated.of(destination, sourceList, aggregation);
 		}
+	}
+
+	@Immutable
+	static abstract class F1Explained<A,R> implements F1<A,R>, HasHumanReadableLabel {
+		@Parameter
+		protected abstract F1<A,R> delegate();
+		@Parameter
+		protected abstract String humanReadable();
+
+		@Nullable
+		@Override
+		@Value.Auxiliary
+		public R apply(@Nullable A a) {
+			return delegate().apply(a);
+		}
+
+		@Override
+		public String asHumanReadable() {
+			return humanReadable();
+		}
+	}
+
+	@Immutable
+	static abstract class F2Explained<A,B,R> implements F2<A,B,R>, HasHumanReadableLabel {
+		@Parameter
+		protected abstract F2<A,B,R> delegate();
+		@Parameter
+		protected abstract String humanReadable();
+
+		@Nullable
+		@Override
+		@Value.Auxiliary
+		public R apply(@Nullable A a, @Nullable B b) {
+			return delegate().apply(a,b);
+		}
+
+		@Override
+		public String asHumanReadable() {
+			return humanReadable();
+		}
+
+	}
+
+	public static <A,R> F1<A,R> explained(F1<A,R> delegate, String explanation) {
+		return ImmutableF1Explained.of(delegate, explanation);
+	}
+
+	public static <A,B,R> F2<A,B,R> explained(F2<A,B,R> delegate, String explanation) {
+		return ImmutableF2Explained.of(delegate, explanation);
 	}
 }
