@@ -15,7 +15,7 @@ Snapshots (Repository http://oss.sonatype.org/content/repositories/snapshots)
 	<dependency>
 		<groupId>de.flapdoodle.formula</groupId>
 		<artifactId>de.flapdoodle.formula</artifactId>
-		<version>1.0.1-SNAPSHOT</version>
+		<version>1.0.2-SNAPSHOT</version>
 	</dependency>
 
 ### [Calculations on Immutable Object Trees](HowToCalculateChangeableInstanceTest.md)
