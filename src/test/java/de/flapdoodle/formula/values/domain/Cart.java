@@ -16,9 +16,9 @@
  */
 package de.flapdoodle.formula.values.domain;
 
-import de.flapdoodle.formula.Rules;
 import de.flapdoodle.formula.calculate.Calculate;
 import de.flapdoodle.formula.calculate.Calculations;
+import de.flapdoodle.formula.rules.Rules;
 import de.flapdoodle.formula.types.Id;
 import de.flapdoodle.formula.types.Maybe;
 import de.flapdoodle.formula.values.Related;
@@ -87,7 +87,7 @@ public interface Cart extends ChangeableInstance<Cart>, HasRules {
 			current = current.add(
 				Calculate.value(Item.isCheapestProperty.withId(item.id()))
 					.using(min, Item.sumProperty.withId(item.id()))
-					.by(Calculations.explained(Objects::equals,"min==sum"))
+					.by(Calculations.withLabel(Objects::equals,"min==sum"))
 			);
 		}
 
@@ -99,14 +99,14 @@ public interface Cart extends ChangeableInstance<Cart>, HasRules {
 			.add(Calculate
 				.value(Cart.sumWithoutTax.withId(id()))
 				.aggregating(itemSumIds)
-				.by(Calculations.explained(list -> list.stream()
+				.by(Calculations.withLabel(list -> list.stream()
 					.filter(Objects::nonNull)
 					.mapToDouble(it -> it)
 					.sum(),"sum(...)")))
 			.add(Calculate
 				.value(min)
 				.aggregating(itemSumIds)
-				.by(Calculations.explained(list -> list.stream()
+				.by(Calculations.withLabel(list -> list.stream()
 					.filter(Objects::nonNull)
 					.mapToDouble(it -> it)
 					.min().orElse(0.0),"min"))
@@ -114,7 +114,7 @@ public interface Cart extends ChangeableInstance<Cart>, HasRules {
 			.add(Calculate
 				.value(max)
 				.aggregating(itemSumIds)
-				.by(Calculations.explained(list -> list.stream()
+				.by(Calculations.withLabel(list -> list.stream()
 					.filter(Objects::nonNull)
 					.mapToDouble(it -> it)
 					.max().orElse(0.0),"max"))

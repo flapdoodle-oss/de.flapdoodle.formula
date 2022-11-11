@@ -16,19 +16,20 @@
  */
 package de.flapdoodle.formula.validation;
 
-import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSource;
+import org.immutables.value.Value;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
-public interface Validation<D> {
-	@org.immutables.value.Value.Parameter
-	Value<D> destination();
+@Value.Immutable
+public interface ValidationError {
+	@Value.Parameter
+	List<ErrorMessage> errorMessages();
+	@Value.Parameter
+	Set<ValueSource<?>> invalidReferences();
 
-	@org.immutables.value.Value.Lazy
-	List<? extends ValueSource<?>> sources();
-
-	@org.immutables.value.Value.Auxiliary
-	List<ErrorMessage> validate(Validator validator, Optional<D> unvalidatedValue, ValidatedValueLookup values);
+	static ValidationError of(List<ErrorMessage> errorMessages, Set<? extends ValueSource<?>> invalidReferences) {
+		return ImmutableValidationError.of(errorMessages, invalidReferences);
+	}
 }

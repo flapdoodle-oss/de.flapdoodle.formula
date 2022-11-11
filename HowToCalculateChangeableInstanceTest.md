@@ -77,7 +77,7 @@ public interface Item extends ChangeableInstance<Item>, HasRules {
       .add(Calculate
         .value(Item.sumProperty.withId(id()))
         .using(Item.priceProperty.withId(id()), Item.quantityProperty.withId(id()))
-        .by(Calculations.explained((price, quantity) -> (price != null && quantity != null) ? price * quantity : null,"price*quantity")));
+        .by(Calculations.withLabel((price, quantity) -> (price != null && quantity != null) ? price * quantity : null,"price*quantity")));
   }
 
   static ImmutableItem.Builder builder() {
@@ -146,7 +146,7 @@ public interface Cart extends ChangeableInstance<Cart>, HasRules {
       current = current.add(
         Calculate.value(Item.isCheapestProperty.withId(item.id()))
           .using(min, Item.sumProperty.withId(item.id()))
-          .by(Calculations.explained(Objects::equals,"min==sum"))
+          .by(Calculations.withLabel(Objects::equals,"min==sum"))
       );
     }
 
@@ -158,14 +158,14 @@ public interface Cart extends ChangeableInstance<Cart>, HasRules {
       .add(Calculate
         .value(Cart.sumWithoutTax.withId(id()))
         .aggregating(itemSumIds)
-        .by(Calculations.explained(list -> list.stream()
+        .by(Calculations.withLabel(list -> list.stream()
           .filter(Objects::nonNull)
           .mapToDouble(it -> it)
           .sum(),"sum(...)")))
       .add(Calculate
         .value(min)
         .aggregating(itemSumIds)
-        .by(Calculations.explained(list -> list.stream()
+        .by(Calculations.withLabel(list -> list.stream()
           .filter(Objects::nonNull)
           .mapToDouble(it -> it)
           .min().orElse(0.0),"min"))
@@ -173,7 +173,7 @@ public interface Cart extends ChangeableInstance<Cart>, HasRules {
       .add(Calculate
         .value(max)
         .aggregating(itemSumIds)
-        .by(Calculations.explained(list -> list.stream()
+        .by(Calculations.withLabel(list -> list.stream()
           .filter(Objects::nonNull)
           .mapToDouble(it -> it)
           .max().orElse(0.0),"max"))
@@ -209,7 +209,7 @@ ValueGraph valueGraph = ValueDependencyGraphBuilder.build(rules);
 If a graph can be build, you can render it as a [graphviz/dot](https://graphviz.org/doc/info/lang.html) graph:
 
 ```java
-String dot = GraphRenderer.renderGraphAsDot(valueGraph.graph(), HasHumanReadableLabel::asHumanReadable);
+String dot = GraphRenderer.renderGraphAsDot(valueGraph.graph());
 ```
 
 .. which results in:
@@ -226,13 +226,13 @@ digraph "calculation" {
 	"id5"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.quantity() {Item#2}" ];
 	"id6"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.sum#rw {Item#0}" ];
 	"id7"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.isCheapest#rw {Item#0}" ];
-	"id8"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Named{name=min, type=class java.lang.Double}->Cart#0" ];
+	"id8"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="min(Double)->Cart#0" ];
 	"id9"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.sum#rw {Item#1}" ];
 	"id10"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.isCheapest#rw {Item#1}" ];
 	"id11"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.sum#rw {Item#2}" ];
 	"id12"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Item.isCheapest#rw {Item#2}" ];
 	"id13"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Cart.sumWithoutTax#rw {Cart#0}" ];
-	"id14"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="Named{name=max, type=class java.lang.Double}->Cart#0" ];
+	"id14"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="max(Double)->Cart#0" ];
 
 	"id0" -> "id6";
 	"id1" -> "id6";
@@ -261,8 +261,6 @@ digraph "calculation" {
 
 ![Calculation as Graph](HowToCalculateChangeableInstanceTest.png)
 
-![Calculation as Graph - clustered](HowToCalculateChangeableInstanceTest-cluster.png)
-
 Or you can render a more detailed graph:
 
 ```java
@@ -285,7 +283,7 @@ digraph "rules" {
 	"id7"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="price*quantity" ];
 	"id8"[ fillcolor="gray81", style="filled", shape="rectangle", label="Item.isCheapest#rw {Item#0}" ];
 	"id9"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="min==sum" ];
-	"id10"[ fillcolor="gray81", style="filled", shape="rectangle", label="Named{name=min, type=class java.lang.Double}->Cart#0" ];
+	"id10"[ fillcolor="gray81", style="filled", shape="rectangle", label="min(Double)->Cart#0" ];
 	"id11"[ fillcolor="gray81", style="filled", shape="rectangle", label="Item.sum#rw {Item#1}" ];
 	"id12"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="price*quantity" ];
 	"id13"[ fillcolor="gray81", style="filled", shape="rectangle", label="Item.isCheapest#rw {Item#1}" ];
@@ -297,7 +295,7 @@ digraph "rules" {
 	"id19"[ fillcolor="gray81", style="filled", shape="rectangle", label="Cart.sumWithoutTax#rw {Cart#0}" ];
 	"id20"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="sum(...)" ];
 	"id21"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="min" ];
-	"id22"[ fillcolor="gray81", style="filled", shape="rectangle", label="Named{name=max, type=class java.lang.Double}->Cart#0" ];
+	"id22"[ fillcolor="gray81", style="filled", shape="rectangle", label="max(Double)->Cart#0" ];
 	"id23"[ fillcolor="lightskyblue", style="filled", shape="rectangle", label="max" ];
 
 	"id7" -> "id6";
@@ -341,7 +339,7 @@ digraph "rules" {
 We still need some glue code to get the values from the current shopping cart:
 
 ```java
-public class CartValueLookup implements Solver.ValueLookup {
+public class CartValueLookup implements ValueLookup {
   private final Cart cart;
 
   public CartValueLookup(Cart cart) {
@@ -353,7 +351,7 @@ public class CartValueLookup implements Solver.ValueLookup {
       return cart.findValue((ReadableValue<?, ? extends T>) id)
         .getOrThrow(new IllegalArgumentException("not found: " + id));
     }
-    throw new IllegalArgumentException("not implemented");
+    throw new IllegalArgumentException("not implemented: "+id);
   }
 }
 ```
@@ -361,13 +359,63 @@ public class CartValueLookup implements Solver.ValueLookup {
 With all this in place we can solve all equations.
 
 ```java
-Solver.Result result = Solver.solve(
+Result result = Solver.solve(
   valueGraph,
   new CartValueLookup(cart)
 );
 ```
 
-After this we can inspect validation errors or just apply all results back to
+We can inspect how a value is calculated...                                
+
+```java
+Explanation explanation = valueGraph.explain(Cart.sumWithoutTax.withId(cart.id()));
+String explainSumWithoutTax = Explanation.render(explanation, value -> HasHumanReadableLabel.asHumanReadable(value)
+  + " = "
+  + result.valueOrError(value)
+  .map(it -> "" + it, errors -> "" + errors.errorMessages().stream()
+    .map(errorMessage -> "error('" + errorMessage.key() + "')")
+    .collect(Collectors.joining(", "))));
+```
+
+... and can produce some readable output:
+```
+Cart.sumWithoutTax#rw {Cart#0} = 56.45
+ calculate with sum(...)
+ - Item.sum#rw {Item#0} = 21.0
+ - Item.sum#rw {Item#1} = 9.95
+ - Item.sum#rw {Item#2} = 25.5
+
+Item.sum#rw {Item#0} = 21.0
+ calculate with price*quantity
+ - Item.price() {Item#0} = 10.5
+ - Item.quantity() {Item#0} = 2
+
+Item.price() {Item#0} = 10.5
+
+Item.quantity() {Item#0} = 2
+
+Item.sum#rw {Item#1} = 9.95
+ calculate with price*quantity
+ - Item.price() {Item#1} = 9.95
+ - Item.quantity() {Item#1} = 1
+
+Item.price() {Item#1} = 9.95
+
+Item.quantity() {Item#1} = 1
+
+Item.sum#rw {Item#2} = 25.5
+ calculate with price*quantity
+ - Item.price() {Item#2} = 2.55
+ - Item.quantity() {Item#2} = 10
+
+Item.price() {Item#2} = 2.55
+
+Item.quantity() {Item#2} = 10
+
+
+```
+
+We can inspect validation errors or just apply all results back to
 our shopping cart:
 
 ```java

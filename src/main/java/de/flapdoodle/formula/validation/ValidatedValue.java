@@ -16,23 +16,69 @@
  */
 package de.flapdoodle.formula.validation;
 
+import com.google.common.base.Preconditions;
 import de.flapdoodle.formula.ValueSource;
+import de.flapdoodle.formula.types.Either;
 import org.immutables.builder.Builder;
-import org.immutables.value.Value;
+import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Lazy;
 
-import java.util.Optional;
+import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Set;
 
-@Value.Immutable
+@Immutable
 public abstract class ValidatedValue<T> {
 	@Builder.Parameter
 	public abstract ValueSource<T> source();
+	public abstract Either<T, ValidationError> valueOrError();
 
-	public abstract Optional<T> value();
+	@Lazy
+	public boolean isValid() {
+		return valueOrError().isLeft();
+	}
 
-	public abstract Set<ValueSource<?>> invalidReferences();
+	@Lazy
+	public List<ErrorMessage> errors() {
+		Preconditions.checkArgument(!isValid(),"%s is valid", source());
+		return valueOrError().right().errorMessages();
+	}
+
+	@Lazy
+	public @Nullable T value() {
+		Preconditions.checkArgument(isValid(),"%s is not valid", source());
+		return valueOrError().left();
+	}
+
+	@Lazy
+	public Set<? extends ValueSource<?>> invalidReferences() {
+		Preconditions.checkArgument(!isValid(),"%s is valid", source());
+		return valueOrError().right().invalidReferences();
+	}
 
 	public static <T> ImmutableValidatedValue.Builder<T> builder(ValueSource<T> source) {
 		return ImmutableValidatedValue.builder(source);
+	}
+
+	public static <T> ValidatedValue<T> of(ValueSource<T> id, @Nullable T value) {
+		return ImmutableValidatedValue.<T>builder()
+			.source(id)
+			.valueOrError(Either.left(value))
+			.build();
+	}
+
+	@Deprecated
+	public static <T> ValidatedValue<T> of(ValueSource<T> id, List<ErrorMessage> errorMessages, Set<? extends ValueSource<?>> invalidReferences) {
+		return ImmutableValidatedValue.<T>builder()
+			.source(id)
+			.valueOrError(Either.right(ValidationError.of(errorMessages, invalidReferences)))
+			.build();
+	}
+
+	public static <T> ValidatedValue<T> of(ValueSource<T> id, ValidationError validationError) {
+		return ImmutableValidatedValue.<T>builder()
+			.source(id)
+			.valueOrError(Either.right(validationError))
+			.build();
 	}
 }

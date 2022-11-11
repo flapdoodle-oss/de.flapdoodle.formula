@@ -17,13 +17,10 @@
 package de.flapdoodle.formula.values.domain;
 
 import com.google.common.base.Preconditions;
-import de.flapdoodle.formula.Rules;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.explain.RuleDependencyGraph;
-import de.flapdoodle.formula.solver.ValueDependencyGraphBuilder;
-import de.flapdoodle.formula.solver.GraphRenderer;
-import de.flapdoodle.formula.solver.Solver;
-import de.flapdoodle.formula.solver.ValueGraph;
+import de.flapdoodle.formula.rules.Rules;
+import de.flapdoodle.formula.solver.*;
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.types.Id;
 import de.flapdoodle.formula.types.TypeCounter;
@@ -35,6 +32,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -78,7 +77,7 @@ public class HowToCalculateChangeableInstanceTest {
 		recording.end();
 
 		recording.begin("render");
-		String dot = GraphRenderer.renderGraphAsDot(valueGraph.graph(), HasHumanReadableLabel::asHumanReadable);
+		String dot = GraphRenderer.renderGraphAsDot(valueGraph.graph());
 		recording.end();
 		recording.output("render.dot", dot);
 
@@ -88,11 +87,22 @@ public class HowToCalculateChangeableInstanceTest {
 		recording.output("explain.dot", explainDot);
 
 		recording.begin("solve");
-		Solver.Result result = Solver.solve(
+		Result result = Solver.solve(
 			valueGraph,
 			new CartValueLookup(cart)
 		);
 		recording.end();
+
+		recording.begin("explain-value");
+		Explanation explanation = valueGraph.explain(Cart.sumWithoutTax.withId(cart.id()));
+		String explainSumWithoutTax = Explanation.render(explanation, value -> HasHumanReadableLabel.asHumanReadable(value)
+			+ " = "
+			+ result.valueOrError(value)
+			.map(it -> "" + it, errors -> "" + errors.errorMessages().stream()
+				.map(errorMessage -> "error('" + errorMessage.key() + "')")
+				.collect(Collectors.joining(", "))));
+		recording.end();
+		recording.output("explain-value.text", explainSumWithoutTax);
 
 		recording.begin("change");
 		Cart updated = cart;

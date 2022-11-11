@@ -19,6 +19,8 @@ package de.flapdoodle.formula.validation;
 import com.google.common.collect.ImmutableList;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSource;
+import de.flapdoodle.formula.types.HasHumanReadableLabel;
+import org.immutables.value.Value.Auxiliary;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 
@@ -40,7 +42,7 @@ public abstract class Validations {
 	}
 
 	@Immutable(builder = false)
-	abstract static class Self<X> implements Validation<X> {
+	abstract static class Self<X> implements Validation<X>, HasHumanReadableLabel {
 
 		@Parameter
 		protected abstract V0<X> validation();
@@ -51,8 +53,13 @@ public abstract class Validations {
 		}
 
 		@Override
-		public List<ErrorMessage> validate(Validator validator, Optional<X> unvalidatedValue, ValueLookup values) {
+		public List<ErrorMessage> validate(Validator validator, Optional<X> unvalidatedValue, ValidatedValueLookup values) {
 			return validation().validate(validator, unvalidatedValue);
+		}
+
+		@Override
+		public String asHumanReadable() {
+			return HasHumanReadableLabel.asHumanReadable(validation());
 		}
 
 		public static <X> Self<X> with(
@@ -64,7 +71,7 @@ public abstract class Validations {
 	}
 
 	@Immutable(builder = false)
-	abstract static class RelatedTo1<X, A> implements Validation<X> {
+	abstract static class RelatedTo1<X, A> implements Validation<X>, HasHumanReadableLabel {
 		@Parameter
 		protected abstract ValueSource<A> source();
 
@@ -77,8 +84,13 @@ public abstract class Validations {
 		}
 
 		@Override
-		public List<ErrorMessage> validate(Validator validator, Optional<X> unvalidatedValue, ValueLookup values) {
+		public List<ErrorMessage> validate(Validator validator, Optional<X> unvalidatedValue, ValidatedValueLookup values) {
 			return validation().validate(validator, unvalidatedValue, values.get(source()));
+		}
+
+		@Override
+		public String asHumanReadable() {
+			return HasHumanReadableLabel.asHumanReadable(validation());
 		}
 
 		public static <X, A> RelatedTo1<X, A> with(
@@ -91,7 +103,7 @@ public abstract class Validations {
 	}
 
 	@Immutable(builder = false)
-	abstract static class RelatedTo2<X, A, B> implements Validation<X> {
+	abstract static class RelatedTo2<X, A, B> implements Validation<X>, HasHumanReadableLabel {
 		@Parameter
 		protected abstract ValueSource<A> a();
 
@@ -107,8 +119,13 @@ public abstract class Validations {
 		}
 
 		@Override
-		public List<ErrorMessage> validate(Validator validator, Optional<X> unvalidatedValue, ValueLookup values) {
+		public List<ErrorMessage> validate(Validator validator, Optional<X> unvalidatedValue, ValidatedValueLookup values) {
 			return validation().validate(validator, unvalidatedValue, values.get(a()), values.get(b()));
+		}
+
+		@Override
+		public String asHumanReadable() {
+			return HasHumanReadableLabel.asHumanReadable(validation());
 		}
 
 		public static <X, A, B> RelatedTo2<X, A, B> with(
@@ -119,5 +136,74 @@ public abstract class Validations {
 		) {
 			return ImmutableRelatedTo2.of(destination, a, b, validation);
 		}
+	}
+
+	@Immutable
+	static abstract class V0Explained<T> implements V0<T>, HasHumanReadableLabel {
+		@Parameter
+		protected abstract V0<T> delegate();
+		@Parameter
+		protected abstract String humanReadable();
+
+		@Override
+		@Auxiliary
+		public List<ErrorMessage> validate(Validator validator, Optional<T> value) {
+			return delegate().validate(validator, value);
+		}
+
+		@Override
+		public String asHumanReadable() {
+			return humanReadable();
+		}
+	}
+
+	@Immutable
+	static abstract class V1Explained<T, A> implements V1<T, A>, HasHumanReadableLabel {
+		@Parameter
+		protected abstract V1<T, A> delegate();
+		@Parameter
+		protected abstract String humanReadable();
+
+		@Override
+		@Auxiliary
+		public List<ErrorMessage> validate(Validator validator, Optional<T> value, ValidatedValue<A> a) {
+			return delegate().validate(validator, value, a);
+		}
+
+		@Override
+		public String asHumanReadable() {
+			return humanReadable();
+		}
+	}
+
+	@Immutable
+	static abstract class V2Explained<T, A, B> implements V2<T, A, B>, HasHumanReadableLabel {
+		@Parameter
+		protected abstract V2<T, A, B> delegate();
+		@Parameter
+		protected abstract String humanReadable();
+
+		@Override
+		@Auxiliary
+		public List<ErrorMessage> validate(Validator validator, Optional<T> value, ValidatedValue<A> a, ValidatedValue<B> b) {
+			return delegate().validate(validator, value, a, b);
+		}
+
+		@Override
+		public String asHumanReadable() {
+			return humanReadable();
+		}
+	}
+
+	public static <A> V0<A> explained(V0<A> delegate, String explanation) {
+		return ImmutableV0Explained.of(delegate, explanation);
+	}
+
+	public static <T, A> V1<T, A> explained(V1<T, A> delegate, String explanation) {
+		return ImmutableV1Explained.of(delegate, explanation);
+	}
+
+	public static <T, A, B> V2<T, A, B> explained(V2<T, A, B> delegate, String explanation) {
+		return ImmutableV2Explained.of(delegate, explanation);
 	}
 }

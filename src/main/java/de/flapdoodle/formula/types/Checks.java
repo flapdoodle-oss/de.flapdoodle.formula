@@ -14,21 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.flapdoodle.formula.validation;
+package de.flapdoodle.formula.types;
 
-import de.flapdoodle.formula.Value;
-import de.flapdoodle.formula.ValueSource;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import java.util.List;
-import java.util.Optional;
+public abstract class Checks {
+	private Checks() {
+		// no instance
+	}
 
-public interface Validation<D> {
-	@org.immutables.value.Value.Parameter
-	Value<D> destination();
-
-	@org.immutables.value.Value.Lazy
-	List<? extends ValueSource<?>> sources();
-
-	@org.immutables.value.Value.Auxiliary
-	List<ErrorMessage> validate(Validator validator, Optional<D> unvalidatedValue, ValidatedValueLookup values);
+	public static <T, ID> Set<ID> collisions(Collection<T> values, Function<T, ID> idFunction) {
+		return values.stream()
+			.collect(Collectors.groupingBy(idFunction))
+			.entrySet()
+			.stream()
+			.filter(it -> it.getValue().size() != 1)
+			.map(Map.Entry::getKey)
+			.collect(Collectors.toSet());
+	}
 }

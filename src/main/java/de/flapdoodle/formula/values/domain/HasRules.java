@@ -16,7 +16,7 @@
  */
 package de.flapdoodle.formula.values.domain;
 
-import de.flapdoodle.formula.Rules;
+import de.flapdoodle.formula.rules.Rules;
 import org.immutables.value.Value;
 
 public interface HasRules {

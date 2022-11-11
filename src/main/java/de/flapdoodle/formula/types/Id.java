@@ -16,10 +16,8 @@
  */
 package de.flapdoodle.formula.types;
 
-import com.google.common.collect.Maps;
 import org.immutables.value.Value;
 
-import java.util.Map;
 import java.util.Optional;
 
 @Value.Immutable

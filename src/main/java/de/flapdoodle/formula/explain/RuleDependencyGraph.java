@@ -19,22 +19,24 @@ package de.flapdoodle.formula.explain;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import de.flapdoodle.formula.Rules;
 import de.flapdoodle.formula.Unvalidated;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.calculate.Calculation;
-import de.flapdoodle.formula.calculate.CalculationMap;
+import de.flapdoodle.formula.rules.CalculationMap;
+import de.flapdoodle.formula.rules.Rules;
+import de.flapdoodle.formula.rules.ValidationMap;
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.validation.Validation;
-import de.flapdoodle.formula.validation.ValidationMap;
 import de.flapdoodle.graph.GraphAsDot;
 import de.flapdoodle.graph.Graphs;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -69,10 +71,19 @@ public abstract class RuleDependencyGraph {
 
 	private static Map<String, String> colorOf(RuleVertex node)  {
 		return ImmutableMap.<String, String>builder()
-			.put("fillcolor",(node instanceof RuleVertex.ValueVertex) ? "gray81" : "lightskyblue")
+			.put("fillcolor",colorNameOf(node))
 			.put("style","filled")
 			.put("shape","rectangle")
 			.build();
+	}
+	private static String colorNameOf(RuleVertex vertex) {
+		if (vertex instanceof RuleVertex.CalculationVertex) {
+			return "lightskyblue";
+		}
+		if (vertex instanceof RuleVertex.ValidationVertex) {
+			return "lightpink";
+		}
+		return "gray81";
 	}
 
 	private static class IdGenerator {
@@ -87,9 +98,9 @@ public abstract class RuleDependencyGraph {
 		Wrapper builder=new Wrapper();
 
 		Set<ValueSource<?>> allSources = Stream.concat(
-			calculations.values().stream()
+			calculations.all().stream()
 				.flatMap(it -> it.sources().stream()),
-			validations.values().stream()
+			validations.all().stream()
 				.flatMap(it -> it.sources().stream())
 		).collect(ImmutableSet.toImmutableSet());
 
@@ -106,8 +117,8 @@ public abstract class RuleDependencyGraph {
 			}
 		});
 
-		calculations.values().forEach(calculation -> builder.add(calculation.destination(), calculation, null));
-		validations.values().forEach(validation -> builder.add(validation.destination(), null, validation));
+		calculations.all().forEach(calculation -> builder.add(calculation.destination(), calculation, null));
+		validations.all().forEach(validation -> builder.add(validation.destination(), null, validation));
 
 		return builder.build();
 	}

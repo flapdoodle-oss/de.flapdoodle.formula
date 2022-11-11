@@ -17,11 +17,11 @@
 package de.flapdoodle.formula.values.domain;
 
 import de.flapdoodle.formula.Value;
-import de.flapdoodle.formula.solver.Solver;
+import de.flapdoodle.formula.calculate.ValueLookup;
 
 import javax.annotation.Nullable;
 
-public class CartValueLookup implements Solver.ValueLookup {
+public class CartValueLookup implements ValueLookup {
 	private final Cart cart;
 
 	public CartValueLookup(Cart cart) {
@@ -33,6 +33,6 @@ public class CartValueLookup implements Solver.ValueLookup {
 			return cart.findValue((ReadableValue<?, ? extends T>) id)
 				.getOrThrow(new IllegalArgumentException("not found: " + id));
 		}
-		throw new IllegalArgumentException("not implemented");
+		throw new IllegalArgumentException("not implemented: "+id);
 	}
 }

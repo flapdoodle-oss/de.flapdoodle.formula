@@ -63,7 +63,7 @@ public abstract class RuleVertex {
 		}
 	}
 
-	public static <T> RuleVertex value(de.flapdoodle.formula.Value<? extends T> value) {
+	public static <T> RuleVertex value(Value<? extends T> value) {
 		return ImmutableValueVertex.of(value);
 	}
 

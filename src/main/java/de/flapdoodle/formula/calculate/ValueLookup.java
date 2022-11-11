@@ -14,21 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.flapdoodle.formula.validation;
+package de.flapdoodle.formula.calculate;
 
 import de.flapdoodle.formula.Value;
-import de.flapdoodle.formula.ValueSource;
 
-import java.util.List;
-import java.util.Optional;
+import javax.annotation.Nullable;
 
-public interface Validation<D> {
-	@org.immutables.value.Value.Parameter
-	Value<D> destination();
-
-	@org.immutables.value.Value.Lazy
-	List<? extends ValueSource<?>> sources();
-
-	@org.immutables.value.Value.Auxiliary
-	List<ErrorMessage> validate(Validator validator, Optional<D> unvalidatedValue, ValidatedValueLookup values);
+public interface ValueLookup {
+	<T> @Nullable T get(Value<T> id);
 }

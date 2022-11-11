@@ -16,6 +16,21 @@
  */
 package de.flapdoodle.formula.validation;
 
-public interface Validator {
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
+public interface Validator {
+	
+	default List<ErrorMessage> noErrors() {
+		return Collections.emptyList();
+	}
+
+	default List<ErrorMessage> error(String key) {
+		return Arrays.asList(ErrorMessage.of(key));
+	}
+
+	default List<ErrorMessage> error(String key, Object ... args) {
+		return Arrays.asList(ErrorMessage.of(key, args));
+	}
 }

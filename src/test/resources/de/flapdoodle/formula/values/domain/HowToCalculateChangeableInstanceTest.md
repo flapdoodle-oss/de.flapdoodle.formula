@@ -57,8 +57,6 @@ ${sumOfItemsInCart.render.dot}
 
 ![Calculation as Graph](HowToCalculateChangeableInstanceTest.png)
 
-![Calculation as Graph - clustered](HowToCalculateChangeableInstanceTest-cluster.png)
-
 Or you can render a more detailed graph:
 
 ```java
@@ -87,7 +85,18 @@ With all this in place we can solve all equations.
 ${sumOfItemsInCart.solve}
 ```
 
-After this we can inspect validation errors or just apply all results back to
+We can inspect how a value is calculated...                                
+
+```java
+${sumOfItemsInCart.explain-value}
+```
+
+... and can produce some readable output:
+```
+${sumOfItemsInCart.explain-value.text}
+```
+
+We can inspect validation errors or just apply all results back to
 our shopping cart:
 
 ```java

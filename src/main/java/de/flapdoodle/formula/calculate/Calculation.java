@@ -22,7 +22,6 @@ import org.immutables.value.Value.Auxiliary;
 import org.immutables.value.Value.Lazy;
 import org.immutables.value.Value.Parameter;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public interface Calculation<D> {
@@ -34,10 +33,5 @@ public interface Calculation<D> {
 
 	@Auxiliary
 	D calculate(ValueLookup values);
-
-	@FunctionalInterface
-	interface ValueLookup {
-		<T> @Nullable T get(Value<T> id);
-	}
 
 }

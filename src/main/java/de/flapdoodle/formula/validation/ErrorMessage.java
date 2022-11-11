@@ -32,18 +32,7 @@ public interface ErrorMessage {
 		return Collections.emptyList();
 	}
 
-	@Value.Default
-	default Set<ValueSource<?>> invalidSources() {
-		return Collections.emptySet();
-	}
-
-	static ErrorMessage of(String key) {
-		return ImmutableErrorMessage.builder()
-			.key(key)
-			.build();
-	}
-
-	static ErrorMessage of(String key, Object arg) {
+	static ErrorMessage of(String key, Object ... arg) {
 		return ImmutableErrorMessage.builder()
 			.key(key)
 			.addArgs(arg)

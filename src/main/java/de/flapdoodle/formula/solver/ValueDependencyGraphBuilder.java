@@ -20,14 +20,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import de.flapdoodle.formula.Rules;
 import de.flapdoodle.formula.Unvalidated;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.calculate.Calculation;
-import de.flapdoodle.formula.calculate.CalculationMap;
+import de.flapdoodle.formula.rules.CalculationMap;
+import de.flapdoodle.formula.rules.Rules;
+import de.flapdoodle.formula.rules.ValidationMap;
 import de.flapdoodle.formula.validation.Validation;
-import de.flapdoodle.formula.validation.ValidationMap;
 import de.flapdoodle.graph.Graphs;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -59,9 +59,9 @@ public abstract class ValueDependencyGraphBuilder {
 		Wrapper builder = new Wrapper();
 
 		Set<ValueSource<?>> allSources = Stream.concat(
-			calculations.values().stream()
+			calculations.all().stream()
 				.flatMap(it -> it.sources().stream()),
-			validations.values().stream()
+			validations.all().stream()
 				.flatMap(it -> it.sources().stream())
 		).collect(ImmutableSet.toImmutableSet());
 
@@ -78,8 +78,8 @@ public abstract class ValueDependencyGraphBuilder {
 			}
 		});
 
-		calculations.values().forEach(calculation -> builder.add(calculation.destination(), calculation, validations.get(calculation.destination())));
-		validations.values().forEach(validation -> {
+		calculations.all().forEach(calculation -> builder.add(calculation.destination(), calculation, validations.get(calculation.destination())));
+		validations.all().forEach(validation -> {
 			if (!calculations.contains(validation.destination())) {
 				builder.add(validation.destination(), null, validation);
 			}

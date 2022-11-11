@@ -16,19 +16,8 @@
  */
 package de.flapdoodle.formula.validation;
 
-import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSource;
 
-import java.util.List;
-import java.util.Optional;
-
-public interface Validation<D> {
-	@org.immutables.value.Value.Parameter
-	Value<D> destination();
-
-	@org.immutables.value.Value.Lazy
-	List<? extends ValueSource<?>> sources();
-
-	@org.immutables.value.Value.Auxiliary
-	List<ErrorMessage> validate(Validator validator, Optional<D> unvalidatedValue, ValidatedValueLookup values);
+public interface ValidatedValueLookup {
+	<T> ValidatedValue<T> get(ValueSource<T> id);
 }

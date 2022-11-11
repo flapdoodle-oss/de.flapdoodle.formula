@@ -17,23 +17,23 @@
 package de.flapdoodle.formula.solver;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import de.flapdoodle.formula.Unvalidated;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.calculate.Calculation;
-import de.flapdoodle.formula.types.Either;
-import de.flapdoodle.formula.validation.ErrorMessage;
-import de.flapdoodle.formula.validation.ValidatedValue;
-import de.flapdoodle.formula.validation.Validation;
-import de.flapdoodle.formula.validation.Validator;
+import de.flapdoodle.formula.calculate.MappedValue;
+import de.flapdoodle.formula.calculate.StrictValueLookup;
+import de.flapdoodle.formula.calculate.ValueLookup;
+import de.flapdoodle.formula.validation.*;
 import de.flapdoodle.graph.Graphs;
 import de.flapdoodle.graph.VerticesAndEdges;
 import org.jgrapht.graph.DefaultEdge;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public abstract class Solver {
 
@@ -41,38 +41,10 @@ public abstract class Solver {
 		// no instance
 	}
 
-	public interface ValueLookup {
-		<T> @Nullable T get(Value<T> id);
-	}
-
-	public interface Result {
-		Set<Value<?>> validatedValues();
-		Map<Value<?>, List<ErrorMessage>> validationErrors();
-
-		@org.immutables.value.Value.Auxiliary
-		<T> @Nullable T get(Value<T> id);
-	}
-
 	public static Result solve(ValueGraph valueGraph, ValueLookup lookup) {
-		return asResult(solve(Context.empty(), valueGraph, lookup));
+		return solve(Context.empty(), valueGraph, lookup).asResult();
 	}
 
-	private static Result asResult(Context context) {
-		return new Result() {
-			@Override
-			public Set<Value<?>> validatedValues() {
-				return context.validatedValues().keys();
-			}
-			@Override
-			public Map<Value<?>, List<ErrorMessage>> validationErrors() {
-				return context.errorMessages();
-			}
-			@Override
-			public <T> @Nullable T get(Value<T> id) {
-				return context.validatedValues().get(id);
-			}
-		};
-	}
 	static Context solve(Context context, ValueGraph valueGraph, ValueLookup lookup) {
 		Collection<VerticesAndEdges<Value<?>, DefaultEdge>> roots = Graphs.rootsOf(valueGraph.graph());
 
@@ -96,72 +68,89 @@ public abstract class Solver {
 		if (node instanceof Unvalidated) {
 			return processUnvalidated(lookup, (Unvalidated<?>) node, context);
 		}
-		return processProcessed(lookup, valueGraph, node, context);
+		return processValue(lookup, valueGraph, node, context);
 	}
 
-	private static <T> Context processProcessed(ValueLookup lookup, ValueGraph valueGraph, Value<T> destination, Context context) {
+	private static <T> Context processValue(ValueLookup lookup, ValueGraph valueGraph, Value<T> destination, Context context) {
 		Calculation<T> calculation = valueGraph.calculationOrNull(destination);
+
+		T calculated;
+		Context withCalculationSources;
+
+		if (calculation != null) {
+			List<MappedValue<?>> entries = calculation.sources().stream()
+				.map(source -> mappedValue(context, lookup, source))
+				.collect(Collectors.toList());
+
+			StrictValueLookup calculationLookup = StrictValueLookup.of(entries);
+			calculated = calculation.calculate(calculationLookup);
+			withCalculationSources = context.addIfNotExist(entries);
+		} else {
+			calculated = value(context, lookup, destination);
+			withCalculationSources = context;
+		}
+
+		Context withValidation;
 		Validation<T> validation = valueGraph.validationOrNull(destination);
+		if (validation != null) {
+			List<ValidatedValue<?>> sources = validation.sources().stream()
+				.map(source -> validatedValue(withCalculationSources, source))
+				.collect(Collectors.toList());
 
-		Calculation.ValueLookup calculationLookup = calculationLookup(context, lookup);
-		Validation.ValueLookup validationLookup = validationValueLookup(context, lookup);
+			StrictValidatedValueLookup validationLookup = StrictValidatedValueLookup.with(sources);
+			List<ErrorMessage> errorMessages = validate(validationLookup, validation, calculated);
 
-		if (calculation != null || validation != null) {
-			T calculated = calculation != null
-				? calculation.calculate(calculationLookup)
-				: calculationLookup.get(destination);
+			Context withValidationSources = withCalculationSources.addIfNotExist(sources.stream()
+				.filter(ValidatedValue::isValid)
+				.map(Solver::asMappedValue)
+				.collect(Collectors.toList()));
 
-			Either<T, List<ErrorMessage>> validated = validation != null
-				? validate(validationLookup, validation, calculated)
-				: Either.left(calculated);
+			if (errorMessages.isEmpty()) {
+				withValidation = withValidationSources.add(destination, calculated);
+			} else {
+				withValidation = withValidationSources.addInvalid(destination, ValidationError.of(errorMessages,
+					sources.stream().filter(it -> !it.isValid()).map(ValidatedValue::source).collect(
+						Collectors.toSet())));
+			}
+		} else {
+			withValidation = withCalculationSources.add(destination, calculated);
+		}
 
-			return context.addValidated(destination, validated);
-		} else
-			return context;
+		return withValidation;
 	}
 
-	private static Calculation.ValueLookup calculationLookup(Context context, ValueLookup lookup) {
-		return new Calculation.ValueLookup() {
-			@Override public <T> @Nullable T get(Value<T> id) {
-				return value(context,lookup,id);
-			}
-		};
+	private static <T> MappedValue<T> asMappedValue(ValidatedValue<T> validated) {
+		Preconditions.checkArgument(validated.isValid(),"%s is not valid", validated.source());
+		return MappedValue.of(validated.source(), validated.value());
+	}
+
+	private static <T> MappedValue<T> mappedValue(Context context, ValueLookup lookup, Value<T> id) {
+		return MappedValue.of(id, value(context, lookup, id));
 	}
 
 	private static <T> @Nullable T value(Context context, ValueLookup lookup, Value<T> id) {
-		return context.hasValidated(id)
+		return context.isValid(id)
 			? context.getValidated(id)
+			: context.isInvalid(id)
+			? null
 			: lookup.get(id);
 	}
 
-	private static Validation.ValueLookup validationValueLookup(Context context, ValueLookup lookup) {
-		return new Validation.ValueLookup() {
-			@Override public <T> ValidatedValue<T> get(ValueSource<T> id) {
-				return id instanceof Unvalidated
-					? ValidatedValue.builder(id)
-					.value(Optional.ofNullable(context.getValue(id)))
-					.build()
-					: ValidatedValue.builder(id)
-					.value(Optional.ofNullable(value(context, lookup, id)))
-					.invalidReferences(invalidReferences(context, id))
-					.build();
-			}
-		};
+	private static <T> ValidatedValue<T> validatedValue(Context context, ValueSource<T> id) {
+		if (id instanceof Unvalidated) {
+			return ValidatedValue.of(id, context.getUnvalidated(id));
+		}
+		return context.isValid(id)
+			? ValidatedValue.of(id, context.getValidated(id))
+			: ValidatedValue.of(id, context.validationError(id));
 	}
 
-	private static <T> Either<T, List<ErrorMessage>> validate(Validation.ValueLookup valueLookup, Validation<T> validation, T calculated) {
-		List<ErrorMessage> errorMessages = validation.validate(validator(), Optional.ofNullable(calculated), valueLookup);
-		return errorMessages.isEmpty()
-			? Either.left(calculated)
-			: Either.right(errorMessages);
-	}
-
-	private static <T> Iterable<? extends ValueSource<?>> invalidReferences(Context context, ValueSource<T> id) {
-		return context.hasValidationErrors(id) ? ImmutableList.of(id) : ImmutableSet.of();
+	private static <T> List<ErrorMessage> validate(ValidatedValueLookup valueLookup, Validation<T> validation, T calculated) {
+		return validation.validate(validator(), Optional.ofNullable(calculated), valueLookup);
 	}
 
 	private static <T> Context processUnvalidated(ValueLookup lookup, Unvalidated<T> node, Context context) {
-		return context.addValue(node, lookup.get(node.wrapped()));
+		return context.addUnvalidated(node, lookup.get(node.wrapped()));
 	}
 
 	private static Validator validator() {

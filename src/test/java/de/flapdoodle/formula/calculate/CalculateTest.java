@@ -88,8 +88,8 @@ class CalculateTest {
 			.isEqualTo("a: 1, b: 2, c: 3");
 	}
 
-	static Calculation.ValueLookup valueResolver(Map<Value<?>, ?> map) {
-		return new Calculation.ValueLookup() {
+	static ValueLookup valueResolver(Map<Value<?>, ?> map) {
+		return new ValueLookup() {
 			@Override
 			public <T> T get(Value<T> id) {
 				return (T) map.get(id);

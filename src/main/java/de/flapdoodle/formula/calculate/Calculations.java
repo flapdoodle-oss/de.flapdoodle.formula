@@ -200,7 +200,7 @@ public abstract class Calculations {
 		@Parameter
 		protected abstract F1<A,R> delegate();
 		@Parameter
-		protected abstract String humanReadable();
+		protected abstract String label();
 
 		@Nullable
 		@Override
@@ -211,7 +211,7 @@ public abstract class Calculations {
 
 		@Override
 		public String asHumanReadable() {
-			return humanReadable();
+			return label();
 		}
 	}
 
@@ -220,7 +220,7 @@ public abstract class Calculations {
 		@Parameter
 		protected abstract F2<A,B,R> delegate();
 		@Parameter
-		protected abstract String humanReadable();
+		protected abstract String label();
 
 		@Nullable
 		@Override
@@ -231,16 +231,16 @@ public abstract class Calculations {
 
 		@Override
 		public String asHumanReadable() {
-			return humanReadable();
+			return label();
 		}
 
 	}
 
-	public static <A,R> F1<A,R> explained(F1<A,R> delegate, String explanation) {
-		return ImmutableF1Explained.of(delegate, explanation);
+	public static <A,R> F1<A,R> withLabel(F1<A,R> delegate, String label) {
+		return ImmutableF1Explained.of(delegate, label);
 	}
 
-	public static <A,B,R> F2<A,B,R> explained(F2<A,B,R> delegate, String explanation) {
-		return ImmutableF2Explained.of(delegate, explanation);
+	public static <A,B,R> F2<A,B,R> withLabel(F2<A,B,R> delegate, String label) {
+		return ImmutableF2Explained.of(delegate, label);
 	}
 }

@@ -19,19 +19,25 @@ package de.flapdoodle.formula.values;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
+import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 
 import java.util.Optional;
 
 @Immutable(builder = false)
-public abstract class Named<T> implements Value<T>, ValueSink<T>, ValueSource<T> {
+public abstract class Named<T> implements Value<T>, ValueSink<T>, ValueSource<T>, HasHumanReadableLabel {
 	@Parameter
 	protected abstract Optional<String> name();
 
 	@Parameter
 	protected abstract Class<T> type();
 
+	@Override
+	@org.immutables.value.Value.Lazy
+	public String asHumanReadable() {
+		return name().orElse("<null>")+"("+type().getSimpleName()+")";
+	}
 	public static <T> Named<T> ofType(Class<T> type) {
 		return ImmutableNamed.of(Optional.empty(), type);
 	}

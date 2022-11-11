@@ -19,6 +19,7 @@ package de.flapdoodle.formula.solver;
 import com.google.common.collect.ImmutableMap;
 import de.flapdoodle.formula.Unvalidated;
 import de.flapdoodle.formula.Value;
+import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.graph.GraphAsDot;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -33,17 +34,12 @@ public abstract class GraphRenderer {
 	}
 
 	public static String renderGraphAsDot(DefaultDirectedGraph<Value<?>, DefaultEdge> graph) {
-		return renderGraphAsDot(graph, it -> {
-			if (it instanceof Unvalidated) {
-				return ((Unvalidated<?>) it).wrapped().toString();
-			}
-			return it.toString();
-		});
+		return renderGraphAsDot(graph, HasHumanReadableLabel::asHumanReadable);
 	}
 
 	public static String renderGraphAsDot(DefaultDirectedGraph<Value<?>, DefaultEdge> graph, Function<Value<?>, String> labelOfValue) {
 		IdGenerator idGenerator=new IdGenerator();
-		return GraphAsDot.<Value<?>>builder(idGenerator::idOf)
+		return GraphAsDot.builder(idGenerator::idOf)
 			.nodeAttributes(it -> ImmutableMap.<String, String>builder()
 				.putAll(colorOf(it))
 				.put("label", labelOfValue.apply(it))

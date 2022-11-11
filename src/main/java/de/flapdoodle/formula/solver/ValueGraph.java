@@ -18,16 +18,19 @@ package de.flapdoodle.formula.solver;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import de.flapdoodle.formula.Value;
+import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.calculate.Calculation;
-import de.flapdoodle.formula.calculate.CalculationMap;
+import de.flapdoodle.formula.rules.CalculationMap;
+import de.flapdoodle.formula.rules.ValidationMap;
 import de.flapdoodle.formula.validation.Validation;
-import de.flapdoodle.formula.validation.ValidationMap;
 import de.flapdoodle.graph.Graphs;
 import de.flapdoodle.graph.Loop;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -73,11 +76,46 @@ public class ValueGraph {
 		return validationMap.get(key);
 	}
 
-  public Set<Value<?>> calculationDestinations() {
-    return calculationMap.keys();
-  }
-
 	public DefaultDirectedGraph<Value<?>, DefaultEdge> graph() {
 		return graph;
 	}
+
+	public Explanation explain(Value<?> destination) {
+		Preconditions.checkArgument(graph.containsVertex(destination),"value not found: %s", destination);
+
+		Set<Value<?>> explainedValues = new LinkedHashSet<>();
+
+		return Explanation.builder()
+			.addAllList(explain(explainedValues, destination))
+			.build();
+	}
+
+	private <T> List<Explanation.ExplainValue<?>> explain(Set<Value<?>> explainedValues, Value<T> destination) {
+		ImmutableList.Builder<Explanation.ExplainValue<?>> builder = ImmutableList.builder();
+		if (!explainedValues.contains(destination)) {
+			explainedValues.add(destination);
+
+			Validation<T> validation = validationMap.get(destination);
+			ImmutableList.Builder<Explanation.ExplainValue<?>> validationListBuilder=ImmutableList.builder();
+			if (validation != null) {
+				for (ValueSource<?> source : validation.sources()) {
+					validationListBuilder.addAll(explain(explainedValues, source));
+				}
+			}
+
+			Calculation<T> calculation = calculationMap.get(destination);
+			ImmutableList.Builder<Explanation.ExplainValue<?>> calculationListBuilder=ImmutableList.builder();
+			if (calculation != null) {
+				for (ValueSource<?> source : calculation.sources()) {
+					calculationListBuilder.addAll(explain(explainedValues, source));
+				}
+			}
+
+			builder.add(Explanation.explainValue(destination, validation, calculation));
+			builder.addAll(validationListBuilder.build());
+			builder.addAll(calculationListBuilder.build());
+		}
+		return builder.build();
+	}
+
 }

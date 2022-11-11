@@ -14,13 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.flapdoodle.formula;
+package de.flapdoodle.formula.rules;
 
 import com.google.common.collect.ImmutableList;
 import de.flapdoodle.formula.calculate.Calculation;
-import de.flapdoodle.formula.calculate.CalculationMap;
 import de.flapdoodle.formula.validation.Validation;
-import de.flapdoodle.formula.validation.ValidationMap;
 import org.immutables.value.Value;
 
 import java.util.List;

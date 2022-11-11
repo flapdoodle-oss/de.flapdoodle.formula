@@ -14,21 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.flapdoodle.formula.validation;
+package de.flapdoodle.formula.solver;
 
 import de.flapdoodle.formula.Value;
-import de.flapdoodle.formula.ValueSource;
+import de.flapdoodle.formula.types.Either;
+import de.flapdoodle.formula.validation.ValidationError;
 
-import java.util.List;
-import java.util.Optional;
+import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.Set;
 
-public interface Validation<D> {
-	@org.immutables.value.Value.Parameter
-	Value<D> destination();
+public interface Result {
+	Set<Value<?>> validatedValues();
 
-	@org.immutables.value.Value.Lazy
-	List<? extends ValueSource<?>> sources();
+	Map<Value<?>, ValidationError> validationErrors();
+
+	@org.immutables.value.Value.Auxiliary <T> @Nullable T get(Value<T> id);
 
 	@org.immutables.value.Value.Auxiliary
-	List<ErrorMessage> validate(Validator validator, Optional<D> unvalidatedValue, ValidatedValueLookup values);
+	default <T> Either<T, ValidationError> valueOrError(Value<T> id) {
+		ValidationError errors = validationErrors().get(id);
+		return errors != null ? Either.right(errors) : Either.left(get(id));
+	}
 }
