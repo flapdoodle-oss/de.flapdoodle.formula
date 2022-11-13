@@ -19,6 +19,7 @@ package de.flapdoodle.formula.validation;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
+import de.flapdoodle.formula.validation.validations.*;
 
 public abstract class Validate {
 	private Validate() {
@@ -36,9 +37,13 @@ public abstract class Validate {
 			this.destination = destination;
 		}
 
-		public Validations.Self<X> by(Validations.V0<X> validator) {
-			return Validations.Self.with(destination, validator);
+		public Self<X> by(V0<X> validator) {
+			return Self.with(destination, validator);
 		}
+		public Self<X> by(V0<X> validator, String description) {
+			return Self.with(destination, V0.withLabel(validator, description));
+		}
+
 		public <A> WithRelationTo1<X, A> using(ValueSource<A> a) {
 			return new WithRelationTo1<>(destination, a);
 		}
@@ -57,8 +62,12 @@ public abstract class Validate {
 			this.a = a;
 		}
 
-		public Validations.RelatedTo1<X, A> by(Validations.V1<X, A> validator) {
-			return Validations.RelatedTo1.with(destination, a, validator);
+		public RelatedTo1<X, A> by(V1<X, A> validator) {
+			return RelatedTo1.with(destination, a, validator);
+		}
+
+		public RelatedTo1<X, A> by(V1<X, A> validator, String description) {
+			return RelatedTo1.with(destination, a, V1.withLabel(validator, description));
 		}
 	}
 
@@ -73,8 +82,12 @@ public abstract class Validate {
 			this.b = b;
 		}
 
-		public Validations.RelatedTo2<X, A, B> by(Validations.V2<X, A, B> validator) {
-			return Validations.RelatedTo2.with(destination, a, b, validator);
+		public RelatedTo2<X, A, B> by(V2<X, A, B> validator) {
+			return RelatedTo2.with(destination, a, b, validator);
+		}
+
+		public RelatedTo2<X, A, B> by(V2<X, A, B> validator, String description) {
+			return RelatedTo2.with(destination, a, b, V2.withLabel(validator, description));
 		}
 	}
 }

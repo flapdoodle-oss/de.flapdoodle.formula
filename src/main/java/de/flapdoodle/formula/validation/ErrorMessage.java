@@ -16,12 +16,10 @@
  */
 package de.flapdoodle.formula.validation;
 
-import de.flapdoodle.formula.ValueSource;
 import org.immutables.value.Value;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 @Value.Immutable
 public interface ErrorMessage {

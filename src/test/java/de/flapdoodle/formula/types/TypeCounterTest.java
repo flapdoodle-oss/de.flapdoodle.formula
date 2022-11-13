@@ -16,14 +16,17 @@
  */
 package de.flapdoodle.formula.types;
 
-import com.google.common.collect.Maps;
+import org.junit.jupiter.api.Test;
 
-import java.util.Map;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public final class TypeCounter {
-	private final Map<Class<?>, Integer> typeCounterMap = Maps.newConcurrentMap();
+class TypeCounterTest {
+	@Test
+	void countTypes() {
+		TypeCounter testee = new TypeCounter();
 
-	public int count(Class<?> type) {
-		return typeCounterMap.compute(type, (key, value) -> value != null ? value + 1 : 0);
+		assertThat(testee.count(String.class)).isEqualTo(0);
+		assertThat(testee.count(String.class)).isEqualTo(1);
+		assertThat(testee.count(Integer.class)).isEqualTo(0);
 	}
 }

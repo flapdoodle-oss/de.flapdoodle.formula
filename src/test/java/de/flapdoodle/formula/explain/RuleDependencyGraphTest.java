@@ -20,14 +20,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.calculate.Calculate;
-import de.flapdoodle.formula.calculate.Calculations;
 import de.flapdoodle.formula.calculate.ValueLookup;
 import de.flapdoodle.formula.rules.Rules;
 import de.flapdoodle.formula.solver.*;
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.validation.ErrorMessage;
 import de.flapdoodle.formula.validation.Validate;
-import de.flapdoodle.formula.validation.Validations;
+import de.flapdoodle.formula.validation.validations.V1;
 import de.flapdoodle.formula.values.Named;
 import org.junit.jupiter.api.Test;
 
@@ -49,12 +48,12 @@ class RuleDependencyGraphTest {
 	@Test
 	void dependencyGraphMustBeInRightOrder() {
 		Rules rules = Rules.empty()
-			.add(Calculate.value(all).using(x, mult).by(Calculations.withLabel((_x, _mult) -> (_x!=null && _mult!=null) ? _x*_mult : null, "x*mult")))
-			.add(Calculate.value(sum).using(a, b).by(Calculations.withLabel((_a, _b) -> _a + _b,"a+b")))
-			.add(Calculate.value(mult).using(a, c).by(Calculations.withLabel((_a,_c) -> _a * _c, "a*c")))
-			.add(Validate.value(mult).using(sum).by(Validations.explained((validator, it, _sum) -> (it.get() < _sum.value())
+			.add(Calculate.value(all).using(x, mult).by((_x, _mult) -> (_x!=null && _mult!=null) ? _x*_mult : null, "x*mult"))
+			.add(Calculate.value(sum).using(a, b).by((_a, _b) -> _a + _b,"a+b"))
+			.add(Calculate.value(mult).using(a, c).by((_a,_c) -> _a * _c, "a*c"))
+			.add(Validate.value(mult).using(sum).by((validator, it, _sum) -> (it.get() < _sum.value())
 				? validator.error("fail")
-				: validator.noErrors(),"it<sum")));
+				: validator.noErrors(),"it<sum"));
 
 		String dot = RuleDependencyGraph.explain(rules);
 		System.out.println("---------------------");

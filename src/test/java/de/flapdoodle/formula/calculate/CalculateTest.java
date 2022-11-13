@@ -16,85 +16,466 @@
  */
 package de.flapdoodle.formula.calculate;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
+import de.flapdoodle.formula.calculate.calculations.Aggregated;
+import de.flapdoodle.formula.calculate.calculations.Map1;
+import de.flapdoodle.formula.calculate.calculations.Merge2;
+import de.flapdoodle.formula.calculate.calculations.Merge3;
+import de.flapdoodle.formula.calculate.functions.*;
+import de.flapdoodle.formula.types.HasHumanReadableLabel;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static de.flapdoodle.formula.Value.named;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CalculateTest {
-	@Test
-	void calculateValueFromSourceGivesUnmappedSourceValue() {
-		ValueSink<String> destination = Value.named("dest", String.class);
-		ValueSource<String> source = Value.named("source", String.class);
+	/**
+	 * Map1 Tests
+	 */
+	@Nested
+	class Map1Tests {
+		ValueSource<Integer> source = named("source", Integer.class);
+		ValueSink<String> destination = named("dest", String.class);
 
-		Calculations.Direct<String, String> calculation = Calculate.value(destination).from(source);
+		@Test
+		void valueFrom() {
+			Map1<String, String> testee = Calculate.value(destination).from(named("s", String.class));
 
-		assertThat(calculation.sources()).containsExactly(source);
-		assertThat(calculation.destination()).isEqualTo(destination);
-		assertThat(calculation.calculate(valueResolver(ImmutableMap.of(source, "expected"))))
-			.isEqualTo("expected");
-	}
+			assertThat(testee.sources()).containsExactly(named("s", String.class));
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("FN1Identity{}");
 
-	@Test
-	void calculateValueFrom1MappedSource() {
-		ValueSink<String> destination = Value.named("dest", String.class);
-		ValueSource<Integer> source = Value.named("source", Integer.class);
+			List<? extends MappedValue<?>> mappedValues = mappedValues(MappedValue.of(named("s", String.class), "expected"));
+			assertThat(testee.calculate(valueLookup(mappedValues))).isEqualTo("expected");
+			assertNullIfAnyValueIsNull(testee, mappedValues);
+		}
 
-		Calculations.Direct<Integer, String> calculation = Calculate.value(destination)
-			.using(source)
-			.by(it -> it.toString());
+		@Test
+		void valueRequiring() {
+			Map1<Integer, String> testee = Calculate.value(destination).requiring(source).by(new IntToString());
 
-		assertThat(calculation.sources()).containsExactly(source);
-		assertThat(calculation.destination()).isEqualTo(destination);
-		assertThat(calculation.calculate(valueResolver(ImmutableMap.of(source, 1))))
-			.isEqualTo("1");
-	}
+			assertThat(testee.sources()).containsExactly(source);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("IntToString");
 
-	@Test
-	void calculateValueFrom2MappedSource() {
-		ValueSink<String> destination = Value.named("dest", String.class);
-		ValueSource<Integer> source_a = Value.named("a", Integer.class);
-		ValueSource<Integer> source_b = Value.named("b", Integer.class);
+			assertThat(testee.calculate(valueLookup(MappedValue.of(source, 1)))).isEqualTo("1");
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "IntToString", ImmutableMap.of("a", MappedValue.of(source, 1)));
+		}
 
-		Calculations.Merge2<Integer, Integer, String> calculation = Calculate.value(destination)
-			.using(source_a, source_b)
-			.by((a, b) -> "a: " + a + ", b: " + b);
+		@Test
+		void valueRequiringWithLabel() {
+			Map1<Integer, String> testee = Calculate.value(destination).requiring(source).by(new IntToString(), "label");
 
-		assertThat(calculation.sources()).containsExactly(source_a, source_b);
-		assertThat(calculation.destination()).isEqualTo(destination);
-		assertThat(calculation.calculate(valueResolver(ImmutableMap.of(source_a, 1, source_b, 2))))
-			.isEqualTo("a: 1, b: 2");
-	}
+			assertThat(testee.sources()).containsExactly(source);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("label");
 
-	@Test
-	void calculateValueFrom3MappedSource() {
-		ValueSink<String> destination = Value.named("dest", String.class);
-		ValueSource<Integer> source_a = Value.named("a", Integer.class);
-		ValueSource<Integer> source_b = Value.named("b", Integer.class);
-		ValueSource<Integer> source_c = Value.named("c", Integer.class);
+			assertThat(testee.calculate(valueLookup(MappedValue.of(source, 1)))).isEqualTo("1");
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "label", ImmutableMap.of("a", MappedValue.of(source, 1)));
+		}
 
-		Calculations.Merge3<Integer, Integer, Integer, String> calculation = Calculate.value(destination)
-			.using(source_a, source_b, source_c)
-			.by((a, b, c) -> "a: " + a + ", b: " + b + ", c: " + c);
+		@Test
+		void valueUsing() {
+			Map1<Integer, String> testee = Calculate.value(destination).using(source).by(new NullableIntToString());
 
-		assertThat(calculation.sources()).containsExactly(source_a, source_b, source_c);
-		assertThat(calculation.destination()).isEqualTo(destination);
-		assertThat(calculation.calculate(valueResolver(ImmutableMap.of(source_a, 1, source_b, 2, source_c, 3))))
-			.isEqualTo("a: 1, b: 2, c: 3");
-	}
+			assertThat(testee.sources()).containsExactly(source);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("NullableIntToString");
 
-	static ValueLookup valueResolver(Map<Value<?>, ?> map) {
-		return new ValueLookup() {
-			@Override
-			public <T> T get(Value<T> id) {
-				return (T) map.get(id);
+			assertIntToStringCalledIfNotNull(testee);
+		}
+
+		@Test
+		void valueUsingWithLabel() {
+			Map1<Integer, String> testee = Calculate.value(destination).using(source).by(new NullableIntToString(), "identity");
+
+			assertThat(testee.sources()).containsExactly(source);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("identity");
+
+			assertIntToStringCalledIfNotNull(testee);
+		}
+
+		@Test
+		void valueUsingIfAllSet() {
+			Map1<Integer, String> testee = Calculate.value(destination).using(source).ifAllSetBy(new IntToString());
+
+			assertThat(testee.sources()).containsExactly(source);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("IntToString");
+
+			assertIntToStringCalledIfNotNull(testee);
+		}
+
+		@Test
+		void valueUsingIfAllSetWithLabel() {
+			Map1<Integer, String> testee = Calculate.value(destination).using(source).ifAllSetBy(new IntToString(), "identity");
+
+			assertThat(testee.sources()).containsExactly(source);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("identity");
+
+			assertIntToStringCalledIfNotNull(testee);
+		}
+
+		void assertIntToStringCalledIfNotNull(Calculation<String> testee) {
+			List<? extends MappedValue<?>> mappedValues = mappedValues(MappedValue.of(source, 1));
+
+			assertThat(testee.calculate(valueLookup(mappedValues))).isEqualTo("1");
+			assertNullIfAnyValueIsNull(testee, mappedValues);
+		}
+
+		class IntToString implements F1<Integer, String> {
+			@Nonnull @Override public String apply(@Nonnull Integer value) {
+				return value.toString();
 			}
-		};
+
+			@Override
+			public String toString() {
+				return IntToString.class.getSimpleName();
+			}
+		}
+
+		class NullableIntToString implements FN1<Integer, String> {
+
+			@Nullable @Override public String apply(@Nullable Integer value) {
+				return value != null ? value.toString() : null;
+			}
+
+			@Override
+			public String toString() {
+				return NullableIntToString.class.getSimpleName();
+			}
+		}
 	}
 
+	/**
+	 * Merge2 Tests
+	 */
+	@Nested
+	class Merge2Tests {
+		ValueSource<Integer> a = named("a", Integer.class);
+		ValueSource<Integer> b = named("b", Integer.class);
+		ValueSink<String> destination = named("dest", String.class);
+
+		@Test
+		void valueRequiring() {
+			Merge2<Integer, Integer, String> testee = Calculate.value(destination).requiring(a, b).by(new SumToString());
+
+			assertThat(testee.sources()).containsExactly(a, b);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("SumToString");
+
+			assertThat(testee.calculate(valueLookup(MappedValue.of(a, 1), MappedValue.of(b, 2))))
+				.isEqualTo("3");
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "SumToString", ImmutableMap.of("a", MappedValue.of(a, 1), "b", MappedValue.of(b, 2)));
+		}
+
+		@Test
+		void valueRequiringWithLabel() {
+			Merge2<Integer, Integer, String> testee = Calculate.value(destination).requiring(a, b).by(new SumToString(), "label");
+
+			assertThat(testee.sources()).containsExactly(a, b);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("label");
+
+			assertThat(testee.calculate(valueLookup(MappedValue.of(a, 1), MappedValue.of(b, 2))))
+				.isEqualTo("3");
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "label", ImmutableMap.of("a", MappedValue.of(a, 1), "b", MappedValue.of(b, 2)));
+		}
+
+		@Test
+		void valueUsing() {
+			Merge2<Integer, Integer, String> testee = Calculate.value(destination).using(a, b).by(new NullableSumToString());
+
+			assertThat(testee.sources()).containsExactly(a, b);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("NullableSumToString");
+
+			assertIntToStringCalledIfNotNull(testee);
+		}
+
+		@Test
+		void valueUsingWithLabel() {
+			Merge2<Integer, Integer, String> testee = Calculate.value(destination).using(a, b).by(new NullableSumToString(), "identity");
+
+			assertThat(testee.sources()).containsExactly(a, b);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("identity");
+
+			assertIntToStringCalledIfNotNull(testee);
+		}
+
+		@Test
+		void valueUsingIfAllSet() {
+			Merge2<Integer, Integer, String> testee = Calculate.value(destination).using(a, b).ifAllSetBy(new SumToString());
+
+			assertThat(testee.sources()).containsExactly(a, b);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("SumToString");
+
+			assertIntToStringCalledIfNotNull(testee);
+		}
+
+		@Test
+		void valueUsingIfAllSetWithLabel() {
+			Merge2<Integer, Integer, String> testee = Calculate.value(destination).using(a, b).ifAllSetBy(new SumToString(), "identity");
+
+			assertThat(testee.sources()).containsExactly(a, b);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("identity");
+
+			assertIntToStringCalledIfNotNull(testee);
+		}
+
+		void assertIntToStringCalledIfNotNull(Calculation<String> testee) {
+			List<? extends MappedValue<?>> mappedValues = mappedValues(MappedValue.of(a, 1), MappedValue.of(b, 2));
+
+			assertThat(testee.calculate(valueLookup(mappedValues))).isEqualTo("3");
+			assertNullIfAnyValueIsNull(testee, mappedValues);
+		}
+
+		class SumToString implements F2<Integer, Integer, String> {
+			@Nonnull @Override public String apply(@Nonnull Integer a, @Nonnull Integer b) {
+				return "" + (a + b);
+			}
+			@Override
+			public String toString() {
+				return SumToString.class.getSimpleName();
+			}
+		}
+
+		class NullableSumToString implements FN2<Integer, Integer, String> {
+			@Nullable @Override public String apply(@Nullable Integer a, @Nullable Integer b) {
+				return (a != null && b != null) ? "" + (a + b) : null;
+			}
+
+			@Override
+			public String toString() {
+				return NullableSumToString.class.getSimpleName();
+			}
+		}
+	}
+
+	/**
+	 * Merge3 Tests
+	 */
+	@Nested
+	class Merge3Tests {
+		ValueSource<Integer> a = named("a", Integer.class);
+		ValueSource<Integer> b = named("b", Integer.class);
+		ValueSource<Integer> c = named("c", Integer.class);
+		ValueSink<String> destination = named("dest", String.class);
+
+		@Test
+		void valueRequiring() {
+			Merge3<Integer, Integer, Integer, String> testee = Calculate.value(destination).requiring(a, b, c).by(new SumToString());
+
+			assertThat(testee.sources()).containsExactly(a, b, c);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("SumToString");
+
+			assertThat(testee.calculate(valueLookup(MappedValue.of(a, 1), MappedValue.of(b, 2), MappedValue.of(c, 3))))
+				.isEqualTo("6");
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "SumToString", ImmutableMap.of("a", MappedValue.of(a, 1), "b", MappedValue.of(b, 2), "c", MappedValue.of(c, 3)));
+		}
+
+		@Test
+		void valueRequiringWithLabel() {
+			Merge3<Integer, Integer, Integer, String> testee = Calculate.value(destination).requiring(a, b, c).by(new SumToString(), "label");
+
+			assertThat(testee.sources()).containsExactly(a, b, c);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("label");
+
+			assertThat(testee.calculate(valueLookup(MappedValue.of(a, 1), MappedValue.of(b, 2), MappedValue.of(c, 3))))
+				.isEqualTo("6");
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "label", ImmutableMap.of("a", MappedValue.of(a, 1), "b", MappedValue.of(b, 2), "c", MappedValue.of(c, 3)));
+		}
+
+		@Test
+		void valueUsing() {
+			Merge3<Integer, Integer, Integer, String> testee = Calculate.value(destination).using(a, b, c).by(new NullableSumToString());
+
+			assertThat(testee.sources()).containsExactly(a, b, c);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("NullableSumToString");
+
+			assertIntToStringCalledIfNotNull(testee);
+		}
+
+		@Test
+		void valueUsingWithLabel() {
+			Merge3<Integer, Integer, Integer, String> testee = Calculate.value(destination).using(a, b, c).by(new NullableSumToString(), "identity");
+
+			assertThat(testee.sources()).containsExactly(a, b, c);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("identity");
+
+			assertIntToStringCalledIfNotNull(testee);
+		}
+
+		@Test
+		void valueUsingIfAllSet() {
+			Merge3<Integer, Integer, Integer, String> testee = Calculate.value(destination).using(a, b, c).ifAllSetBy(new SumToString());
+
+			assertThat(testee.sources()).containsExactly(a, b, c);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("SumToString");
+
+			assertIntToStringCalledIfNotNull(testee);
+		}
+
+		@Test
+		void valueUsingIfAllSetWithLabel() {
+			Merge3<Integer, Integer, Integer, String> testee = Calculate.value(destination).using(a, b, c).ifAllSetBy(new SumToString(), "identity");
+
+			assertThat(testee.sources()).containsExactly(a, b, c);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("identity");
+
+			assertIntToStringCalledIfNotNull(testee);
+		}
+
+		void assertIntToStringCalledIfNotNull(Calculation<String> testee) {
+			List<? extends MappedValue<?>> mappedValues = mappedValues(MappedValue.of(a, 1), MappedValue.of(b, 2), MappedValue.of(c, 3));
+
+			assertThat(testee.calculate(valueLookup(mappedValues))).isEqualTo("6");
+			assertNullIfAnyValueIsNull(testee, mappedValues);
+		}
+
+		class SumToString implements F3<Integer, Integer, Integer, String> {
+			@Nonnull @Override public String apply(@Nonnull Integer a, @Nonnull Integer b, @Nonnull Integer c) {
+				return "" + (a + b + c);
+			}
+			@Override
+			public String toString() {
+				return SumToString.class.getSimpleName();
+			}
+		}
+
+		class NullableSumToString implements FN3<Integer, Integer, Integer, String> {
+			@Nullable @Override public String apply(@Nullable Integer a, @Nullable Integer b, @Nullable Integer c) {
+				return (a != null && b != null && c != null) ? "" + (a + b + c) : null;
+			}
+
+			@Override
+			public String toString() {
+				return NullableSumToString.class.getSimpleName();
+			}
+		}
+	}
+
+	/**
+	 * Aggregate Tests
+	 */
+	@Nested
+	class AggregateTests {
+		ValueSource<Integer> a = named("a", Integer.class);
+		ValueSource<Integer> b = named("b", Integer.class);
+		ValueSource<Integer> c = named("c", Integer.class);
+		ValueSink<String> destination = named("dest", String.class);
+
+		@Test
+		void valueAggregating() {
+			Aggregated<Integer, String> testee = Calculate.value(destination).aggregating(Arrays.asList(a, b, c))
+				.by(new SumToString());
+
+			assertThat(testee.sources()).containsExactly(a, b, c);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("SumToString");
+
+			assertThat(testee.calculate(valueLookup(MappedValue.of(a, 1), MappedValue.of(b, 2), MappedValue.of(c, 3))))
+				.isEqualTo("3 entries: 6");
+			assertThat(testee.calculate(valueLookup(MappedValue.of(a, 1), MappedValue.of(b, null), MappedValue.of(c, 3))))
+				.isEqualTo("3 entries: 4");
+		}
+
+		@Test
+		void valueAggregatingWithLabel() {
+			Aggregated<Integer, String> testee = Calculate.value(destination).aggregating(Arrays.asList(a, b, c))
+				.by(new SumToString(), "label");
+
+			assertThat(testee.sources()).containsExactly(a, b, c);
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("label");
+
+			assertThat(testee.calculate(valueLookup(MappedValue.of(a, 1), MappedValue.of(b, 2), MappedValue.of(c, 3))))
+				.isEqualTo("3 entries: 6");
+			assertThat(testee.calculate(valueLookup(MappedValue.of(a, 1), MappedValue.of(b, null), MappedValue.of(c, 3))))
+				.isEqualTo("3 entries: 4");
+		}
+
+		class SumToString implements FN1<List<Integer>,String> {
+
+			@Nullable @Override public String apply(@Nullable List<Integer> values) {
+				return (values!=null) ? values.size()+" entries: "+values.stream()
+					.filter(Objects::nonNull)
+					.mapToInt(it -> it)
+					.sum() : null;
+			}
+
+			@Override public String toString() {
+				return SumToString.class.getSimpleName();
+			}
+		}
+
+	}
+
+	static ValueLookup valueLookup(MappedValue<?>... values) {
+		return StrictValueLookup.of(values);
+	}
+
+	static ValueLookup valueLookup(Collection<? extends MappedValue<?>> values) {
+		return StrictValueLookup.of(values);
+	}
+
+	static List<? extends MappedValue<?>> mappedValues(MappedValue<?>... mappedValues) {
+		return Arrays.asList(mappedValues);
+	}
+
+	private void assertNullPointerExceptionIfAnyValueIsNull(Calculation<?> testee, String label, Map<String, MappedValue<?>> nonNullValues) {
+		assertThat(testee.calculate(valueLookup(nonNullValues.values()))).isNotNull();
+		nonNullValues.entrySet().forEach(entry -> {
+			MappedValue<?> setToNull = entry.getValue();
+			List<MappedValue<?>> unchanged = nonNullValues.values().stream().filter(it -> it != setToNull).collect(Collectors.toList());
+
+			ValueLookup valueLookup = valueLookup(ImmutableList.<MappedValue<?>>builder()
+				.addAll(unchanged)
+				.add(MappedValue.of(setToNull.id(), null))
+				.build());
+
+			assertThatThrownBy(() -> testee.calculate(valueLookup))
+				.isInstanceOf(NullPointerException.class)
+				.hasMessage(label + ": " + HasHumanReadableLabel.asHumanReadable(entry.getKey()) + " is null");
+		});
+	}
+
+	private void assertNullIfAnyValueIsNull(Calculation<?> testee, Collection<? extends MappedValue<?>> nonNullValues) {
+		assertThat(testee.calculate(valueLookup(nonNullValues))).isNotNull();
+
+		for (MappedValue<?> setToNull : nonNullValues) {
+			List<MappedValue<?>> unchanged = nonNullValues.stream().filter(it -> it != setToNull).collect(Collectors.toList());
+
+			ValueLookup valueLookup = valueLookup(ImmutableList.<MappedValue<?>>builder()
+				.addAll(unchanged)
+				.add(MappedValue.of(setToNull.id(), null))
+				.build());
+
+			assertThat(testee.calculate(valueLookup)).isNull();
+		}
+	}
 }

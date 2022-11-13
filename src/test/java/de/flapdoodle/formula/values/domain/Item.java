@@ -17,7 +17,7 @@
 package de.flapdoodle.formula.values.domain;
 
 import de.flapdoodle.formula.calculate.Calculate;
-import de.flapdoodle.formula.calculate.Calculations;
+import de.flapdoodle.formula.calculate.functions.FN2;
 import de.flapdoodle.formula.rules.Rules;
 import de.flapdoodle.formula.types.Id;
 import de.flapdoodle.formula.types.Maybe;
@@ -76,7 +76,7 @@ public interface Item extends ChangeableInstance<Item>, HasRules {
 			.add(Calculate
 				.value(Item.sumProperty.withId(id()))
 				.using(Item.priceProperty.withId(id()), Item.quantityProperty.withId(id()))
-				.by(Calculations.withLabel((price, quantity) -> (price != null && quantity != null) ? price * quantity : null,"price*quantity")));
+				.ifAllSetBy((price, quantity) -> price * quantity,"price*quantity"));
 	}
 
 	static ImmutableItem.Builder builder() {

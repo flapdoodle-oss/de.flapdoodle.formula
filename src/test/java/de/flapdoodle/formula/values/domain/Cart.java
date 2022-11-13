@@ -17,7 +17,7 @@
 package de.flapdoodle.formula.values.domain;
 
 import de.flapdoodle.formula.calculate.Calculate;
-import de.flapdoodle.formula.calculate.Calculations;
+import de.flapdoodle.formula.calculate.functions.FN2;
 import de.flapdoodle.formula.rules.Rules;
 import de.flapdoodle.formula.types.Id;
 import de.flapdoodle.formula.types.Maybe;
@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static de.flapdoodle.formula.Value.named;
 import static de.flapdoodle.formula.values.properties.Properties.copyOnChange;
 
 @Value.Immutable
@@ -79,15 +80,15 @@ public interface Cart extends ChangeableInstance<Cart>, HasRules {
 	@Override
 	@Value.Auxiliary
 	default Rules addRulesTo(Rules current) {
-		Related<Double, Id<Cart>> min = de.flapdoodle.formula.Value.named("min", Double.class).relatedTo(id());
-		Related<Double, Id<Cart>> max = de.flapdoodle.formula.Value.named("max", Double.class).relatedTo(id());
+		Related<Double, Id<Cart>> min = named("min", Double.class).relatedTo(id());
+		Related<Double, Id<Cart>> max = named("max", Double.class).relatedTo(id());
 
 		for (Item item : items()) {
 			current = item.addRulesTo(current);
 			current = current.add(
 				Calculate.value(Item.isCheapestProperty.withId(item.id()))
 					.using(min, Item.sumProperty.withId(item.id()))
-					.by(Calculations.withLabel(Objects::equals,"min==sum"))
+					.by((a, b) -> a != null && a.equals(b),"min==sum")
 			);
 		}
 
@@ -99,26 +100,24 @@ public interface Cart extends ChangeableInstance<Cart>, HasRules {
 			.add(Calculate
 				.value(Cart.sumWithoutTax.withId(id()))
 				.aggregating(itemSumIds)
-				.by(Calculations.withLabel(list -> list.stream()
+				.by(list -> list.stream()
 					.filter(Objects::nonNull)
 					.mapToDouble(it -> it)
-					.sum(),"sum(...)")))
+					.sum(),"sum(...)"))
 			.add(Calculate
 				.value(min)
 				.aggregating(itemSumIds)
-				.by(Calculations.withLabel(list -> list.stream()
+				.by(list -> list.stream()
 					.filter(Objects::nonNull)
 					.mapToDouble(it -> it)
 					.min().orElse(0.0),"min"))
-			)
 			.add(Calculate
 				.value(max)
 				.aggregating(itemSumIds)
-				.by(Calculations.withLabel(list -> list.stream()
+				.by(list -> list.stream()
 					.filter(Objects::nonNull)
 					.mapToDouble(it -> it)
 					.max().orElse(0.0),"max"))
-			)
 			;
 	}
 

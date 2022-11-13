@@ -19,7 +19,7 @@ package de.flapdoodle.formula.types;
 import org.immutables.value.Value;
 
 public interface HasHumanReadableLabel {
-	@Value.Lazy
+	@Value.Auxiliary
 	String asHumanReadable();
 
 	static String asHumanReadable(Object instance) {
