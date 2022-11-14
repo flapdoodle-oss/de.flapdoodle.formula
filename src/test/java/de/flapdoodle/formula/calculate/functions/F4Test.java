@@ -17,36 +17,30 @@
 package de.flapdoodle.formula.calculate.functions;
 
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
-import org.immutables.value.Value;
+import org.junit.jupiter.api.Test;
 
 import javax.annotation.Nonnull;
 
-@FunctionalInterface
-public interface F3<A, B, C, R> {
-	@Nonnull R apply(@Nonnull A a, @Nonnull B b, @Nonnull C c);
+import static org.assertj.core.api.Assertions.assertThat;
 
-	@Value.Immutable
-	abstract class F3WithLabel<A, B, C, R> implements F3<A, B, C, R>, HasHumanReadableLabel {
-		@Value.Parameter
-		protected abstract F3<A, B, C, R> delegate();
-		
-		@Value.Parameter
-		protected abstract String label();
+class F4Test {
 
-		@Override
-		@Value.Auxiliary
-		public R apply(A a, B b, C c) {
-			return delegate().apply(a, b, c);
-		}
-
-		@Override
-		public String asHumanReadable() {
-			return label();
-		}
+	@Test
+	void withLabel() {
+		F4<String, String, String, String, Integer> testee = F4.withLabel(new StringsToSum(), "label");
+		assertThat(testee.apply("2","3","4","5")).isEqualTo(14);
+		assertThat(HasHumanReadableLabel.asHumanReadable(testee)).isEqualTo("label");
 	}
 
-	static <A, B, C, R> F3<A, B, C, R> withLabel(F3<A, B, C, R> delegate, String label) {
-		return ImmutableF3WithLabel.of(delegate, label);
+	static class StringsToSum implements F4<String, String, String, String, Integer> {
+
+		@Nonnull @Override public Integer apply(@Nonnull String a, @Nonnull String b, @Nonnull String c, @Nonnull String d) {
+			return Integer.parseInt(a) + Integer.parseInt(b) + Integer.parseInt(c) + Integer.parseInt(d);
+		}
+
+		@Override public String toString() {
+			return StringsToSum.class.getSimpleName();
+		}
 	}
 
 }

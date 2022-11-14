@@ -22,21 +22,21 @@ import org.immutables.value.Value;
 import javax.annotation.Nonnull;
 
 @FunctionalInterface
-public interface F3<A, B, C, R> {
-	@Nonnull R apply(@Nonnull A a, @Nonnull B b, @Nonnull C c);
+public interface F4<A, B, C, D, R> {
+	@Nonnull R apply(@Nonnull A a, @Nonnull B b, @Nonnull C c, @Nonnull D d);
 
 	@Value.Immutable
-	abstract class F3WithLabel<A, B, C, R> implements F3<A, B, C, R>, HasHumanReadableLabel {
+	abstract class F4WithLabel<A, B, C, D, R> implements F4<A, B, C, D, R>, HasHumanReadableLabel {
 		@Value.Parameter
-		protected abstract F3<A, B, C, R> delegate();
-		
+		protected abstract F4<A, B, C, D, R> delegate();
+
 		@Value.Parameter
 		protected abstract String label();
 
 		@Override
 		@Value.Auxiliary
-		public R apply(A a, B b, C c) {
-			return delegate().apply(a, b, c);
+		public R apply(A a, B b, C c, D d) {
+			return delegate().apply(a, b, c, d);
 		}
 
 		@Override
@@ -45,8 +45,8 @@ public interface F3<A, B, C, R> {
 		}
 	}
 
-	static <A, B, C, R> F3<A, B, C, R> withLabel(F3<A, B, C, R> delegate, String label) {
-		return ImmutableF3WithLabel.of(delegate, label);
+	static <A, B, C, D, R> F4<A, B, C, D, R> withLabel(F4<A, B, C, D, R> delegate, String label) {
+		return ImmutableF4WithLabel.of(delegate, label);
 	}
 
 }
