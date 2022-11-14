@@ -20,6 +20,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.calculate.Calculate;
+import de.flapdoodle.formula.calculate.MappedValue;
+import de.flapdoodle.formula.calculate.StrictValueLookup;
 import de.flapdoodle.formula.calculate.ValueLookup;
 import de.flapdoodle.formula.rules.Rules;
 import de.flapdoodle.formula.solver.*;
@@ -64,12 +66,11 @@ class RuleDependencyGraphTest {
 
 		ValueGraph valueGraph = ValueDependencyGraphBuilder.build(rules);
 
-		Result result = Solver.solve(valueGraph, valueLookupOf(ImmutableMap.<Value<?>, Object>builder()
-			.put(a,1)
-			.put(b,10)
-			.put(c,2)
-			.put(x,5)
-			.build()));
+		Result result = Solver.solve(valueGraph, StrictValueLookup.of(
+			MappedValue.of(a,1),
+			MappedValue.of(b,10),
+			MappedValue.of(c,2),
+			MappedValue.of(x,5)));
 
 		Explanation explanation = valueGraph.explain(all);
 		System.out.println(Explanation.render(explanation, value -> {
@@ -81,14 +82,5 @@ class RuleDependencyGraphTest {
 		assertThat(result.get(mult)).isNull();
 		assertThat(result.validationErrors().get(mult).errorMessages())
 			.containsExactly(ErrorMessage.of("fail"));
-	}
-	private ValueLookup valueLookupOf(ImmutableMap<Value<?>, Object> map) {
-		return new ValueLookup() {
-			@Override
-			public <T> @Nullable T get(Value<T> id) {
-				Preconditions.checkArgument(map.containsKey(id),"unknown value: %s", id);
-				return (T) map.get(id);
-			}
-		};
 	}
 }
