@@ -47,9 +47,14 @@ public abstract class Validate {
 		public <A> WithRelationTo1<X, A> using(ValueSource<A> a) {
 			return new WithRelationTo1<>(destination, a);
 		}
-
 		public <A, B> WithRelationTo2<X, A, B> using(ValueSource<A> a, ValueSource<B> b) {
 			return new WithRelationTo2<>(destination, a, b);
+		}
+		public <A, B, C> WithRelationTo3<X, A, B, C> using(ValueSource<A> a, ValueSource<B> b, ValueSource<C> c) {
+			return new WithRelationTo3<>(destination, a, b, c);
+		}
+		public <A, B, C, D> WithRelationTo4<X, A, B, C, D> using(ValueSource<A> a, ValueSource<B> b, ValueSource<C> c, ValueSource<D> d) {
+			return new WithRelationTo4<>(destination, a, b, c, d);
 		}
 	}
 
@@ -88,6 +93,52 @@ public abstract class Validate {
 
 		public RelatedTo2<X, A, B> by(V2<X, A, B> validator, String description) {
 			return RelatedTo2.with(destination, a, b, V2.withLabel(validator, description));
+		}
+	}
+
+	public static class WithRelationTo3<X, A, B, C> {
+		private Value<X> destination;
+		private ValueSource<A> a;
+		private ValueSource<B> b;
+		private ValueSource<C> c;
+
+		public WithRelationTo3(Value<X> destination, ValueSource<A> a, ValueSource<B> b, ValueSource<C> c) {
+			this.destination = destination;
+			this.a = a;
+			this.b = b;
+			this.c = c;
+		}
+
+		public RelatedTo3<X, A, B, C> by(V3<X, A, B, C> validator) {
+			return RelatedTo3.with(destination, a, b, c,  validator);
+		}
+
+		public RelatedTo3<X, A, B, C> by(V3<X, A, B, C> validator, String description) {
+			return RelatedTo3.with(destination, a, b, c, V3.withLabel(validator, description));
+		}
+	}
+
+	public static class WithRelationTo4<X, A, B, C, D> {
+		private Value<X> destination;
+		private ValueSource<A> a;
+		private ValueSource<B> b;
+		private ValueSource<C> c;
+		private ValueSource<D> d;
+
+		public WithRelationTo4(Value<X> destination, ValueSource<A> a, ValueSource<B> b, ValueSource<C> c, ValueSource<D> d) {
+			this.destination = destination;
+			this.a = a;
+			this.b = b;
+			this.c = c;
+			this.d = d;
+		}
+
+		public RelatedTo4<X, A, B, C, D> by(V4<X, A, B, C, D> validator) {
+			return RelatedTo4.with(destination, a, b, c,d,   validator);
+		}
+
+		public RelatedTo4<X, A, B, C, D> by(V4<X, A, B, C, D> validator, String description) {
+			return RelatedTo4.with(destination, a, b, c, d, V4.withLabel(validator, description));
 		}
 	}
 }
