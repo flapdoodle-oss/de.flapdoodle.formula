@@ -33,6 +33,7 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 import javax.annotation.Nullable;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -99,20 +100,21 @@ public abstract class ValueDependencyGraphBuilder {
 			@Nullable
 			Validation<?> validation
 		) {
-			List<Value<?>> calcSources = Optional.ofNullable(calculation)
-				.map(c -> c.sources().stream().map(
-					it -> {
+			Set<? extends ValueSource<?>> calcSources = Optional.ofNullable(calculation)
+				.filter(c -> {
+					c.sources().forEach(it -> {
 						Preconditions.checkArgument(!(it instanceof Unvalidated), "not allowed in calculation: %s", it);
-						return it;
-					}
-				).collect(Collectors.<Value<?>>toList()))
-				.orElse(ImmutableList.of());
+					});
+					return true;
+				})
+				.map(Calculation::sources)
+				.orElse(ImmutableSet.of());
 
-			List<? extends Value<?>> validationSources = Optional.ofNullable(validation)
+			Set<? extends ValueSource<?>> validationSources = Optional.ofNullable(validation)
 				.map(Validation::sources)
-				.orElse(ImmutableList.of());
+				.orElse(ImmutableSet.of());
 
-			ImmutableList<Value<?>> allSources = ImmutableList.<Value<?>>builder()
+			ImmutableSet<Value<?>> allSources = ImmutableSet.<Value<?>>builder()
 				.addAll(calcSources)
 				.addAll(validationSources)
 				.build();

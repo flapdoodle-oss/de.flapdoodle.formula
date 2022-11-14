@@ -16,14 +16,14 @@
  */
 package de.flapdoodle.formula.howto.calculate;
 
+import com.google.common.collect.ImmutableSet;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.calculate.Calculation;
 import de.flapdoodle.formula.calculate.ValueLookup;
 import org.immutables.value.Value.Immutable;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
 @Immutable
 public abstract class SumCalculation implements Calculation<Integer> {
@@ -35,8 +35,8 @@ public abstract class SumCalculation implements Calculation<Integer> {
 
 	@Override
 	@org.immutables.value.Value.Lazy
-	public List<? extends ValueSource<?>> sources() {
-		return Arrays.asList(a(), b());
+	public Set<? extends ValueSource<?>> sources() {
+		return ImmutableSet.of(a(), b());
 	}
 
 	@Override

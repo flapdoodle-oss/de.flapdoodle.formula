@@ -23,13 +23,14 @@ import org.immutables.value.Value.Lazy;
 import org.immutables.value.Value.Parameter;
 
 import java.util.List;
+import java.util.Set;
 
 public interface Calculation<D> {
 	@Parameter
 	Value<D> destination();
 
 	@Lazy
-	List<? extends ValueSource<?>> sources();
+	Set<? extends ValueSource<?>> sources();
 
 	@Auxiliary
 	D calculate(ValueLookup values);

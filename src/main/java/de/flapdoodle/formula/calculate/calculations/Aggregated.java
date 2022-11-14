@@ -16,6 +16,7 @@
  */
 package de.flapdoodle.formula.calculate.calculations;
 
+import com.google.common.collect.ImmutableSet;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.calculate.Calculation;
@@ -25,6 +26,7 @@ import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import org.immutables.value.Value;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Value.Immutable(builder = false)
@@ -36,8 +38,8 @@ public abstract class Aggregated<S, X> implements Calculation<X>, HasHumanReadab
 	protected abstract FN1<List<S>, X> aggregation();
 
 	@Override
-	public List<ValueSource<S>> sources() {
-		return sourceList();
+	public Set<ValueSource<S>> sources() {
+		return ImmutableSet.copyOf(sourceList());
 	}
 
 	@Override

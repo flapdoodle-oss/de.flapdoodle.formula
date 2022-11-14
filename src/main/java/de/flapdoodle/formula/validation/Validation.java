@@ -18,19 +18,23 @@ package de.flapdoodle.formula.validation;
 
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSource;
+import org.immutables.value.Value.Auxiliary;
+import org.immutables.value.Value.Lazy;
+import org.immutables.value.Value.Parameter;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface Validation<D> {
-	@org.immutables.value.Value.Parameter
+	@Parameter
 	Value<D> destination();
 
-	@org.immutables.value.Value.Lazy
-	List<? extends ValueSource<?>> sources();
+	@Lazy
+	Set<? extends ValueSource<?>> sources();
 
-	@org.immutables.value.Value.Auxiliary
+	@Auxiliary
 	List<ErrorMessage> validate(Optional<D> unvalidatedValue, ValidatedValueLookup values);
 
 	static List<ErrorMessage> noErrors() {

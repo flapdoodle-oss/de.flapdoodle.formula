@@ -17,6 +17,7 @@
 package de.flapdoodle.formula.validation.validations;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.validation.ErrorMessage;
@@ -24,8 +25,10 @@ import de.flapdoodle.formula.validation.ValidatedValueLookup;
 import de.flapdoodle.formula.validation.Validation;
 import org.immutables.value.Value;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Value.Immutable(builder = false)
 public abstract class RelatedTo4<X, A, B, C, D> implements Validation<X>, HasHumanReadableLabel {
@@ -45,8 +48,9 @@ public abstract class RelatedTo4<X, A, B, C, D> implements Validation<X>, HasHum
 	protected abstract V4<X, A, B, C, D> validation();
 
 	@Override
-	public List<ValueSource<?>> sources() {
-		return ImmutableList.of(a(), b(), c(), d());
+	@Value.Lazy
+	public Set<ValueSource<?>> sources() {
+		return ImmutableSet.of(a(), b(), c(), d());
 	}
 
 	@Override
