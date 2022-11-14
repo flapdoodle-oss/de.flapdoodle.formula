@@ -18,10 +18,7 @@ package de.flapdoodle.formula.calculate;
 
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
-import de.flapdoodle.formula.calculate.calculations.Aggregated;
-import de.flapdoodle.formula.calculate.calculations.Map1;
-import de.flapdoodle.formula.calculate.calculations.Merge2;
-import de.flapdoodle.formula.calculate.calculations.Merge3;
+import de.flapdoodle.formula.calculate.calculations.*;
 import de.flapdoodle.formula.calculate.functions.*;
 
 import java.util.List;
@@ -65,6 +62,21 @@ public abstract class Calculate {
 		}
 		public <A, B, C> WithMerge3Nullables<X, A, B, C> using(ValueSource<A> a, ValueSource<B> b, ValueSource<C> c) {
 			return new WithMerge3Nullables<>(destination, a, b, c);
+		}
+
+		public <A, B, C, D> WithMerge4<X, A, B, C, D> requiring(ValueSource<A> a, ValueSource<B> b, ValueSource<C> c, ValueSource<D> d) {
+			return new WithMerge4<>(destination, a, b, c, d);
+		}
+		public <A, B, C, D> WithMerge4Nullables<X, A, B, C, D> using(ValueSource<A> a, ValueSource<B> b, ValueSource<C> c, ValueSource<D> d) {
+			return new WithMerge4Nullables<>(destination, a, b, c, d);
+		}
+
+		public <A, B, C, D, E> WithMerge5<X, A, B, C, D, E> requiring(ValueSource<A> a, ValueSource<B> b, ValueSource<C> c, ValueSource<D> d, ValueSource<E> e) {
+			return new WithMerge5<>(destination, a, b, c, d, e);
+		}
+		public <A, B, C, D, E> WithMerge5Nullables<X, A, B, C, D, E> using(ValueSource<A> a, ValueSource<B> b, ValueSource<C> c, ValueSource<D> d,
+			ValueSource<E> e) {
+			return new WithMerge5Nullables<>(destination, a, b, c, d, e);
 		}
 
 		public <S> WithSourcesNullable<X, S> aggregating(List<? extends ValueSource<S>> sources) {
@@ -214,6 +226,112 @@ public abstract class Calculate {
 
 		public Merge3<A, B, C, X> ifAllSetBy(F3<A, B, C, X> transformation, String description) {
 			return Merge3.with(a, b, c, destination, FN3.mapOnlyIfNotNull(F3.withLabel(transformation, description)));
+		}
+	}
+
+	protected static abstract class WithMerge4Abstract<X, A, B, C, D> {
+		protected final ValueSink<X> destination;
+		protected final ValueSource<A> a;
+		protected final ValueSource<B> b;
+		protected final ValueSource<C> c;
+		protected final ValueSource<D> d;
+
+		protected WithMerge4Abstract(ValueSink<X> destination, ValueSource<A> a, ValueSource<B> b, ValueSource<C> c, ValueSource<D> d) {
+			this.destination = destination;
+			this.a = a;
+			this.b = b;
+			this.c = c;
+			this.d = d;
+		}
+	}
+
+	public static class WithMerge4<X, A, B, C, D> extends WithMerge4Abstract<X, A, B, C, D> {
+		public WithMerge4(ValueSink<X> destination, ValueSource<A> a, ValueSource<B> b, ValueSource<C> c, ValueSource<D> d) {
+			super(destination, a, b, c, d);
+		}
+
+		public Merge4<A, B, C, D, X> by(F4<A, B, C, D, X> transformation) {
+			return Merge4.with(a, b, c, d, destination, FN4.checkNull(transformation));
+		}
+
+		public Merge4<A, B, C, D, X> by(F4<A, B, C, D, X> transformation, String description) {
+			return Merge4.with(a, b, c, d, destination, FN4.checkNull(F4.withLabel(transformation, description)));
+		}
+	}
+
+	public static class WithMerge4Nullables<X, A, B, C, D> extends WithMerge4Abstract<X, A, B, C, D> {
+		public WithMerge4Nullables(ValueSink<X> destination, ValueSource<A> a, ValueSource<B> b, ValueSource<C> c, ValueSource<D> d) {
+			super(destination, a, b, c, d);
+		}
+
+		public Merge4<A, B, C, D, X> by(FN4<A, B, C, D, X> transformation) {
+			return Merge4.with(a, b, c, d, destination, transformation);
+		}
+
+		public Merge4<A, B, C, D, X> by(FN4<A, B, C, D, X> transformation, String description) {
+			return Merge4.with(a, b, c, d, destination, FN4.withLabel(transformation, description));
+		}
+
+		public Merge4<A, B, C, D, X> ifAllSetBy(F4<A, B, C, D, X> transformation) {
+			return Merge4.with(a, b, c, d, destination, FN4.mapOnlyIfNotNull(transformation));
+		}
+
+		public Merge4<A, B, C, D, X> ifAllSetBy(F4<A, B, C, D, X> transformation, String description) {
+			return Merge4.with(a, b, c, d, destination, FN4.mapOnlyIfNotNull(F4.withLabel(transformation, description)));
+		}
+	}
+
+	protected static abstract class WithMerge5Abstract<X, A, B, C, D, E> {
+		protected final ValueSink<X> destination;
+		protected final ValueSource<A> a;
+		protected final ValueSource<B> b;
+		protected final ValueSource<C> c;
+		protected final ValueSource<D> d;
+		protected final ValueSource<E> e;
+
+		protected WithMerge5Abstract(ValueSink<X> destination, ValueSource<A> a, ValueSource<B> b, ValueSource<C> c, ValueSource<D> d, ValueSource<E> e) {
+			this.destination = destination;
+			this.a = a;
+			this.b = b;
+			this.c = c;
+			this.d = d;
+			this.e = e;
+		}
+	}
+
+	public static class WithMerge5<X, A, B, C, D, E> extends WithMerge5Abstract<X, A, B, C, D, E> {
+		public WithMerge5(ValueSink<X> destination, ValueSource<A> a, ValueSource<B> b, ValueSource<C> c, ValueSource<D> d, ValueSource<E> e) {
+			super(destination, a, b, c, d, e);
+		}
+
+		public Merge5<A, B, C, D, E, X> by(F5<A, B, C, D, E, X> transformation) {
+			return Merge5.with(a, b, c, d, e, destination, FN5.checkNull(transformation));
+		}
+
+		public Merge5<A, B, C, D, E, X> by(F5<A, B, C, D, E, X> transformation, String description) {
+			return Merge5.with(a, b, c, d, e, destination, FN5.checkNull(F5.withLabel(transformation, description)));
+		}
+	}
+
+	public static class WithMerge5Nullables<X, A, B, C, D, E> extends WithMerge5Abstract<X, A, B, C, D, E> {
+		public WithMerge5Nullables(ValueSink<X> destination, ValueSource<A> a, ValueSource<B> b, ValueSource<C> c, ValueSource<D> d, ValueSource<E> e) {
+			super(destination, a, b, c, d, e);
+		}
+
+		public Merge5<A, B, C, D, E, X> by(FN5<A, B, C, D, E, X> transformation) {
+			return Merge5.with(a, b, c, d, e, destination, transformation);
+		}
+
+		public Merge5<A, B, C, D, E, X> by(FN5<A, B, C, D, E, X> transformation, String description) {
+			return Merge5.with(a, b, c, d, e, destination, FN5.withLabel(transformation, description));
+		}
+
+		public Merge5<A, B, C, D, E, X> ifAllSetBy(F5<A, B, C, D, E, X> transformation) {
+			return Merge5.with(a, b, c, d, e, destination, FN5.mapOnlyIfNotNull(transformation));
+		}
+
+		public Merge5<A, B, C, D, E, X> ifAllSetBy(F5<A, B, C, D, E, X> transformation, String description) {
+			return Merge5.with(a, b, c, d, e, destination, FN5.mapOnlyIfNotNull(F5.withLabel(transformation, description)));
 		}
 	}
 
