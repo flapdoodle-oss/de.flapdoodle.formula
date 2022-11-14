@@ -146,15 +146,10 @@ public abstract class Solver {
 	}
 
 	private static <T> List<ErrorMessage> validate(ValidatedValueLookup valueLookup, Validation<T> validation, T calculated) {
-		return validation.validate(validator(), Optional.ofNullable(calculated), valueLookup);
+		return validation.validate(Optional.ofNullable(calculated), valueLookup);
 	}
 
 	private static <T> Context processUnvalidated(ValueLookup lookup, Unvalidated<T> node, Context context) {
 		return context.addUnvalidated(node, lookup.get(node.wrapped()));
-	}
-
-	private static Validator validator() {
-		return new Validator() {
-		};
 	}
 }

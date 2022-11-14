@@ -18,6 +18,7 @@ package de.flapdoodle.formula.rules;
 
 import com.google.common.collect.ImmutableList;
 import de.flapdoodle.formula.validation.Validate;
+import de.flapdoodle.formula.validation.Validation;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -30,13 +31,13 @@ class ValidationMapTest {
 	@Test
 	void calculationsByDestination() {
 		ValidationMap testee = ValidationMap.empty().addAll(Arrays.asList(
-			Validate.value(named("a", String.class)).by((validator, it) -> ImmutableList.of()),
+			Validate.value(named("a", String.class)).by((it) -> ImmutableList.of()),
 			Validate.value(named("b", String.class)).using(named("c", String.class))
-				.by((validator, it, c) -> validator.noErrors())
+				.by((it, c) -> Validation.noErrors())
 		));
 
 		assertThatThrownBy(() -> testee.add(Validate.value(named("a", String.class))
-			.by((validator, it) -> validator.noErrors())));
+			.by((it) -> Validation.noErrors())));
 
 		assertThat(testee.get(named("a", String.class)))
 			.isNotNull();
@@ -55,8 +56,8 @@ class ValidationMapTest {
 	@Test
 	void detectKeyCollisions() {
 		assertThatThrownBy(() -> ValidationMap.empty().addAll(Arrays.asList(
-				Validate.value(named("a", String.class)).by((validator, it) -> validator.noErrors()),
-				Validate.value(named("a", String.class)).by((validator, it) -> validator.noErrors())
+				Validate.value(named("a", String.class)).by((it) -> Validation.noErrors()),
+				Validate.value(named("a", String.class)).by((it) -> Validation.noErrors())
 			))).isInstanceOf(IllegalArgumentException.class);
 	}
 

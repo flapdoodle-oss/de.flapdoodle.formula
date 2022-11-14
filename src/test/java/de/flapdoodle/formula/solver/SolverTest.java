@@ -24,6 +24,7 @@ import de.flapdoodle.formula.calculate.StrictValueLookup;
 import de.flapdoodle.formula.rules.Rules;
 import de.flapdoodle.formula.validation.ErrorMessage;
 import de.flapdoodle.formula.validation.Validate;
+import de.flapdoodle.formula.validation.Validation;
 import de.flapdoodle.formula.values.Named;
 import org.junit.jupiter.api.Test;
 
@@ -70,7 +71,7 @@ class SolverTest {
 			.add(
 				Validate.value(aProperty)
 					.using(bProperty)
-					.by((validator, value, b) -> ImmutableList.of())
+					.by((value, b) -> ImmutableList.of())
 			)
 		);
 
@@ -96,10 +97,10 @@ class SolverTest {
 			.add(
 				Validate.value(aProperty)
 					.using(bProperty)
-					.by((validator, value, b) -> ImmutableList.of()),
+					.by((value, b) -> ImmutableList.of()),
 				Validate.value(bProperty)
 					.using(Value.unvalidated(aProperty))
-					.by(((validator, value, a) -> validator.noErrors()))
+					.by(((value, a) -> Validation.noErrors()))
 			)
 		);
 
@@ -122,10 +123,10 @@ class SolverTest {
 					.by((a, b) -> a + b),
 				Calculate.value(sumProperty)
 					.from(sumValue))
-			.add(Validate.value(sumValue).by((validator, value) -> value.map(it -> (it > 10)
-					? validator.error("to-big", it)
-					: validator.noErrors())
-				.orElse(validator.error("not-set"))))
+			.add(Validate.value(sumValue).by((value) -> value.map(it -> (it > 10)
+					? Validation.error("to-big", it)
+					: Validation.noErrors())
+				.orElse(Validation.error("not-set"))))
 		);
 
 		Context context = Solver.solve(Context.empty(), valueGraph, StrictValueLookup.of(
@@ -151,12 +152,12 @@ class SolverTest {
 					.by((a, b) -> (a!=null && b!=null) ? a + b : null),
 				Calculate.value(sumProperty)
 					.from(sumValue))
-			.add(Validate.value(aProperty).by((validator, value) -> validator.error("wrong")))
+			.add(Validate.value(aProperty).by((value) -> Validation.error("wrong")))
 			.add(Validate.value(sumValue)
 				.using(aProperty, cProperty)
-				.by((validator, value, a, b) -> a.isValid()
-					? validator.noErrors()
-					: validator.error("source-invalid")))
+				.by((value, a, b) -> a.isValid()
+					? Validation.noErrors()
+					: Validation.error("source-invalid")))
 		);
 
 		Context context = Solver.solve(Context.empty(), valueGraph, StrictValueLookup.of(

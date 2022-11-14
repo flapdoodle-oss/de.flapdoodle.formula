@@ -18,14 +18,13 @@ package de.flapdoodle.formula.validation.validations;
 
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.validation.ErrorMessage;
-import de.flapdoodle.formula.validation.Validator;
 import org.immutables.value.Value;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface V0<T> {
-	List<ErrorMessage> validate(Validator validator, Optional<T> value);
+	List<ErrorMessage> validate(Optional<T> value);
 
 	@Value.Immutable
 	abstract class V0Explained<T> implements V0<T>, HasHumanReadableLabel {
@@ -36,8 +35,8 @@ public interface V0<T> {
 
 		@Override
 		@Value.Auxiliary
-		public List<ErrorMessage> validate(Validator validator, Optional<T> value) {
-			return delegate().validate(validator, value);
+		public List<ErrorMessage> validate(Optional<T> value) {
+			return delegate().validate(value);
 		}
 
 		@Override

@@ -37,8 +37,8 @@ public abstract class Self<X> implements Validation<X>, HasHumanReadableLabel {
 	}
 
 	@Override
-	public List<ErrorMessage> validate(Validator validator, Optional<X> unvalidatedValue, ValidatedValueLookup values) {
-		return validation().validate(validator, unvalidatedValue);
+	public List<ErrorMessage> validate(Optional<X> unvalidatedValue, ValidatedValueLookup values) {
+		return validation().validate(unvalidatedValue);
 	}
 
 	@Override

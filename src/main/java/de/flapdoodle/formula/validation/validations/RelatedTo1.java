@@ -22,7 +22,6 @@ import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.validation.ErrorMessage;
 import de.flapdoodle.formula.validation.ValidatedValueLookup;
 import de.flapdoodle.formula.validation.Validation;
-import de.flapdoodle.formula.validation.Validator;
 import org.immutables.value.Value;
 
 import java.util.List;
@@ -42,8 +41,8 @@ public abstract class RelatedTo1<X, A> implements Validation<X>, HasHumanReadabl
 	}
 
 	@Override
-	public List<ErrorMessage> validate(Validator validator, Optional<X> unvalidatedValue, ValidatedValueLookup values) {
-		return validation().validate(validator, unvalidatedValue, values.get(source()));
+	public List<ErrorMessage> validate(Optional<X> unvalidatedValue, ValidatedValueLookup values) {
+		return validation().validate(unvalidatedValue, values.get(source()));
 	}
 
 	@Override

@@ -26,7 +26,7 @@ import de.flapdoodle.formula.solver.*;
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.validation.ErrorMessage;
 import de.flapdoodle.formula.validation.Validate;
-import de.flapdoodle.formula.validation.validations.V1;
+import de.flapdoodle.formula.validation.Validation;
 import de.flapdoodle.formula.values.Named;
 import org.junit.jupiter.api.Test;
 
@@ -51,9 +51,9 @@ class RuleDependencyGraphTest {
 			.add(Calculate.value(all).using(x, mult).by((_x, _mult) -> (_x!=null && _mult!=null) ? _x*_mult : null, "x*mult"))
 			.add(Calculate.value(sum).using(a, b).by((_a, _b) -> _a + _b,"a+b"))
 			.add(Calculate.value(mult).using(a, c).by((_a,_c) -> _a * _c, "a*c"))
-			.add(Validate.value(mult).using(sum).by((validator, it, _sum) -> (it.get() < _sum.value())
-				? validator.error("fail")
-				: validator.noErrors(),"it<sum"));
+			.add(Validate.value(mult).using(sum).by((it, _sum) -> (it.get() < _sum.value())
+				? Validation.error("fail")
+				: Validation.noErrors(),"it<sum"));
 
 		String dot = RuleDependencyGraph.explain(rules);
 		System.out.println("---------------------");

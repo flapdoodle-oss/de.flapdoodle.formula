@@ -42,8 +42,8 @@ public abstract class RelatedTo2<X, A, B> implements Validation<X>, HasHumanRead
 	}
 
 	@Override
-	public List<ErrorMessage> validate(Validator validator, Optional<X> unvalidatedValue, ValidatedValueLookup values) {
-		return validation().validate(validator, unvalidatedValue, values.get(a()), values.get(b()));
+	public List<ErrorMessage> validate(Optional<X> unvalidatedValue, ValidatedValueLookup values) {
+		return validation().validate(unvalidatedValue, values.get(a()), values.get(b()));
 	}
 
 	@Override
