@@ -76,7 +76,7 @@ ${sumOfItemsInCart.explain.dot}
 We still need some glue code to get the values from the current shopping cart:
 
 ```java
-${sumOfItemsInCart.CartValueLookup}
+${sumOfItemsInCart.ChangeableInstanceValueLookup}
 ```
 
 With all this in place we can solve all equations.

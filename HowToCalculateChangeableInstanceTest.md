@@ -337,19 +337,26 @@ digraph "rules" {
 We still need some glue code to get the values from the current shopping cart:
 
 ```java
-public class CartValueLookup implements ValueLookup {
-  private final Cart cart;
+@Immutable
+public abstract class ChangeableInstanceValueLookup<O extends ChangeableInstance<O>> implements ValueLookup {
 
-  public CartValueLookup(Cart cart) {
-    this.cart = cart;
-  }
+  @Parameter
+  protected abstract O instance();
+
+  @Parameter
+  protected abstract ValueLookup fallback();
+
   @Override
   public <T> @Nullable T get(Value<T> id) {
     if (id instanceof ReadableValue) {
-      return cart.findValue((ReadableValue<?, ? extends T>) id)
-        .getOrThrow(new IllegalArgumentException("not found: " + id));
+      Maybe<? extends T> value = instance().findValue((ReadableValue<?, ? extends T>) id);
+      if (value.hasSome()) return value.get();
     }
-    throw new IllegalArgumentException("not implemented: "+id);
+    return fallback().get(id);
+  }
+
+  public static <O extends ChangeableInstance<O>> ChangeableInstanceValueLookup<O> of(O instance, ValueLookup fallback) {
+    return ImmutableChangeableInstanceValueLookup.of(instance, fallback);
   }
 }
 ```
@@ -359,7 +366,7 @@ With all this in place we can solve all equations.
 ```java
 Result result = Solver.solve(
   valueGraph,
-  new CartValueLookup(cart)
+  ChangeableInstanceValueLookup.of(cart, ValueLookup.failOnEachValue())
 );
 ```
 

@@ -18,6 +18,7 @@ package de.flapdoodle.formula.values.domain;
 
 import com.google.common.base.Preconditions;
 import de.flapdoodle.formula.Value;
+import de.flapdoodle.formula.calculate.ValueLookup;
 import de.flapdoodle.formula.explain.RuleDependencyGraph;
 import de.flapdoodle.formula.rules.Rules;
 import de.flapdoodle.formula.solver.*;
@@ -61,7 +62,7 @@ public class HowToCalculateChangeableInstanceTest {
 		recording.include(Value.class, Includes.WithoutPackage, Includes.WithoutImports, Includes.Trim);
 		recording.include(Cart.class, Includes.WithoutPackage, Includes.WithoutImports, Includes.Trim);
 		recording.include(Item.class, Includes.WithoutPackage, Includes.WithoutImports, Includes.Trim);
-		recording.include(CartValueLookup.class, Includes.WithoutPackage, Includes.WithoutImports, Includes.Trim);
+		recording.include(ChangeableInstanceValueLookup.class, Includes.WithoutPackage, Includes.WithoutImports, Includes.Trim);
 		
 		recording.begin("domainobject");
 		Cart cart = Cart.builder()
@@ -89,7 +90,7 @@ public class HowToCalculateChangeableInstanceTest {
 		recording.begin("solve");
 		Result result = Solver.solve(
 			valueGraph,
-			new CartValueLookup(cart)
+			ChangeableInstanceValueLookup.of(cart, ValueLookup.failOnEachValue())
 		);
 		recording.end();
 

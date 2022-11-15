@@ -17,9 +17,19 @@
 package de.flapdoodle.formula.calculate;
 
 import de.flapdoodle.formula.Value;
+import de.flapdoodle.formula.types.HasHumanReadableLabel;
 
 import javax.annotation.Nullable;
 
 public interface ValueLookup {
 	<T> @Nullable T get(Value<T> id);
+
+	static ValueLookup failOnEachValue() {
+		return new ValueLookup() {
+			@Override
+			public <T> @Nullable T get(Value<T> id) {
+				throw new IllegalArgumentException("value not found: "+ HasHumanReadableLabel.asHumanReadable(id));
+			}
+		};
+	}
 }
