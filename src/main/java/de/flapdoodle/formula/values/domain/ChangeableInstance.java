@@ -16,6 +16,7 @@
  */
 package de.flapdoodle.formula.values.domain;
 
+import de.flapdoodle.formula.solver.Result;
 import de.flapdoodle.formula.types.Maybe;
 import org.immutables.value.Value;
 
@@ -25,4 +26,14 @@ public interface ChangeableInstance<O extends ChangeableInstance<O>> extends Has
 
 	@Value.Auxiliary
 	<T> Maybe<T> findValue(ReadableValue<? , T> id);
+
+	static <O extends ChangeableInstance<O>> O change(O instance, Result result) {
+		O current = instance;
+		for (de.flapdoodle.formula.Value<?> value : result.validatedValues()) {
+			if (value instanceof ChangeableValue) {
+				current = (O) current.change((ChangeableValue) value, result.get(value));
+			}
+		}
+		return current;
+	}
 }

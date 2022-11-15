@@ -106,13 +106,7 @@ public class HowToCalculateChangeableInstanceTest {
 		recording.output("explain-value.text", explainSumWithoutTax);
 
 		recording.begin("change");
-		Cart updated = cart;
-
-		for (Value<?> id : result.validatedValues()) {
-			if (id instanceof ChangeableValue) {
-				updated = updated.change((ChangeableValue) id, result.get(id));
-			}
-		}
+		Cart updated = ChangeableInstance.change(cart, result);
 		recording.end();
 
 		recording.begin("check");

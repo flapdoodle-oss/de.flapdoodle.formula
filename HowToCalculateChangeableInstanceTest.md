@@ -424,13 +424,7 @@ We can inspect validation errors or just apply all results back to
 our shopping cart:
 
 ```java
-Cart updated = cart;
-
-for (Value<?> id : result.validatedValues()) {
-  if (id instanceof ChangeableValue) {
-    updated = updated.change((ChangeableValue) id, result.get(id));
-  }
-}
+Cart updated = ChangeableInstance.change(cart, result);
 ```
 
 ## Trust is good, Control is better
