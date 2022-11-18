@@ -21,17 +21,16 @@ import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.types.Id;
-import de.flapdoodle.formula.values.Named;
-import de.flapdoodle.formula.values.Related;
 import de.flapdoodle.formula.values.domain.CopyOnChangeValue;
 import de.flapdoodle.formula.values.domain.ModifyInstanceValue;
 import de.flapdoodle.formula.values.domain.ReadOnlyValue;
-import de.flapdoodle.formula.values.properties.*;
+import de.flapdoodle.formula.values.properties.CopyOnChangeProperty;
+import de.flapdoodle.formula.values.properties.ModifiableProperty;
+import de.flapdoodle.formula.values.properties.ReadOnlyProperty;
 import de.flapdoodle.testdoc.Includes;
 import de.flapdoodle.testdoc.Recorder;
 import de.flapdoodle.testdoc.Recording;
 import de.flapdoodle.testdoc.TabSize;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -134,32 +133,34 @@ public class WhatIsAValueTest extends AbstractHowToTest {
 		recording.begin("readOnly");
 		ReadOnlyProperty<Sample, Double> property = ReadOnlyProperty.of(Sample.class, "amount", Sample::getAmount);
 
-		Sample bean = Sample.builder()
+		Sample instance = Sample.builder()
 						.amount(123.0)
 						.build();
 
-		assertThat(property.get(bean)).isEqualTo(123.0);
+		assertThat(property.get(instance)).isEqualTo(123.0);
 		recording.end();
 
 		recording.begin("readOnly.asValue");
-		ReadOnlyValue<Sample, Double> amountValue = property.withId(bean.getId());
-		assertThat(amountValue.get(bean)).isEqualTo(123.0);
-		assertThat(amountValue.id()).isEqualTo(bean.getId());
+		ReadOnlyValue<Sample, Double> amountValue = property.withId(instance.getId());
+		assertThat(amountValue.get(instance)).isEqualTo(123.0);
+		assertThat(amountValue.id()).isEqualTo(instance.getId());
 		recording.end();
 
 		recording.begin("copyOnChange");
-		CopyOnChangeProperty<Sample, Integer> modifiable = CopyOnChangeProperty.of(Sample.class, "number",
+		CopyOnChangeProperty<Sample, Integer> changeable = CopyOnChangeProperty.of(Sample.class, "number",
 						Sample::getNumber, Sample::withNumber);
 
-		assertThat(modifiable.get(bean)).isNull();
-		assertThat(modifiable.change(bean,42).getNumber()).isEqualTo(42);
-		assertThat(bean.getNumber()).isEqualTo(42);
+		assertThat(changeable.get(instance)).isNull();
+		Sample changedInstance = changeable.change(instance, 42);
+		assertThat(changedInstance.getNumber()).isEqualTo(42);
+		assertThat(instance.getNumber()).isNull();
 		recording.end();
 
-		recording.begin("modifiable.asValue");
-		CopyOnChangeValue<Sample, Integer> numberValue = modifiable.withId(bean.getId());
-		assertThat(numberValue.get(bean)).isEqualTo(42);
-		assertThat(numberValue.id()).isEqualTo(bean.getId());
+		recording.begin("changeable.asValue");
+		CopyOnChangeValue<Sample, Integer> numberValue = changeable.withId(instance.getId());
+		assertThat(numberValue.get(changedInstance)).isEqualTo(42);
+		assertThat(numberValue.id()).isEqualTo(instance.getId());
+		assertThat(numberValue.id()).isEqualTo(changedInstance.getId());
 		recording.end();
 	}
 }

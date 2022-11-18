@@ -12,6 +12,15 @@ the content of this file is generated from the recordings of your test class.
 
 In your test following parts were recorded:
 
+* `immutables`
+* `immutables.1`
+* `immutables.readOnly`
+* `immutables.2`
+* `immutables.readOnly.asValue`
+* `immutables.3`
+* `immutables.copyOnChange`
+* `immutables.4`
+* `immutables.changeable.asValue`
 * `valuesRelated`
 * `valuesRelated.1`
 * `valuesRelated.relatedTo`
@@ -30,9 +39,10 @@ In your test following parts were recorded:
 * `properties.3`
 * `properties.readOnly.asValue`
 * `properties.4`
-* `properties.modifyable`
+* `properties.modifiable`
 * `properties.5`
-* `properties.modifyable.asValue`
+* `properties.modifiable.asValue`
+* `immutables.Sample`
 * `properties.SampleBean`
 
 To insert the content of a part into the generated document you must embed a name
