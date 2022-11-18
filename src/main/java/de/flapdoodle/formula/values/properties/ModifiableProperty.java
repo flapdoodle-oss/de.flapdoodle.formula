@@ -17,13 +17,17 @@
 package de.flapdoodle.formula.values.properties;
 
 import com.google.common.base.Preconditions;
+import de.flapdoodle.formula.types.HasHumanReadableLabel;
+import de.flapdoodle.formula.types.Id;
+import de.flapdoodle.formula.values.domain.ImmutableModifyInstanceValue;
+import de.flapdoodle.formula.values.domain.ModifyInstanceValue;
 import org.immutables.value.Value;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 @Value.Immutable
-public abstract class ModifiableProperty<O, T> implements IsReadable<O, T>, IsWritable<O, T> {
+public abstract class ModifiableProperty<O, T> implements IsReadable<O, T>, IsWritable<O, T>, HasHumanReadableLabel {
 	@Value.Parameter
 	protected abstract Class<O> type();
 
@@ -37,6 +41,16 @@ public abstract class ModifiableProperty<O, T> implements IsReadable<O, T>, IsWr
 	protected abstract BiConsumer<O, T> setter();
 
 	@Override
+	public String toString() {
+		return getClass().getSimpleName()+"{"+type().getSimpleName()+"."+name()+"}";
+	}
+
+	@Override
+	public String asHumanReadable() {
+		return type().getSimpleName()+"."+name()+"#rw";
+	}
+	
+	@Override
 	public T get(O instance) {
 		Preconditions.checkArgument(type().isInstance(instance),"instance type mismatch: %s != %s", type(), instance);
 		return getter().apply(instance);
@@ -46,6 +60,10 @@ public abstract class ModifiableProperty<O, T> implements IsReadable<O, T>, IsWr
 	public void set(O instance, T value) {
 		Preconditions.checkArgument(type().isInstance(instance),"instance type mismatch: %s != %s", type(), instance);
 		setter().accept(instance, value);
+	}
+
+	public ModifyInstanceValue<O, T> withId(Id<O> id) {
+		return ModifyInstanceValue.of(id, this);
 	}
 
 	public static <O, T> ImmutableModifiableProperty<O,T> of(Class<O> type, String name, Function<O, T> getter, BiConsumer<O, T> setter) {

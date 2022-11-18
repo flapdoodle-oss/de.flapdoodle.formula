@@ -23,11 +23,10 @@ import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.types.Id;
 import de.flapdoodle.formula.values.Named;
 import de.flapdoodle.formula.values.Related;
+import de.flapdoodle.formula.values.domain.CopyOnChangeValue;
+import de.flapdoodle.formula.values.domain.ModifyInstanceValue;
 import de.flapdoodle.formula.values.domain.ReadOnlyValue;
-import de.flapdoodle.formula.values.properties.ImmutableModifiableProperty;
-import de.flapdoodle.formula.values.properties.ImmutableReadOnlyProperty;
-import de.flapdoodle.formula.values.properties.ModifiableProperty;
-import de.flapdoodle.formula.values.properties.ReadOnlyProperty;
+import de.flapdoodle.formula.values.properties.*;
 import de.flapdoodle.testdoc.Includes;
 import de.flapdoodle.testdoc.Recorder;
 import de.flapdoodle.testdoc.Recording;
@@ -83,6 +82,8 @@ public class WhatIsAValueTest extends AbstractHowToTest {
 		assertThat(firstId).isNotEqualTo(secondId);
 
 		Value<Double> relatedToFirstId = a.relatedTo(firstId);
+		Value<Double> relatedToSecondId = a.relatedTo(secondId);
+		assertThat(relatedToFirstId).isNotEqualTo(relatedToSecondId);
 		recording.end();
 	}
 
@@ -104,19 +105,61 @@ public class WhatIsAValueTest extends AbstractHowToTest {
 		assertThat(property.get(bean)).isEqualTo(123.0);
 		recording.end();
 
-		recording.begin("asValue");
-		ReadOnlyValue<SampleBean, Double> value = property.withId(bean.getId());
-		assertThat(value.get(bean)).isEqualTo(123.0);
-		assertThat(value.id()).isEqualTo(bean.getId());
+		recording.begin("readOnly.asValue");
+		ReadOnlyValue<SampleBean, Double> amountValue = property.withId(bean.getId());
+		assertThat(amountValue.get(bean)).isEqualTo(123.0);
+		assertThat(amountValue.id()).isEqualTo(bean.getId());
 		recording.end();
 
-		recording.begin("modifyable");
+		recording.begin("modifiable");
 		ModifiableProperty<SampleBean, Integer> modifiable = ModifiableProperty.of(SampleBean.class, "number",
 			SampleBean::getNumber, SampleBean::setNumber);
 
 		assertThat(modifiable.get(bean)).isNull();
 		modifiable.set(bean,42);
 		assertThat(modifiable.get(bean)).isEqualTo(42);
+		recording.end();
+
+		recording.begin("modifiable.asValue");
+		ModifyInstanceValue<SampleBean, Integer> numberValue = modifiable.withId(bean.getId());
+		assertThat(numberValue.get(bean)).isEqualTo(42);
+		assertThat(numberValue.id()).isEqualTo(bean.getId());
+		recording.end();
+	}
+
+	@Test
+	void immutables() {
+		recording.include(Sample.class, Includes.WithoutImports, Includes.WithoutPackage, Includes.Trim);
+
+		recording.begin("readOnly");
+		ReadOnlyProperty<Sample, Double> property = ReadOnlyProperty.of(Sample.class, "amount", Sample::getAmount);
+
+		Sample bean = Sample.builder()
+						.amount(123.0)
+						.build();
+
+		assertThat(property.get(bean)).isEqualTo(123.0);
+		recording.end();
+
+		recording.begin("readOnly.asValue");
+		ReadOnlyValue<Sample, Double> amountValue = property.withId(bean.getId());
+		assertThat(amountValue.get(bean)).isEqualTo(123.0);
+		assertThat(amountValue.id()).isEqualTo(bean.getId());
+		recording.end();
+
+		recording.begin("copyOnChange");
+		CopyOnChangeProperty<Sample, Integer> modifiable = CopyOnChangeProperty.of(Sample.class, "number",
+						Sample::getNumber, Sample::withNumber);
+
+		assertThat(modifiable.get(bean)).isNull();
+		assertThat(modifiable.change(bean,42).getNumber()).isEqualTo(42);
+		assertThat(bean.getNumber()).isEqualTo(42);
+		recording.end();
+
+		recording.begin("modifiable.asValue");
+		CopyOnChangeValue<Sample, Integer> numberValue = modifiable.withId(bean.getId());
+		assertThat(numberValue.get(bean)).isEqualTo(42);
+		assertThat(numberValue.id()).isEqualTo(bean.getId());
 		recording.end();
 	}
 }

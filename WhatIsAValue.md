@@ -28,9 +28,11 @@ In your test following parts were recorded:
 * `properties.2`
 * `properties.readOnly`
 * `properties.3`
-* `properties.asValue`
+* `properties.readOnly.asValue`
 * `properties.4`
 * `properties.modifyable`
+* `properties.5`
+* `properties.modifyable.asValue`
 * `properties.SampleBean`
 
 To insert the content of a part into the generated document you must embed a name
