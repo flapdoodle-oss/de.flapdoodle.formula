@@ -17,6 +17,13 @@ Snapshots (Repository http://oss.sonatype.org/content/repositories/snapshots)
 		<artifactId>de.flapdoodle.formula</artifactId>
 		<version>1.4.2-SNAPSHOT</version>
 	</dependency>
+                                            
+### Documentation
 
-### [Calculations on Immutable Object Trees](HowToCalculateChangeableInstanceTest.md)
+Here you will find (work-in-progress) documentation of this library:
+
+- [What is a Value](WhatIsAValue.md)
+- [Calculations on Immutable Object Trees](HowToCalculateChangeableInstanceTest.md)
+
+
 

@@ -16,23 +16,29 @@
  */
 package de.flapdoodle.formula.howto.calculate;
 
+import com.google.common.base.Preconditions;
+import de.flapdoodle.formula.AbstractHowToTest;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.calculate.*;
 import de.flapdoodle.formula.calculate.calculations.Map1;
+import de.flapdoodle.formula.types.Id;
+import de.flapdoodle.formula.types.TypeCounter;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class HowToCalculateTest {
+public class HowToCalculateTest extends AbstractHowToTest {
 
 	@Test
 	void basics() {
 		ValueSource<Integer> valueA = Value.named("a", Integer.class);
-		ValueSink<Integer> valueSum = Value.named("sum", Integer.class);
+		ValueSink<Integer> valueResult = Value.named("result", Integer.class);
 
-		Calculate.WithDestination<Integer> withDestination = Calculate.value(valueSum);
+		Calculate.WithDestination<Integer> withDestination = Calculate.value(valueResult);
 
 		Map1<Integer, Integer> direct = withDestination.from(valueA);
 		Calculate.WithMap1Nullable<Integer, Integer> usingA = withDestination.using(valueA);
