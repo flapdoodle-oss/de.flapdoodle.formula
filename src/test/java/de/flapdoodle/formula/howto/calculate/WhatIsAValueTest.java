@@ -20,10 +20,11 @@ import de.flapdoodle.formula.AbstractHowToTest;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
+import de.flapdoodle.formula.calculate.MappedValue;
+import de.flapdoodle.formula.calculate.StrictValueLookup;
+import de.flapdoodle.formula.calculate.ValueLookup;
 import de.flapdoodle.formula.types.Id;
-import de.flapdoodle.formula.values.domain.CopyOnChangeValue;
-import de.flapdoodle.formula.values.domain.ModifyInstanceValue;
-import de.flapdoodle.formula.values.domain.ReadOnlyValue;
+import de.flapdoodle.formula.values.domain.*;
 import de.flapdoodle.formula.values.properties.CopyOnChangeProperty;
 import de.flapdoodle.formula.values.properties.ModifiableProperty;
 import de.flapdoodle.formula.values.properties.ReadOnlyProperty;
@@ -34,9 +35,10 @@ import de.flapdoodle.testdoc.TabSize;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import javax.annotation.Nullable;
 import java.util.function.Function;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 public class WhatIsAValueTest extends AbstractHowToTest {
 
@@ -83,6 +85,37 @@ public class WhatIsAValueTest extends AbstractHowToTest {
 		Value<Double> relatedToFirstId = a.relatedTo(firstId);
 		Value<Double> relatedToSecondId = a.relatedTo(secondId);
 		assertThat(relatedToFirstId).isNotEqualTo(relatedToSecondId);
+		recording.end();
+	}
+
+	@Test
+	void valueLookup() {
+		recording.begin("sample");
+		Value<Double> a = Value.named("a", Double.class);
+		Value<Integer> b = Value.named("b", Integer.class);
+
+		ValueLookup valueLookup=new ValueLookup() {
+			@Override public <T> @Nullable T get(Value<T> value) {
+				if (value == a) {
+					return (T) Double.valueOf(1.0);
+				}
+				throw new IllegalArgumentException("not found: "+value);
+			}
+		};
+
+		assertThat(valueLookup.get(a)).isEqualTo(1.0);
+		assertThatThrownBy(() -> valueLookup.get(b))
+			.isInstanceOf(IllegalArgumentException.class);
+		recording.end();
+
+		recording.begin("strict");
+		StrictValueLookup strictValueLookup = StrictValueLookup.of(
+			MappedValue.of(a, 2.0)
+		);
+
+		assertThat(strictValueLookup.get(a)).isEqualTo(2.0);
+		assertThatThrownBy(() -> strictValueLookup.get(b))
+			.isInstanceOf(IllegalArgumentException.class);
 		recording.end();
 	}
 
@@ -161,6 +194,58 @@ public class WhatIsAValueTest extends AbstractHowToTest {
 		assertThat(numberValue.get(changedInstance)).isEqualTo(42);
 		assertThat(numberValue.id()).isEqualTo(instance.getId());
 		assertThat(numberValue.id()).isEqualTo(changedInstance.getId());
+		recording.end();
+	}
+
+	@Test
+	void valueLookupWithProperties() {
+		recording.begin("sample");
+		Sample instance = Sample.builder()
+			.amount(123.0)
+			.build();
+
+		ReadOnlyValue<Sample, Double> amountValue = ReadOnlyProperty
+			.of(Sample.class, "amount", Sample::getAmount)
+			.withId(instance.getId());
+		CopyOnChangeValue<Sample, Integer> numberValue = CopyOnChangeProperty
+			.of(Sample.class, "number", Sample::getNumber, Sample::withNumber)
+			.withId(instance.getId());
+
+		ValueLookup delegatingValueLookup = new ValueLookup() {
+			@Override public <T> @Nullable T get(Value<T> value) {
+				if (value instanceof ReadableValue) {
+					ReadableValue<?, T> readableValue = (ReadableValue<?, T>) value;
+					if (readableValue.id().equals(instance.getId())) {
+						ReadableValue<Sample, T> readFromSample = (ReadableValue<Sample, T>) readableValue;
+						return readFromSample.get(instance);
+					}
+				}
+				throw new IllegalArgumentException("not found: "+value);
+			}
+		};
+
+		assertThat(delegatingValueLookup.get(amountValue)).isEqualTo(123.0);
+		assertThat(delegatingValueLookup.get(numberValue)).isNull();
+		recording.end();
+	}
+
+	@Test
+	void changeableInstance() {
+		recording.begin("sample");
+		ChangeableSample instance = ChangeableSample.builder()
+			.name("name")
+			.number(42)
+			.amount(123.0)
+			.build();
+
+		ValueLookup valueLookup = ChangeableInstanceValueLookup.of(
+			instance, ValueLookup.failOnEachValue()
+		);
+
+		assertThat(valueLookup.get(ChangeableSample.name.withId(instance.id())))
+			.isEqualTo("name");
+		assertThat(valueLookup.get(ChangeableSample.amount.withId(instance.id())))
+			.isEqualTo(123.0);
 		recording.end();
 	}
 }

@@ -12,38 +12,9 @@ the content of this file is generated from the recordings of your test class.
 
 In your test following parts were recorded:
 
-* `immutables`
-* `immutables.1`
-* `immutables.readOnly`
-* `immutables.2`
-* `immutables.readOnly.asValue`
-* `immutables.3`
-* `immutables.copyOnChange`
-* `immutables.4`
-* `immutables.changeable.asValue`
-* `valuesRelated`
-* `valuesRelated.1`
-* `valuesRelated.relatedTo`
-* `valuesRelated.2`
-* `valuesRelated.idFactory`
-* `values`
-* `values.1`
-* `values.types`
-* `values.2`
-* `values.named`
-* `properties`
-* `properties.1`
-* `properties.facts`
-* `properties.2`
-* `properties.readOnly`
-* `properties.3`
-* `properties.readOnly.asValue`
-* `properties.4`
-* `properties.modifiable`
-* `properties.5`
-* `properties.modifiable.asValue`
-* `immutables.Sample`
-* `properties.SampleBean`
+* `changeableInstance`
+* `changeableInstance.1`
+* `changeableInstance.sample`
 
 To insert the content of a part into the generated document you must embed a name
 from this list between a starting `${` and `}`.
