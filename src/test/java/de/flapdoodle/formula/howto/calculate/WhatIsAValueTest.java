@@ -156,6 +156,8 @@ public class WhatIsAValueTest extends AbstractHowToTest {
 		ModifyInstanceValue<SampleBean, Integer> numberValue = modifiable.withId(bean.getId());
 		assertThat(numberValue.get(bean)).isEqualTo(42);
 		assertThat(numberValue.id()).isEqualTo(bean.getId());
+		numberValue.set(bean,13);
+		assertThat(numberValue.get(bean)).isEqualTo(13);
 		recording.end();
 	}
 
@@ -189,7 +191,7 @@ public class WhatIsAValueTest extends AbstractHowToTest {
 		assertThat(instance.getNumber()).isNull();
 		recording.end();
 
-		recording.begin("changeable.asValue");
+		recording.begin("copyOnChange.asValue");
 		CopyOnChangeValue<Sample, Integer> numberValue = changeable.withId(instance.getId());
 		assertThat(numberValue.get(changedInstance)).isEqualTo(42);
 		assertThat(numberValue.id()).isEqualTo(instance.getId());
@@ -231,6 +233,7 @@ public class WhatIsAValueTest extends AbstractHowToTest {
 
 	@Test
 	void changeableInstance() {
+		recording.include(ChangeableSample.class, Includes.WithoutImports, Includes.WithoutPackage, Includes.Trim);
 		recording.begin("sample");
 		ChangeableSample instance = ChangeableSample.builder()
 			.name("name")
