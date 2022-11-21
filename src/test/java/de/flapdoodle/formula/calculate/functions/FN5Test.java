@@ -45,7 +45,7 @@ class FN5Test {
 
 	@Test
 	void checkNull() {
-		FN5<String, String, String, String, String, Integer> testee = FN5.checkNull(new StringsToSum());
+		FN5<String, String, String, String, String, Integer> testee = FN5.checkNull(new StringsToSum(),"a", "b", "c", "d", "e");
 		assertThat(testee.apply("2","3", "4", "5","6")).isEqualTo(20);
 		assertThatThrownBy(() -> testee.apply(null,"x", "y", "z", "!"))
 			.isInstanceOf(NullPointerException.class)

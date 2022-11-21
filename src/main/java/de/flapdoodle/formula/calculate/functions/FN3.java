@@ -22,6 +22,8 @@ import org.immutables.value.Value;
 
 import javax.annotation.Nullable;
 
+import static de.flapdoodle.formula.types.HasHumanReadableLabel.asHumanReadable;
+
 @FunctionalInterface
 public interface FN3<A, B, C, R> {
 	@Nullable R apply(@Nullable A a, @Nullable B b, @Nullable C c);
@@ -81,13 +83,22 @@ public interface FN3<A, B, C, R> {
 		@Value.Parameter
 		protected abstract F3<A, B, C, R> delegate();
 
+		@Value.Parameter
+		protected abstract String a();
+
+		@Value.Parameter
+		protected abstract String b();
+
+		@Value.Parameter
+		protected abstract String c();
+
 		@Nullable
 		@Override
 		@Value.Auxiliary
 		public R apply(@Nullable A a, @Nullable B b, @Nullable C c) {
-			Preconditions.checkNotNull(a,"%s: a is null", asHumanReadable());
-			Preconditions.checkNotNull(b,"%s: b is null", asHumanReadable());
-			Preconditions.checkNotNull(c,"%s: c is null", asHumanReadable());
+			Preconditions.checkNotNull(a,"%s: %s is null", asHumanReadable(), a());
+			Preconditions.checkNotNull(b,"%s: %s is null", asHumanReadable(), b());
+			Preconditions.checkNotNull(c,"%s: %s is null", asHumanReadable(), c());
 			return Preconditions.checkNotNull(delegate().apply(a, b, c), "%s: result is null", asHumanReadable());
 		}
 
@@ -97,8 +108,8 @@ public interface FN3<A, B, C, R> {
 		}
 	}
 
-	static <A, B, C, R> FN3<A, B, C, R> checkNull(F3<A, B, C, R> delegate) {
-		return ImmutableFN3checkNull.of(delegate);
+	static <A, B, C, R> FN3<A, B, C, R> checkNull(F3<A, B, C, R> delegate, Object labelA, Object labelB, Object labelC) {
+		return ImmutableFN3checkNull.of(delegate, asHumanReadable(labelA), asHumanReadable(labelB), asHumanReadable(labelC));
 	}
 
 }

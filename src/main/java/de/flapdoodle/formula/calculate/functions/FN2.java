@@ -23,6 +23,8 @@ import org.immutables.value.Value;
 import javax.annotation.Nullable;
 import java.util.function.BiFunction;
 
+import static de.flapdoodle.formula.types.HasHumanReadableLabel.asHumanReadable;
+
 @FunctionalInterface
 public interface FN2<A, B, R> extends BiFunction<A, B, R> {
 	@Override @Nullable R apply(@Nullable A a, @Nullable B b);
@@ -82,12 +84,18 @@ public interface FN2<A, B, R> extends BiFunction<A, B, R> {
 		@Value.Parameter
 		protected abstract F2<A, B, R> delegate();
 
+		@Value.Parameter
+		protected abstract String a();
+
+		@Value.Parameter
+		protected abstract String b();
+
 		@Nullable
 		@Override
 		@Value.Auxiliary
 		public R apply(@Nullable A a, @Nullable B b) {
-			Preconditions.checkNotNull(a,"%s: a is null", asHumanReadable());
-			Preconditions.checkNotNull(b,"%s: b is null", asHumanReadable());
+			Preconditions.checkNotNull(a,"%s: %s is null", asHumanReadable(), a());
+			Preconditions.checkNotNull(b,"%s: %s is null", asHumanReadable(), b());
 			return Preconditions.checkNotNull(delegate().apply(a, b), "%s: result is null", asHumanReadable());
 		}
 
@@ -97,8 +105,8 @@ public interface FN2<A, B, R> extends BiFunction<A, B, R> {
 		}
 	}
 
-	static <A, B, R> FN2<A, B, R> checkNull(F2<A, B, R> delegate) {
-		return ImmutableFN2checkNull.of(delegate);
+	static <A, B, R> FN2<A, B, R> checkNull(F2<A, B, R> delegate, Object labelA, Object labelB) {
+		return ImmutableFN2checkNull.of(delegate, asHumanReadable(labelA), asHumanReadable(labelB));
 	}
 
 

@@ -22,6 +22,8 @@ import org.immutables.value.Value;
 
 import javax.annotation.Nullable;
 
+import static de.flapdoodle.formula.types.HasHumanReadableLabel.asHumanReadable;
+
 @FunctionalInterface
 public interface FN4<A, B, C, D, R> {
 	@Nullable R apply(@Nullable A a, @Nullable B b, @Nullable C c, @Nullable D d);
@@ -81,14 +83,26 @@ public interface FN4<A, B, C, D, R> {
 		@Value.Parameter
 		protected abstract F4<A, B, C, D, R> delegate();
 
+		@Value.Parameter
+		protected abstract String a();
+
+		@Value.Parameter
+		protected abstract String b();
+
+		@Value.Parameter
+		protected abstract String c();
+
+		@Value.Parameter
+		protected abstract String d();
+
 		@Nullable
 		@Override
 		@Value.Auxiliary
 		public R apply(@Nullable A a, @Nullable B b, @Nullable C c, @Nullable D d) {
-			Preconditions.checkNotNull(a,"%s: a is null", asHumanReadable());
-			Preconditions.checkNotNull(b,"%s: b is null", asHumanReadable());
-			Preconditions.checkNotNull(c,"%s: c is null", asHumanReadable());
-			Preconditions.checkNotNull(d,"%s: d is null", asHumanReadable());
+			Preconditions.checkNotNull(a,"%s: %s is null", asHumanReadable(), a());
+			Preconditions.checkNotNull(b,"%s: %s is null", asHumanReadable(), b());
+			Preconditions.checkNotNull(c,"%s: %s is null", asHumanReadable(), c());
+			Preconditions.checkNotNull(d,"%s: %s is null", asHumanReadable(), d());
 			return Preconditions.checkNotNull(delegate().apply(a, b, c, d), "%s: result is null", asHumanReadable());
 		}
 
@@ -98,8 +112,8 @@ public interface FN4<A, B, C, D, R> {
 		}
 	}
 
-	static <A, B, C, D, R> FN4<A, B, C, D, R> checkNull(F4<A, B, C, D, R> delegate) {
-		return ImmutableFN4checkNull.of(delegate);
+	static <A, B, C, D, R> FN4<A, B, C, D, R> checkNull(F4<A, B, C, D, R> delegate, Object labelA, Object labelB, Object labelC, Object labelD) {
+		return ImmutableFN4checkNull.of(delegate, asHumanReadable(labelA), asHumanReadable(labelB), asHumanReadable(labelC), asHumanReadable(labelD));
 	}
 
 }

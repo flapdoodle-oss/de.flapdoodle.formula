@@ -53,7 +53,7 @@ class FN1Test {
 
 	@Test
 	void checkNull() {
-		FN1<String, Integer> testee = FN1.checkNull(new StringToInt());
+		FN1<String, Integer> testee = FN1.checkNull(new StringToInt(), "a");
 		assertThat(testee.apply("2")).isEqualTo(2);
 		assertThatThrownBy(() -> testee.apply(null))
 			.isInstanceOf(NullPointerException.class)

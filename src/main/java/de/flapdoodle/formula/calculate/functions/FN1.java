@@ -93,11 +93,14 @@ public interface FN1<A, R> extends Function<A, R> {
 		@Value.Parameter
 		protected abstract F1<A, R> delegate();
 
+		@Value.Parameter
+		protected abstract String a();
+
 		@Nullable
 		@Override
 		@Value.Auxiliary
 		public R apply(@Nullable A a) {
-			Preconditions.checkNotNull(a,"%s: a is null", asHumanReadable());
+			Preconditions.checkNotNull(a,"%s: %s is null", asHumanReadable(), a());
 			return Preconditions.checkNotNull(delegate().apply(a), "%s: result is null", asHumanReadable());
 		}
 
@@ -107,8 +110,8 @@ public interface FN1<A, R> extends Function<A, R> {
 		}
 	}
 
-	static <A, R> FN1checkNull<A, R> checkNull(F1<A, R> delegate) {
-		return ImmutableFN1checkNull.of(delegate);
+	static <A, R> FN1checkNull<A, R> checkNull(F1<A, R> delegate, Object labelA) {
+		return ImmutableFN1checkNull.of(delegate, HasHumanReadableLabel.asHumanReadable(labelA));
 	}
 
 }
