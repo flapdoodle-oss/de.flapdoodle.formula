@@ -23,6 +23,7 @@ Snapshots (Repository http://oss.sonatype.org/content/repositories/snapshots)
 Here you will find (work-in-progress) documentation of this library:
 
 - [What is a Value](WhatIsAValue.md)
+- [Calculate Values](HowToCalculate.md)
 - [Calculations on Immutable Object Trees](HowToCalculateChangeableInstanceTest.md)
 
 

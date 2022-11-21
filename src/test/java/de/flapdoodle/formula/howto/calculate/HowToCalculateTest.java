@@ -37,6 +37,25 @@ public class HowToCalculateTest extends AbstractHowToTest {
 	public static Recording recording = Recorder.with("HowToCalculate.md", TabSize.spaces(2));
 
 	@Test
+	void fluentWay() {
+		recording.begin("sample");
+		ValueSource<Integer> valueA = Value.named("a", Integer.class);
+		ValueSource<Integer> valueB = Value.named("b", Integer.class);
+		ValueSink<Integer> valueSum = Value.named("sum", Integer.class);
+
+		Calculation<Integer> calculateSum = Calculate.value(valueSum)
+			.using(valueA, valueB)
+			.by((a, b) -> (a!=null && b!=null) ? a + b : null);
+
+		Integer sum = calculateSum.calculate(valueLookup(
+			MappedValue.of(valueA, 1), MappedValue.of(valueB, 2)
+		));
+
+		assertThat(sum).isEqualTo(3);
+		recording.end();
+	}
+
+	@Test
 	void basics() {
 		recording.begin("destination");
 		ValueSource<Integer> valueA = Value.named("a", Integer.class);
@@ -80,25 +99,6 @@ public class HowToCalculateTest extends AbstractHowToTest {
 		})
 			.isInstanceOf(NullPointerException.class)
 			.hasMessageContaining( "a(Integer) is null");
-		recording.end();
-	}
-
-	@Test
-	void fluentWay() {
-		recording.begin("sample");
-		ValueSource<Integer> valueA = Value.named("a", Integer.class);
-		ValueSource<Integer> valueB = Value.named("b", Integer.class);
-		ValueSink<Integer> valueSum = Value.named("sum", Integer.class);
-
-		Calculation<Integer> calculateSum = Calculate.value(valueSum)
-			.using(valueA, valueB)
-			.by((a, b) -> (a!=null && b!=null) ? a + b : null);
-
-		Integer sum = calculateSum.calculate(valueLookup(
-			MappedValue.of(valueA, 1), MappedValue.of(valueB, 2)
-		));
-
-		assertThat(sum).isEqualTo(3);
 		recording.end();
 	}
 
