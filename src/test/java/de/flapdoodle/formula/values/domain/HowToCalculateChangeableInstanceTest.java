@@ -16,21 +16,17 @@
  */
 package de.flapdoodle.formula.values.domain;
 
-import com.google.common.base.Preconditions;
+import de.flapdoodle.formula.AbstractHowToTest;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.calculate.ValueLookup;
 import de.flapdoodle.formula.explain.RuleDependencyGraph;
 import de.flapdoodle.formula.rules.Rules;
 import de.flapdoodle.formula.solver.*;
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
-import de.flapdoodle.formula.types.Id;
-import de.flapdoodle.formula.types.TypeCounter;
 import de.flapdoodle.testdoc.Includes;
 import de.flapdoodle.testdoc.Recorder;
 import de.flapdoodle.testdoc.Recording;
 import de.flapdoodle.testdoc.TabSize;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -38,24 +34,10 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class HowToCalculateChangeableInstanceTest {
+public class HowToCalculateChangeableInstanceTest extends AbstractHowToTest {
 
 	@RegisterExtension
 	public static Recording recording = Recorder.with("HowToCalculateChangeableInstanceTest.md", TabSize.spaces(2));
-
-
-	private Id.ClearTypeCounter clearTypeCounter;
-
-	@BeforeEach
-	void localTypeCounter() {
-		clearTypeCounter = Id.with(new TypeCounter());
-	}
-
-	@AfterEach
-	void clearStuff() {
-		Preconditions.checkNotNull(clearTypeCounter,"clearTypeCounter not set");
-		clearTypeCounter.close();
-	}
 
 	@Test
 	void sumOfItemsInCart() {

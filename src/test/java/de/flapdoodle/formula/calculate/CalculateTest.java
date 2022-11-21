@@ -69,7 +69,7 @@ class CalculateTest {
 			assertThat(testee.asHumanReadable()).isEqualTo("IntToString");
 
 			assertThat(testee.calculate(valueLookup(MappedValue.of(source, 1)))).isEqualTo("1");
-			assertNullPointerExceptionIfAnyValueIsNull(testee, "IntToString", ImmutableMap.of("a", MappedValue.of(source, 1)));
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "IntToString", MappedValue.of(source, 1));
 		}
 
 		@Test
@@ -81,7 +81,7 @@ class CalculateTest {
 			assertThat(testee.asHumanReadable()).isEqualTo("label");
 
 			assertThat(testee.calculate(valueLookup(MappedValue.of(source, 1)))).isEqualTo("1");
-			assertNullPointerExceptionIfAnyValueIsNull(testee, "label", ImmutableMap.of("a", MappedValue.of(source, 1)));
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "label", MappedValue.of(source, 1));
 		}
 
 		@Test
@@ -173,11 +173,6 @@ class CalculateTest {
 			MappedValue.of(b, 2)
 		);
 
-		Map<String, MappedValue<?>> namedMappedValues = ImmutableMap.of(
-			"a", MappedValue.of(a, 1),
-			"b", MappedValue.of(b, 2)
-		);
-
 		@Test
 		void valueRequiring() {
 			Merge2<Integer, Integer, String> testee = Calculate.value(destination).requiring(a, b).by(new SumToString());
@@ -188,7 +183,7 @@ class CalculateTest {
 
 			assertThat(testee.calculate(valueLookup(mappedValues)))
 				.isEqualTo("3");
-			assertNullPointerExceptionIfAnyValueIsNull(testee, "SumToString", namedMappedValues);
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "SumToString", mappedValues);
 		}
 
 		@Test
@@ -201,7 +196,7 @@ class CalculateTest {
 
 			assertThat(testee.calculate(valueLookup(mappedValues)))
 				.isEqualTo("3");
-			assertNullPointerExceptionIfAnyValueIsNull(testee, "label", namedMappedValues);
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "label", mappedValues);
 		}
 
 		@Test
@@ -293,13 +288,6 @@ class CalculateTest {
 			MappedValue.of(c, 3)
 		);
 
-		Map<String, MappedValue<?>> namedMappedValues = ImmutableMap.of(
-			"a", MappedValue.of(a, 1),
-			"b", MappedValue.of(b, 2),
-			"c", MappedValue.of(c, 3)
-		);
-
-
 		@Test
 		void valueRequiring() {
 			Merge3<Integer, Integer, Integer, String> testee = Calculate.value(destination).requiring(a, b, c).by(new SumToString());
@@ -309,7 +297,7 @@ class CalculateTest {
 			assertThat(testee.asHumanReadable()).isEqualTo("SumToString");
 
 			assertThat(testee.calculate(valueLookup(mappedValues))).isEqualTo("6");
-			assertNullPointerExceptionIfAnyValueIsNull(testee, "SumToString",namedMappedValues);
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "SumToString",mappedValues);
 		}
 
 		@Test
@@ -321,7 +309,7 @@ class CalculateTest {
 			assertThat(testee.asHumanReadable()).isEqualTo("label");
 
 			assertThat(testee.calculate(valueLookup(mappedValues))).isEqualTo("6");
-			assertNullPointerExceptionIfAnyValueIsNull(testee, "label",namedMappedValues);
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "label",mappedValues);
 		}
 
 		@Test
@@ -415,13 +403,6 @@ class CalculateTest {
 			MappedValue.of(d, 4)
 		);
 
-		Map<String, MappedValue<?>> namedMappedValues = ImmutableMap.of(
-			"a", MappedValue.of(a, 1),
-			"b", MappedValue.of(b, 2),
-			"c", MappedValue.of(c, 3),
-			"d", MappedValue.of(d, 4)
-		);
-
 		@Test
 		void valueRequiring() {
 			Merge4<Integer, Integer, Integer, Integer, String> testee = Calculate.value(destination).requiring(a, b, c, d).by(new SumToString());
@@ -431,7 +412,7 @@ class CalculateTest {
 			assertThat(testee.asHumanReadable()).isEqualTo("SumToString");
 
 			assertThat(testee.calculate(valueLookup(mappedValues))).isEqualTo("10");
-			assertNullPointerExceptionIfAnyValueIsNull(testee, "SumToString", namedMappedValues);
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "SumToString", mappedValues);
 		}
 
 		@Test
@@ -443,7 +424,7 @@ class CalculateTest {
 			assertThat(testee.asHumanReadable()).isEqualTo("label");
 
 			assertThat(testee.calculate(valueLookup(mappedValues))).isEqualTo("10");
-			assertNullPointerExceptionIfAnyValueIsNull(testee, "label", namedMappedValues);
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "label", mappedValues);
 		}
 
 		@Test
@@ -537,14 +518,6 @@ class CalculateTest {
 			MappedValue.of(e, 5)
 		);
 
-		Map<String, MappedValue<?>> namedMappedValues = ImmutableMap.of(
-			"a", MappedValue.of(a, 1),
-			"b", MappedValue.of(b, 2),
-			"c", MappedValue.of(c, 3),
-			"d", MappedValue.of(d, 4),
-			"e", MappedValue.of(e, 4)
-		);
-
 		@Test
 		void valueRequiring() {
 			Merge5<Integer, Integer, Integer, Integer, Integer, String> testee = Calculate.value(destination).requiring(a, b, c, d, e).by(new SumToString());
@@ -554,7 +527,7 @@ class CalculateTest {
 			assertThat(testee.asHumanReadable()).isEqualTo("SumToString");
 
 			assertThat(testee.calculate(valueLookup(mappedValues))).isEqualTo("15");
-			assertNullPointerExceptionIfAnyValueIsNull(testee, "SumToString", namedMappedValues);
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "SumToString", mappedValues);
 		}
 
 		@Test
@@ -566,7 +539,7 @@ class CalculateTest {
 			assertThat(testee.asHumanReadable()).isEqualTo("label");
 
 			assertThat(testee.calculate(valueLookup(mappedValues))).isEqualTo("15");
-			assertNullPointerExceptionIfAnyValueIsNull(testee, "label", namedMappedValues);
+			assertNullPointerExceptionIfAnyValueIsNull(testee, "label", mappedValues);
 		}
 
 		@Test
@@ -708,11 +681,15 @@ class CalculateTest {
 		return Arrays.asList(mappedValues);
 	}
 
-	private void assertNullPointerExceptionIfAnyValueIsNull(Calculation<?> testee, String label, Map<String, MappedValue<?>> nonNullValues) {
-		assertThat(testee.calculate(valueLookup(nonNullValues.values()))).isNotNull();
-		nonNullValues.entrySet().forEach(entry -> {
-			MappedValue<?> setToNull = entry.getValue();
-			List<MappedValue<?>> unchanged = nonNullValues.values().stream().filter(it -> it != setToNull).collect(Collectors.toList());
+	private void assertNullPointerExceptionIfAnyValueIsNull(Calculation<?> testee, String label, MappedValue<?> ... nonNullValues) {
+		assertNullPointerExceptionIfAnyValueIsNull(testee, label, ImmutableList.copyOf(nonNullValues));
+	}
+
+	private void assertNullPointerExceptionIfAnyValueIsNull(Calculation<?> testee, String label, Collection<? extends MappedValue<?>> nonNullValues) {
+		assertThat(testee.calculate(valueLookup(nonNullValues))).isNotNull();
+
+		nonNullValues.forEach(setToNull -> {
+			List<MappedValue<?>> unchanged = nonNullValues.stream().filter(it -> it != setToNull).collect(Collectors.toList());
 
 			ValueLookup valueLookup = valueLookup(ImmutableList.<MappedValue<?>>builder()
 				.addAll(unchanged)
@@ -721,7 +698,7 @@ class CalculateTest {
 
 			assertThatThrownBy(() -> testee.calculate(valueLookup))
 				.isInstanceOf(NullPointerException.class)
-				.hasMessage(label + ": " + HasHumanReadableLabel.asHumanReadable(entry.getKey()) + " is null");
+				.hasMessage(label + ": " + HasHumanReadableLabel.asHumanReadable(setToNull.id()) + " is null");
 		});
 	}
 

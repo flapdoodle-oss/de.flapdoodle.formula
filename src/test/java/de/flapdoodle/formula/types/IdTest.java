@@ -32,7 +32,7 @@ class IdTest {
 
 	@Test
 	void idAsString() {
-		try(Id.ClearTypeCounter _ = Id.with(new TypeCounter())) {
+		try(Id.ClearTypeCounter __ = Id.with(new TypeCounter())) {
 			Id<String> stringId = Id.idFor(String.class);
 
 			assertThat(stringId.toString()).isEqualTo("ImmutableId{type=String, count=0}");
@@ -44,7 +44,7 @@ class IdTest {
 	void idForTypeMustUseTypeCounter() {
 		TypeCounter localTypeCounter = new TypeCounter();
 
-		try(Id.ClearTypeCounter _ = Id.with(localTypeCounter)) {
+		try(Id.ClearTypeCounter __ = Id.with(localTypeCounter)) {
 			Id<String> stringId = Id.idFor(String.class);
 			assertThat(stringId.type()).isEqualTo(String.class);
 			assertThat(stringId.count()).isEqualTo(0);

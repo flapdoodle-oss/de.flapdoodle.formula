@@ -100,11 +100,11 @@ public abstract class Calculate {
 		}
 
 		public Map1<A, X> by(F1<A, X> transformation) {
-			return Map1.with(a, destination, FN1.checkNull(transformation));
+			return Map1.with(a, destination, FN1.checkNull(transformation, a));
 		}
 
 		public Map1<A, X> by(F1<A, X> transformation, String description) {
-			return Map1.with(a, destination, FN1.checkNull(F1.withLabel(transformation, description)));
+			return Map1.with(a, destination, FN1.checkNull(F1.withLabel(transformation, description), a));
 		}
 	}
 
@@ -148,11 +148,11 @@ public abstract class Calculate {
 		}
 
 		public Merge2<A, B, X> by(F2<A, B, X> transformation) {
-			return Merge2.with(a, b, destination, FN2.checkNull(transformation));
+			return Merge2.with(a, b, destination, FN2.checkNull(transformation, a, b));
 		}
 
 		public Merge2<A, B, X> by(F2<A, B, X> transformation, String description) {
-			return Merge2.with(a, b, destination, FN2.checkNull(F2.withLabel(transformation, description)));
+			return Merge2.with(a, b, destination, FN2.checkNull(F2.withLabel(transformation, description), a, b));
 		}
 	}
 
@@ -199,11 +199,11 @@ public abstract class Calculate {
 		}
 
 		public Merge3<A, B, C, X> by(F3<A, B, C, X> transformation) {
-			return Merge3.with(a, b, c, destination, FN3.checkNull(transformation));
+			return Merge3.with(a, b, c, destination, FN3.checkNull(transformation, a, b, c));
 		}
 
 		public Merge3<A, B, C, X> by(F3<A, B, C, X> transformation, String description) {
-			return Merge3.with(a, b, c, destination, FN3.checkNull(F3.withLabel(transformation, description)));
+			return Merge3.with(a, b, c, destination, FN3.checkNull(F3.withLabel(transformation, description), a, b, c));
 		}
 	}
 
@@ -251,11 +251,11 @@ public abstract class Calculate {
 		}
 
 		public Merge4<A, B, C, D, X> by(F4<A, B, C, D, X> transformation) {
-			return Merge4.with(a, b, c, d, destination, FN4.checkNull(transformation));
+			return Merge4.with(a, b, c, d, destination, FN4.checkNull(transformation, a, b, c, d));
 		}
 
 		public Merge4<A, B, C, D, X> by(F4<A, B, C, D, X> transformation, String description) {
-			return Merge4.with(a, b, c, d, destination, FN4.checkNull(F4.withLabel(transformation, description)));
+			return Merge4.with(a, b, c, d, destination, FN4.checkNull(F4.withLabel(transformation, description), a, b, c, d));
 		}
 	}
 
@@ -305,11 +305,11 @@ public abstract class Calculate {
 		}
 
 		public Merge5<A, B, C, D, E, X> by(F5<A, B, C, D, E, X> transformation) {
-			return Merge5.with(a, b, c, d, e, destination, FN5.checkNull(transformation));
+			return Merge5.with(a, b, c, d, e, destination, FN5.checkNull(transformation, a, b, c, d, e));
 		}
 
 		public Merge5<A, B, C, D, E, X> by(F5<A, B, C, D, E, X> transformation, String description) {
-			return Merge5.with(a, b, c, d, e, destination, FN5.checkNull(F5.withLabel(transformation, description)));
+			return Merge5.with(a, b, c, d, e, destination, FN5.checkNull(F5.withLabel(transformation, description), a, b, c, d, e));
 		}
 	}
 

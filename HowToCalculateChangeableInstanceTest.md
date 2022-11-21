@@ -20,11 +20,11 @@ public interface Value<T> {
   static <T> Unvalidated<T> unvalidated(ValueSource<T> source) { return Unvalidated.wrap(source); }
 }
 ```
-As you can provide your own implementation, each value must implement `hashcode/equals`.
+As you can provide your own implementation, each value must implement `hashcode/equals` (see [What is a Value](WhatIsAValue.md) for more).
 
 In this sample we use an immutable shopping cart which we change with the calculation result..
 
-As this stuff should run on java 8, we use [immutables.org](http://immutables.org) instead of Lombok or java records.
+As this stuff should run on java 8, we use [immutables.github.io](https://immutables.github.io) instead of Lombok or java records.
 
 ## Let's create a Shopping Cart                                                                                              
 
