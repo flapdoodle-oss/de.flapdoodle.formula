@@ -17,7 +17,7 @@
 package de.flapdoodle.formula.values.domain;
 
 import de.flapdoodle.formula.solver.Result;
-import de.flapdoodle.formula.types.Maybe;
+import de.flapdoodle.types.Maybe;
 import org.immutables.value.Value;
 
 public interface ChangeableInstance<O extends ChangeableInstance<O>> extends HasId<O> {

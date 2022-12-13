@@ -20,7 +20,7 @@ import de.flapdoodle.formula.calculate.Calculate;
 import de.flapdoodle.formula.calculate.functions.FN2;
 import de.flapdoodle.formula.rules.Rules;
 import de.flapdoodle.formula.types.Id;
-import de.flapdoodle.formula.types.Maybe;
+import de.flapdoodle.types.Maybe;
 import de.flapdoodle.formula.values.properties.CopyOnChangeProperty;
 import de.flapdoodle.formula.values.properties.ReadOnlyProperty;
 import org.immutables.value.Value;

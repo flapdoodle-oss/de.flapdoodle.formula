@@ -18,7 +18,7 @@ package de.flapdoodle.formula.values.domain;
 
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.calculate.ValueLookup;
-import de.flapdoodle.formula.types.Maybe;
+import de.flapdoodle.types.Maybe;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 

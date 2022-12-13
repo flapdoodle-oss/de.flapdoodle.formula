@@ -17,10 +17,10 @@
 package de.flapdoodle.formula.howto.calculate;
 
 import de.flapdoodle.formula.types.Id;
-import de.flapdoodle.formula.types.Maybe;
 import de.flapdoodle.formula.values.domain.*;
 import de.flapdoodle.formula.values.properties.CopyOnChangeProperty;
 import de.flapdoodle.formula.values.properties.ReadOnlyProperty;
+import de.flapdoodle.types.Maybe;
 import org.immutables.value.Value;
 
 import javax.annotation.Nullable;
