@@ -55,7 +55,7 @@ ${sumOfItemsInCart.render}
 ${sumOfItemsInCart.render.dot}
 ```
 
-![Calculation as Graph](HowToCalculateChangeableInstanceTest.png)
+![Calculation as Graph](${sumOfItemsInCart.render.dot.svg})
 
 Or you can render a more detailed graph:
 
@@ -69,7 +69,7 @@ ${sumOfItemsInCart.explain}
 ${sumOfItemsInCart.explain.dot}
 ```
 
-![Calculation as Graph - explained](HowToCalculateChangeableInstanceTest-explained.png)
+![Calculation as Graph - explained](${sumOfItemsInCart.explain.dot.svg})
 
 ## Do the Math                     
 

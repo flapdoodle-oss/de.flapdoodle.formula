@@ -27,9 +27,13 @@ import de.flapdoodle.testdoc.Includes;
 import de.flapdoodle.testdoc.Recorder;
 import de.flapdoodle.testdoc.Recording;
 import de.flapdoodle.testdoc.TabSize;
+import guru.nidi.graphviz.engine.Format;
+import guru.nidi.graphviz.engine.Graphviz;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,11 +67,13 @@ public class HowToCalculateChangeableInstanceTest extends AbstractHowToTest {
 		String dot = GraphRenderer.renderGraphAsDot(valueGraph.graph());
 		recording.end();
 		recording.output("render.dot", dot);
+		recording.file("render.dot.svg", "HowToCalculateChangeableInstanceTest.svg", asSvg(dot));
 
 		recording.begin("explain");
 		String explainDot = RuleDependencyGraph.explain(rules);
 		recording.end();
 		recording.output("explain.dot", explainDot);
+		recording.file("explain.dot.svg", "HowToCalculateChangeableInstanceTest-explained.svg", asSvg(explainDot));
 
 		recording.begin("solve");
 		Result result = Solver.solve(
@@ -105,4 +111,18 @@ public class HowToCalculateChangeableInstanceTest extends AbstractHowToTest {
 			.isEqualTo(2 * 10.5 + 9.95 + 10 * 2.55);
 		recording.end();
 	}
+
+	private byte[] asSvg(String dot) {
+		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+			Graphviz.fromString(dot)
+//				.width(3200)
+				.render(Format.SVG_STANDALONE)
+				.toOutputStream(os);
+			return os.toByteArray();
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }

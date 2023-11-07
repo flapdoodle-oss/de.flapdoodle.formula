@@ -257,7 +257,7 @@ digraph "calculation" {
 
 ```
 
-![Calculation as Graph](HowToCalculateChangeableInstanceTest.png)
+![Calculation as Graph](HowToCalculateChangeableInstanceTest.svg)
 
 Or you can render a more detailed graph:
 
@@ -330,7 +330,7 @@ digraph "rules" {
 
 ```
 
-![Calculation as Graph - explained](HowToCalculateChangeableInstanceTest-explained.png)
+![Calculation as Graph - explained](HowToCalculateChangeableInstanceTest-explained.svg)
 
 ## Do the Math                     
 
