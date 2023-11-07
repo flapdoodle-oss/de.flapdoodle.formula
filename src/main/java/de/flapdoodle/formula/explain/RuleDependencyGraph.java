@@ -29,7 +29,7 @@ import de.flapdoodle.formula.rules.ValidationMap;
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.validation.Validation;
 import de.flapdoodle.graph.GraphAsDot;
-import de.flapdoodle.graph.Graphs;
+import de.flapdoodle.graph.GraphBuilder;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
@@ -124,8 +124,7 @@ public abstract class RuleDependencyGraph {
 	}
 
 	private static class Wrapper {
-		private final Graphs.GraphBuilder<RuleVertex, DefaultEdge, DefaultDirectedGraph<RuleVertex, DefaultEdge>> builder = Graphs.graphBuilder(
-			Graphs.<RuleVertex>directedGraph()).get();
+		private final GraphBuilder<RuleVertex, DefaultEdge, DefaultDirectedGraph<RuleVertex, DefaultEdge>> builder = GraphBuilder.withDirectedGraph();
 
 		Wrapper add(
 			Value<?> destination,

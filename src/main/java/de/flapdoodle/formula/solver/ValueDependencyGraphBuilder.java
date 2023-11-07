@@ -28,6 +28,7 @@ import de.flapdoodle.formula.rules.CalculationMap;
 import de.flapdoodle.formula.rules.Rules;
 import de.flapdoodle.formula.rules.ValidationMap;
 import de.flapdoodle.formula.validation.Validation;
+import de.flapdoodle.graph.GraphBuilder;
 import de.flapdoodle.graph.Graphs;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -90,8 +91,7 @@ public abstract class ValueDependencyGraphBuilder {
 	}
 
 	private static class Wrapper {
-		private final Graphs.GraphBuilder<Value<?>, DefaultEdge, DefaultDirectedGraph<Value<?>, DefaultEdge>> builder = Graphs.graphBuilder(
-			Graphs.<Value<?>>directedGraph()).get();
+		private final GraphBuilder<Value<?>, DefaultEdge, DefaultDirectedGraph<Value<?>, DefaultEdge>> builder = GraphBuilder.withDirectedGraph();
 
 		Wrapper add(
 			Value<?> destination,
