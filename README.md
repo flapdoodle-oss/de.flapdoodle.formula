@@ -10,12 +10,10 @@ calculation framework
 
 [![Maven Central](https://img.shields.io/maven-central/v/de.flapdoodle/de.flapdoodle.formula.svg)](https://maven-badges.herokuapp.com/maven-central/de.flapdoodle/de.flapdoodle.formula)
 
-Snapshots (Repository http://oss.sonatype.org/content/repositories/snapshots)
-
 	<dependency>
 		<groupId>de.flapdoodle.formula</groupId>
 		<artifactId>de.flapdoodle.formula</artifactId>
-		<version>1.5.1-SNAPSHOT</version>
+		<version>1.6.0</version>
 	</dependency>
                                             
 ### Documentation
