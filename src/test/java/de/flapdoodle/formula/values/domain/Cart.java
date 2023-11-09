@@ -17,9 +17,9 @@
 package de.flapdoodle.formula.values.domain;
 
 import de.flapdoodle.formula.calculate.Calculate;
-import de.flapdoodle.formula.calculate.functions.FN2;
 import de.flapdoodle.formula.rules.Rules;
 import de.flapdoodle.formula.types.Id;
+import de.flapdoodle.reflection.TypeInfo;
 import de.flapdoodle.types.Maybe;
 import de.flapdoodle.formula.values.Related;
 import de.flapdoodle.formula.values.properties.CopyOnChangeProperty;
@@ -40,7 +40,7 @@ public interface Cart extends ChangeableInstance<Cart>, HasRules {
 
 	@Value.Default
 	default Id<Cart> id() {
-		return Id.idFor(Cart.class);
+		return Id.idFor(TypeInfo.of(Cart.class));
 	}
 
 	List<Item> items();

@@ -16,7 +16,6 @@
  */
 package de.flapdoodle.formula.calculate.calculations;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
@@ -26,7 +25,6 @@ import de.flapdoodle.formula.calculate.functions.FN1;
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import org.immutables.value.Value;
 
-import java.util.List;
 import java.util.Set;
 
 @Value.Immutable(builder = false)

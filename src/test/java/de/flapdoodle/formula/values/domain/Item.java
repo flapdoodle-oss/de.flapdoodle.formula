@@ -17,9 +17,9 @@
 package de.flapdoodle.formula.values.domain;
 
 import de.flapdoodle.formula.calculate.Calculate;
-import de.flapdoodle.formula.calculate.functions.FN2;
 import de.flapdoodle.formula.rules.Rules;
 import de.flapdoodle.formula.types.Id;
+import de.flapdoodle.reflection.TypeInfo;
 import de.flapdoodle.types.Maybe;
 import de.flapdoodle.formula.values.properties.CopyOnChangeProperty;
 import de.flapdoodle.formula.values.properties.ReadOnlyProperty;
@@ -40,7 +40,7 @@ public interface Item extends ChangeableInstance<Item>, HasRules {
 	@Value.Default
 	@Override
 	default Id<Item> id() {
-		return Id.idFor(Item.class);
+		return Id.idFor(TypeInfo.of(Item.class));
 	}
 
 	@Nullable String name();

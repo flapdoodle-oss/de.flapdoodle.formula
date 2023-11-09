@@ -16,7 +16,6 @@
  */
 package de.flapdoodle.formula.validation.validations;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.types.HasHumanReadableLabel;

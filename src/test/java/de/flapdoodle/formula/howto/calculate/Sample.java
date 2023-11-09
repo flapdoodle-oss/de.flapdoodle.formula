@@ -17,6 +17,7 @@
 package de.flapdoodle.formula.howto.calculate;
 
 import de.flapdoodle.formula.types.Id;
+import de.flapdoodle.reflection.TypeInfo;
 import org.immutables.value.Value;
 
 import javax.annotation.Nullable;
@@ -25,7 +26,7 @@ import javax.annotation.Nullable;
 public abstract class Sample {
   @Value.Default
   public Id<Sample> getId() {
-    return Id.idFor(Sample.class);
+    return Id.idFor(TypeInfo.of(Sample.class));
   }
 
   public abstract @Nullable String getName();

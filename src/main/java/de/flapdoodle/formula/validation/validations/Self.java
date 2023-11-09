@@ -16,11 +16,12 @@
  */
 package de.flapdoodle.formula.validation.validations;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
-import de.flapdoodle.formula.validation.*;
+import de.flapdoodle.formula.validation.ErrorMessage;
+import de.flapdoodle.formula.validation.ValidatedValueLookup;
+import de.flapdoodle.formula.validation.Validation;
 import org.immutables.value.Value;
 
 import java.util.List;

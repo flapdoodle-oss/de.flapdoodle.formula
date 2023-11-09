@@ -16,6 +16,8 @@
  */
 package de.flapdoodle.formula.types;
 
+import de.flapdoodle.formula.values.TypeInfoHelper;
+import de.flapdoodle.reflection.TypeInfo;
 import org.immutables.value.Value;
 
 import java.util.Optional;
@@ -23,7 +25,7 @@ import java.util.Optional;
 @Value.Immutable
 public abstract class Id<O> implements HasHumanReadableLabel {
 	@Value.Parameter
-	protected abstract Class<O> type();
+	protected abstract TypeInfo<O> type();
 
 	@Value.Parameter
 	protected abstract int count();
@@ -37,18 +39,18 @@ public abstract class Id<O> implements HasHumanReadableLabel {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName()+"{type="+type().getSimpleName()+", count="+count()+"}";
+		return getClass().getSimpleName()+"{type="+ TypeInfoHelper.asHumanReadable(type())+", count="+count()+"}";
 	}
 
 	@Override
 	public String asHumanReadable() {
-		return type().getSimpleName()+"#"+count();
+		return TypeInfoHelper.asHumanReadable(type())+"#"+count();
 	}
 	
 	private static TypeCounter typeCounter = new TypeCounter();
 	private static ThreadLocal<TypeCounter> localTypeCounter = new InheritableThreadLocal<>();
 
-	public static <O> Id<O> idFor(Class<O> type) {
+	public static <O> Id<O> idFor(TypeInfo<O> type) {
 		TypeCounter currentCounter = localTypeCounter.get();
 		return ImmutableId.of(type, (currentCounter!=null ? currentCounter : typeCounter).count(type));
 	}

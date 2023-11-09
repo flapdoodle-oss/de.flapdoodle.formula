@@ -16,6 +16,7 @@
  */
 package de.flapdoodle.formula.types;
 
+import de.flapdoodle.reflection.TypeInfo;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,8 +26,8 @@ class TypeCounterTest {
 	void countTypes() {
 		TypeCounter testee = new TypeCounter();
 
-		assertThat(testee.count(String.class)).isEqualTo(0);
-		assertThat(testee.count(String.class)).isEqualTo(1);
-		assertThat(testee.count(Integer.class)).isEqualTo(0);
+		assertThat(testee.count(TypeInfo.of(String.class))).isEqualTo(0);
+		assertThat(testee.count(TypeInfo.of(String.class))).isEqualTo(1);
+		assertThat(testee.count(TypeInfo.of(Integer.class))).isEqualTo(0);
 	}
 }

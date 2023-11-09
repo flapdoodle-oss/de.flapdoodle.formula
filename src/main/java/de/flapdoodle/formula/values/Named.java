@@ -20,6 +20,7 @@ import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
+import de.flapdoodle.reflection.TypeInfo;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 
@@ -31,18 +32,27 @@ public abstract class Named<T> implements Value<T>, ValueSink<T>, ValueSource<T>
 	protected abstract Optional<String> name();
 
 	@Parameter
-	protected abstract Class<T> type();
+	protected abstract TypeInfo<T> type();
 
 	@Override
 	@org.immutables.value.Value.Lazy
 	public String asHumanReadable() {
-		return name().orElse("<null>")+"("+type().getSimpleName()+")";
+		return name().orElse("<null>")+"("+ TypeInfoHelper.asHumanReadable(type())+")";
 	}
+
 	public static <T> Named<T> ofType(Class<T> type) {
+		return ImmutableNamed.of(Optional.empty(), TypeInfo.of(type));
+	}
+
+	public static <T> Named<T> ofType(TypeInfo<T> type) {
 		return ImmutableNamed.of(Optional.empty(), type);
 	}
 
 	public static <T> Named<T> named(String name, Class<T> type) {
+		return ImmutableNamed.of(Optional.of(name), TypeInfo.of(type));
+	}
+
+	public static <T> Named<T> named(String name, TypeInfo<T> type) {
 		return ImmutableNamed.of(Optional.of(name), type);
 	}
 }

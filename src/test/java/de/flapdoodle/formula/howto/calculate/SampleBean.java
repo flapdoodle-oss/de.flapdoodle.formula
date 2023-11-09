@@ -17,12 +17,13 @@
 package de.flapdoodle.formula.howto.calculate;
 
 import de.flapdoodle.formula.types.Id;
+import de.flapdoodle.reflection.TypeInfo;
 
 public class SampleBean {
 	private String name;
 	private Integer number;
 	private Double amount;
-	private Id<SampleBean> id = Id.idFor(SampleBean.class);
+	private Id<SampleBean> id = Id.idFor(TypeInfo.of(SampleBean.class));
 
 	public Id<SampleBean> getId() {
 		return id;

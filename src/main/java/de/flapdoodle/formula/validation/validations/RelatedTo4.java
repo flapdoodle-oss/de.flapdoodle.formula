@@ -16,7 +16,6 @@
  */
 package de.flapdoodle.formula.validation.validations;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
@@ -25,7 +24,6 @@ import de.flapdoodle.formula.validation.ValidatedValueLookup;
 import de.flapdoodle.formula.validation.Validation;
 import org.immutables.value.Value;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;

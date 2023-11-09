@@ -18,7 +18,6 @@ package de.flapdoodle.formula.values.domain;
 
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.types.Id;
-import de.flapdoodle.formula.values.properties.CopyOnChangeProperty;
 import de.flapdoodle.formula.values.properties.ModifiableProperty;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;

@@ -39,8 +39,8 @@ assertThat(aRelatedToX).isNotEqualTo(aRelatedToY);
 For some cases you can not use an object as scope, but you need some kind of id:                     
 
 ```java
-Id<Double> firstId = Id.idFor(Double.class);
-Id<Double> secondId = Id.idFor(Double.class);
+Id<Double> firstId = Id.idFor(TypeInfo.of(Double.class));
+Id<Double> secondId = Id.idFor(TypeInfo.of(Double.class));
 assertThat(firstId).isNotEqualTo(secondId);
 
 Value<Double> relatedToFirstId = a.relatedTo(firstId);
@@ -93,7 +93,7 @@ public class SampleBean {
   private String name;
   private Integer number;
   private Double amount;
-  private Id<SampleBean> id = Id.idFor(SampleBean.class);
+  private Id<SampleBean> id = Id.idFor(TypeInfo.of(SampleBean.class));
 
   public Id<SampleBean> getId() {
     return id;
@@ -182,7 +182,7 @@ If you prefer immutable data structures to avoid many kind of troubles, only min
 public abstract class Sample {
   @Value.Default
   public Id<Sample> getId() {
-    return Id.idFor(Sample.class);
+    return Id.idFor(TypeInfo.of(Sample.class));
   }
 
   public abstract @Nullable String getName();
@@ -289,7 +289,7 @@ public abstract class ChangeableSample implements ChangeableInstance<ChangeableS
 
   @Value.Default
   public Id<ChangeableSample> id() {
-    return Id.idFor(ChangeableSample.class);
+    return Id.idFor(TypeInfo.of(ChangeableSample.class));
   }
 
   public abstract @Nullable String name();

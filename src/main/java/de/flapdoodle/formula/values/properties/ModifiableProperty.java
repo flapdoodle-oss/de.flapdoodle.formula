@@ -19,7 +19,6 @@ package de.flapdoodle.formula.values.properties;
 import com.google.common.base.Preconditions;
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import de.flapdoodle.formula.types.Id;
-import de.flapdoodle.formula.values.domain.ImmutableModifyInstanceValue;
 import de.flapdoodle.formula.values.domain.ModifyInstanceValue;
 import org.immutables.value.Value;
 

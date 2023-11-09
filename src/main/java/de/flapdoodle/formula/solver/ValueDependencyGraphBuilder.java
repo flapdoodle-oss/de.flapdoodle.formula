@@ -17,7 +17,6 @@
 package de.flapdoodle.formula.solver;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import de.flapdoodle.formula.Unvalidated;
@@ -29,16 +28,12 @@ import de.flapdoodle.formula.rules.Rules;
 import de.flapdoodle.formula.rules.ValidationMap;
 import de.flapdoodle.formula.validation.Validation;
 import de.flapdoodle.graph.GraphBuilder;
-import de.flapdoodle.graph.Graphs;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 import javax.annotation.Nullable;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class ValueDependencyGraphBuilder {

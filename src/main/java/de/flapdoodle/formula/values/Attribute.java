@@ -19,6 +19,7 @@ package de.flapdoodle.formula.values;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
+import de.flapdoodle.reflection.TypeInfo;
 import org.immutables.value.Value.Immutable;
 
 import java.util.function.BiConsumer;
@@ -26,7 +27,7 @@ import java.util.function.Function;
 
 @Immutable
 public abstract class Attribute<O, T> implements Value<T>, ValueSource<T>, ValueSink<T> {
-	protected abstract Class<O> objectType();
+	protected abstract TypeInfo<O> objectType();
 
 	protected abstract String name();
 
@@ -52,6 +53,15 @@ public abstract class Attribute<O, T> implements Value<T>, ValueSource<T>, Value
 	}
 
 	public static <T, O> Attribute<O, T> of(Class<O> objectType, String name, Function<O, T> getter, BiConsumer<O, T> setter) {
+		return ImmutableAttribute.<O, T>builder()
+			.objectType(TypeInfo.of(objectType))
+			.name(name)
+			.getter(getter)
+			.setter(setter)
+			.build();
+	}
+
+	public static <T, O> Attribute<O, T> of(TypeInfo<O> objectType, String name, Function<O, T> getter, BiConsumer<O, T> setter) {
 		return ImmutableAttribute.<O, T>builder()
 			.objectType(objectType)
 			.name(name)

@@ -14,9 +14,17 @@ public interface Value<T> {
   static <T> Named<T> ofType(Class<T> type) {
     return Named.ofType(type);
   }
+
+  static <T> Named<T> ofType(TypeInfo<T> type) {
+    return Named.ofType(type);
+  }
   static <T> Named<T> named(String name, Class<T> type) {
     return Named.named(name, type);
   }
+  static <T> Named<T> named(String name, TypeInfo<T> type) {
+    return Named.named(name, type);
+  }
+
   static <T> Unvalidated<T> unvalidated(ValueSource<T> source) { return Unvalidated.wrap(source); }
 }
 ```
@@ -41,7 +49,7 @@ public interface Item extends ChangeableInstance<Item>, HasRules {
   @Value.Default
   @Override
   default Id<Item> id() {
-    return Id.idFor(Item.class);
+    return Id.idFor(TypeInfo.of(Item.class));
   }
 
   @Nullable String name();
@@ -98,7 +106,7 @@ public interface Cart extends ChangeableInstance<Cart>, HasRules {
 
   @Value.Default
   default Id<Cart> id() {
-    return Id.idFor(Cart.class);
+    return Id.idFor(TypeInfo.of(Cart.class));
   }
 
   List<Item> items();

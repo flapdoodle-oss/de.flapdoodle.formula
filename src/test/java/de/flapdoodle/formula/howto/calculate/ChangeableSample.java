@@ -20,6 +20,7 @@ import de.flapdoodle.formula.types.Id;
 import de.flapdoodle.formula.values.domain.*;
 import de.flapdoodle.formula.values.properties.CopyOnChangeProperty;
 import de.flapdoodle.formula.values.properties.ReadOnlyProperty;
+import de.flapdoodle.reflection.TypeInfo;
 import de.flapdoodle.types.Maybe;
 import org.immutables.value.Value;
 
@@ -39,7 +40,7 @@ public abstract class ChangeableSample implements ChangeableInstance<ChangeableS
 
 	@Value.Default
 	public Id<ChangeableSample> id() {
-		return Id.idFor(ChangeableSample.class);
+		return Id.idFor(TypeInfo.of(ChangeableSample.class));
 	}
 
 	public abstract @Nullable String name();

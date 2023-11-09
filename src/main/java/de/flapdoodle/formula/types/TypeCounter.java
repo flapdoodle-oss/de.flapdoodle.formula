@@ -17,13 +17,14 @@
 package de.flapdoodle.formula.types;
 
 import com.google.common.collect.Maps;
+import de.flapdoodle.reflection.TypeInfo;
 
 import java.util.Map;
 
 public final class TypeCounter {
-	private final Map<Class<?>, Integer> typeCounterMap = Maps.newConcurrentMap();
+	private final Map<TypeInfo<?>, Integer> typeCounterMap = Maps.newConcurrentMap();
 
-	public int count(Class<?> type) {
+	public int count(TypeInfo<?> type) {
 		return typeCounterMap.compute(type, (key, value) -> value != null ? value + 1 : 0);
 	}
 }

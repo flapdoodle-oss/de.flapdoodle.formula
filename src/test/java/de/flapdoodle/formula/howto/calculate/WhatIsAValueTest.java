@@ -28,6 +28,7 @@ import de.flapdoodle.formula.values.domain.*;
 import de.flapdoodle.formula.values.properties.CopyOnChangeProperty;
 import de.flapdoodle.formula.values.properties.ModifiableProperty;
 import de.flapdoodle.formula.values.properties.ReadOnlyProperty;
+import de.flapdoodle.reflection.TypeInfo;
 import de.flapdoodle.testdoc.Includes;
 import de.flapdoodle.testdoc.Recorder;
 import de.flapdoodle.testdoc.Recording;
@@ -78,8 +79,8 @@ public class WhatIsAValueTest extends AbstractHowToTest {
 		recording.end();
 
 		recording.begin("idFactory");
-		Id<Double> firstId = Id.idFor(Double.class);
-		Id<Double> secondId = Id.idFor(Double.class);
+		Id<Double> firstId = Id.idFor(TypeInfo.of(Double.class));
+		Id<Double> secondId = Id.idFor(TypeInfo.of(Double.class));
 		assertThat(firstId).isNotEqualTo(secondId);
 
 		Value<Double> relatedToFirstId = a.relatedTo(firstId);

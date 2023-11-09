@@ -18,6 +18,7 @@ package de.flapdoodle.formula;
 
 import de.flapdoodle.formula.values.Named;
 import de.flapdoodle.formula.values.Related;
+import de.flapdoodle.reflection.TypeInfo;
 
 public interface Value<T> {
 
@@ -28,8 +29,16 @@ public interface Value<T> {
 	static <T> Named<T> ofType(Class<T> type) {
 		return Named.ofType(type);
 	}
+
+	static <T> Named<T> ofType(TypeInfo<T> type) {
+		return Named.ofType(type);
+	}
 	static <T> Named<T> named(String name, Class<T> type) {
 		return Named.named(name, type);
 	}
+	static <T> Named<T> named(String name, TypeInfo<T> type) {
+		return Named.named(name, type);
+	}
+
 	static <T> Unvalidated<T> unvalidated(ValueSource<T> source) { return Unvalidated.wrap(source); }
 }

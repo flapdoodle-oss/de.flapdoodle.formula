@@ -22,7 +22,6 @@ import org.immutables.value.Value.Auxiliary;
 import org.immutables.value.Value.Lazy;
 import org.immutables.value.Value.Parameter;
 
-import java.util.List;
 import java.util.Set;
 
 public interface Calculation<D> {
