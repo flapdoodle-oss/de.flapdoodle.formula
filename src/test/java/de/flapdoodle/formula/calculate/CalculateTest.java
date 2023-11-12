@@ -17,7 +17,6 @@
 package de.flapdoodle.formula.calculate;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.calculate.calculations.*;
@@ -30,15 +29,46 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static de.flapdoodle.formula.Value.named;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CalculateTest {
+	/**
+	 * Generated Tests
+	 */
+	@Nested
+	class GeneratedTests {
+		ValueSink<String> destination = named("dest", String.class);
+
+		@Test
+		void valueUsingIfAllSetWithLabel() {
+			Generated<String> testee = Calculate.value(destination).by(new StringGenerator(), "label");
+
+			assertThat(testee.sources()).isEmpty();
+			assertThat(testee.destination()).isEqualTo(destination);
+			assertThat(testee.asHumanReadable()).isEqualTo("label");
+
+			List<? extends MappedValue<?>> mappedValues = mappedValues();
+
+			assertThat(((Calculation<String>) testee)
+					.calculate(valueLookup(mappedValues))).isEqualTo("boo");
+		}
+
+		class StringGenerator implements F0<String> {
+			@Nonnull @Override public String get() {
+				return "boo";
+			}
+
+			@Override
+			public String toString() {
+				return StringGenerator.class.getSimpleName();
+			}
+		}
+	}
+
 	/**
 	 * Map1 Tests
 	 */

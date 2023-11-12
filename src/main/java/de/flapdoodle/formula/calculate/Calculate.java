@@ -39,6 +39,14 @@ public abstract class Calculate {
 			this.destination = destination;
 		}
 
+		public Generated<X> by(F0<X> transformation) {
+			return Generated.with(destination, FN0.checkNull(transformation));
+		}
+
+		public Generated<X> by(F0<X> transformation, String description) {
+			return Generated.with(destination, FN0.checkNull(F0.withLabel(transformation, description)));
+		}
+
 		public Map1<X, X> from(ValueSource<X> a) {
 			return new WithMap1Nullable<>(destination, a).by(FN1.identity());
 		}
