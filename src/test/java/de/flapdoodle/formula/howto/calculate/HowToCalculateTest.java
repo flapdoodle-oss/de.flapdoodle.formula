@@ -21,6 +21,7 @@ import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.calculate.*;
+import de.flapdoodle.formula.calculate.calculations.Generated;
 import de.flapdoodle.formula.calculate.calculations.Map1;
 import de.flapdoodle.testdoc.Includes;
 import de.flapdoodle.testdoc.Recorder;
@@ -62,6 +63,12 @@ public class HowToCalculateTest extends AbstractHowToTest {
 		ValueSink<Integer> valueResult = Value.named("result", Integer.class);
 
 		Calculate.WithDestination<Integer> withDestination = Calculate.value(valueResult);
+		recording.end();
+
+		recording.begin("generating");
+		Generated<Integer> generator = withDestination.by(() -> 2);
+		assertThat(generator.calculate(valueLookup()))
+				.isEqualTo(2);
 		recording.end();
 
 		recording.begin("sources");

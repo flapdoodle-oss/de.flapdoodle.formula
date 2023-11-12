@@ -13,7 +13,14 @@ starting with the value we want to calculate:
 ```java
 ${basics.destination}
 ```
-... then we can express, if all source values are required or maybe null:
+
+... we can just simply use some kind of static value or generator:
+
+```java
+${basics.generating}
+```
+
+... or we can express for a dependent calculation, if all source values are required or maybe null:
 
 ```java
 ${basics.sources}

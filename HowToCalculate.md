@@ -28,7 +28,16 @@ ValueSink<Integer> valueResult = Value.named("result", Integer.class);
 
 Calculate.WithDestination<Integer> withDestination = Calculate.value(valueResult);
 ```
-... then we can express, if all source values are required or maybe null:
+
+... we can just simply use some kind of static value or generator:
+
+```java
+Generated<Integer> generator = withDestination.by(() -> 2);
+assertThat(generator.calculate(valueLookup()))
+    .isEqualTo(2);
+```
+
+... or we can express for a dependent calculation, if all source values are required or maybe null:
 
 ```java
 Map1<Integer, Integer> direct = withDestination.from(valueA);
