@@ -13,7 +13,7 @@ calculation framework
 	<dependency>
 		<groupId>de.flapdoodle.formula</groupId>
 		<artifactId>de.flapdoodle.formula</artifactId>
-		<version>1.6.0</version>
+		<version>1.6.1</version>
 	</dependency>
                                             
 ### Documentation
