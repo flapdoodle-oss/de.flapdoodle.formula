@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Immutable
-public abstract class StrictValueLookup implements ValueLookup {
+public abstract class StrictValueLookup implements ValueLookup, HasSetOfKnownValues {
 	protected abstract List<MappedValue<?>> entries();
 
 	@org.immutables.value.Value.Check
@@ -50,6 +50,14 @@ public abstract class StrictValueLookup implements ValueLookup {
 	protected Set<Value<?>> nullValues() {
 		return entries().stream()
 			.filter(it -> it.value()==null)
+			.map(MappedValue::id)
+			.collect(Collectors.toSet());
+	}
+
+	@Override
+	@org.immutables.value.Value.Lazy
+	public Set<Value<?>> keySet() {
+		return entries().stream()
 			.map(MappedValue::id)
 			.collect(Collectors.toSet());
 	}

@@ -18,7 +18,7 @@ package de.flapdoodle.formula.validation;
 
 import com.google.common.base.Preconditions;
 import de.flapdoodle.formula.ValueSource;
-import de.flapdoodle.formula.types.Either;
+import de.flapdoodle.types.Either;
 import org.immutables.builder.Builder;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Lazy;

@@ -17,8 +17,8 @@
 package de.flapdoodle.formula.solver;
 
 import de.flapdoodle.formula.Value;
-import de.flapdoodle.formula.types.Either;
 import de.flapdoodle.formula.validation.ValidationError;
+import de.flapdoodle.types.Either;
 
 import javax.annotation.Nullable;
 import java.util.Map;

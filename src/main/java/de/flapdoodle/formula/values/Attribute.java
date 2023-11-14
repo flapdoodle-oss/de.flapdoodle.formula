@@ -16,6 +16,7 @@
  */
 package de.flapdoodle.formula.values;
 
+import de.flapdoodle.formula.SinkAndSource;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
@@ -26,7 +27,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 @Immutable
-public abstract class Attribute<O, T> implements Value<T>, ValueSource<T>, ValueSink<T> {
+public abstract class Attribute<O, T> implements SinkAndSource<T> {
 	protected abstract TypeInfo<O> objectType();
 
 	protected abstract String name();

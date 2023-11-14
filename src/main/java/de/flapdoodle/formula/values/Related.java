@@ -16,6 +16,7 @@
  */
 package de.flapdoodle.formula.values;
 
+import de.flapdoodle.formula.SinkAndSource;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
@@ -24,7 +25,7 @@ import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 
 @Immutable
-public abstract class Related<T, B> implements Value<T>, ValueSink<T>, ValueSource<T>, HasHumanReadableLabel {
+public abstract class Related<T, B> implements SinkAndSource<T>, HasHumanReadableLabel {
 	@Parameter
 	protected abstract Value<T> destination();
 

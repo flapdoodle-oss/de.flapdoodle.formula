@@ -17,22 +17,18 @@
 package de.flapdoodle.formula.solver;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import de.flapdoodle.formula.Unvalidated;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSource;
-import de.flapdoodle.formula.calculate.Calculation;
-import de.flapdoodle.formula.calculate.MappedValue;
-import de.flapdoodle.formula.calculate.StrictValueLookup;
-import de.flapdoodle.formula.calculate.ValueLookup;
+import de.flapdoodle.formula.calculate.*;
 import de.flapdoodle.formula.validation.*;
 import de.flapdoodle.graph.Graphs;
 import de.flapdoodle.graph.VerticesAndEdges;
 import org.jgrapht.graph.DefaultEdge;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class Solver {
@@ -47,6 +43,20 @@ public abstract class Solver {
 
 	static Context solve(Context context, ValueGraph valueGraph, ValueLookup lookup) {
 		Collection<VerticesAndEdges<Value<?>, DefaultEdge>> roots = Graphs.rootsOf(valueGraph.graph());
+		if (lookup instanceof HasSetOfKnownValues) {
+			Set<Value<?>> providedValuesSet = ((HasSetOfKnownValues) lookup).keySet();
+
+			Set<Value<?>> calculationDestinations = roots.stream()
+				.flatMap(it -> it.vertices().stream())
+				.map(valueGraph::calculationOrNull)
+				.filter(Objects::nonNull)
+				.map(Calculation::destination)
+				.collect(Collectors.toSet());
+
+			Set<Value<?>> shadowedValuesFromLookup = Sets.intersection(providedValuesSet, calculationDestinations);
+
+			Preconditions.checkArgument(shadowedValuesFromLookup.isEmpty(),"value lookup values are shadowed by calculations: %s", shadowedValuesFromLookup);
+		}
 
 		for (VerticesAndEdges<Value<?>, DefaultEdge> it : roots) {
 			Preconditions.checkArgument(it.loops().isEmpty(), "loops found: %s", it.loops());

@@ -26,9 +26,11 @@ import de.flapdoodle.formula.validation.ErrorMessage;
 import de.flapdoodle.formula.validation.Validate;
 import de.flapdoodle.formula.validation.Validation;
 import de.flapdoodle.formula.values.Named;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class SolverTest {
 	private final Named<Integer> sumProperty = Value.named("x.sum", Integer.class);
@@ -83,6 +85,30 @@ class SolverTest {
 		assertThat(context.validatedValues().keys())
 			.containsExactlyInAnyOrder(sumProperty, sumValue, aProperty, bProperty);
 		assertThat(context.getValidated(sumProperty)).isEqualTo(3);
+	}
+
+	@Test
+	void detectValueResolverShadowing() {
+		ValueGraph valueGraph = ValueDependencyGraphBuilder.build(Rules.empty()
+			.add(
+				Calculate.value(sumValue)
+					.using(aProperty, bProperty)
+					.by((a, b) -> a + b),
+				Calculate.value(sumProperty)
+					.from(sumValue))
+			.add(
+				Validate.value(aProperty)
+					.using(bProperty)
+					.by((value, b) -> ImmutableList.of())
+			)
+		);
+
+		assertThatThrownBy(() -> Solver.solve(Context.empty(), valueGraph, StrictValueLookup.of(
+			MappedValue.of(aProperty, 1),
+			MappedValue.of(bProperty, 2),
+			MappedValue.of(sumValue, 1234)
+		))).isInstanceOf(IllegalArgumentException.class)
+			.hasMessageContaining("value lookup values are shadowed by calculations: ["+sumValue);
 	}
 
 	@Test

@@ -16,6 +16,7 @@
  */
 package de.flapdoodle.formula.values;
 
+import de.flapdoodle.formula.SinkAndSource;
 import de.flapdoodle.formula.Value;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
@@ -27,7 +28,7 @@ import org.immutables.value.Value.Parameter;
 import java.util.Optional;
 
 @Immutable(builder = false)
-public abstract class Named<T> implements Value<T>, ValueSink<T>, ValueSource<T>, HasHumanReadableLabel {
+public abstract class Named<T> implements SinkAndSource<T>, HasHumanReadableLabel {
 	@Parameter
 	protected abstract Optional<String> name();
 

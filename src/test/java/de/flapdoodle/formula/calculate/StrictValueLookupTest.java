@@ -49,4 +49,20 @@ class StrictValueLookupTest {
 		))).isInstanceOf(IllegalArgumentException.class);
 	}
 
+
+	@Test
+	void keySetMustContainAllOtherKeys() {
+		StrictValueLookup testee = StrictValueLookup.of(Arrays.asList(
+			MappedValue.of(named("a", String.class), "Foo"),
+			MappedValue.of(named("b", Integer.class), 2),
+			MappedValue.of(named("c", String.class), null),
+			MappedValue.of(named("d", Integer.class), null)
+		));
+
+		assertThat(testee.keySet())
+			.containsAll(testee.values().keySet());
+
+		assertThat(testee.keySet())
+			.containsAll(testee.nullValues());
+	}
 }

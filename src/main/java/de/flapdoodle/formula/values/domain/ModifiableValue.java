@@ -16,10 +16,11 @@
  */
 package de.flapdoodle.formula.values.domain;
 
+import de.flapdoodle.formula.SinkAndSource;
 import de.flapdoodle.formula.ValueSink;
 import org.immutables.value.Value;
 
-public interface ModifiableValue<O, T> extends ValueSink<T>, ReadableValue<O, T>, HasId<O> {
+public interface ModifiableValue<O, T> extends SinkAndSource<T>, ReadableValue<O, T>, HasId<O> {
 
 	@Value.Auxiliary
 	void set(O instance, T value);
