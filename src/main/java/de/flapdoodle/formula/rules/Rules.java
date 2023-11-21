@@ -16,12 +16,11 @@
  */
 package de.flapdoodle.formula.rules;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import de.flapdoodle.formula.calculate.Calculation;
 import de.flapdoodle.formula.validation.Validation;
 import org.immutables.value.Value;
-
-import java.util.List;
 
 @Value.Immutable(builder = false)
 public abstract class Rules {
@@ -30,21 +29,23 @@ public abstract class Rules {
 	@Value.Parameter
 	public abstract ValidationMap validations();
 
+	public ImmutableRules addCalculations(Iterable<? extends Calculation<?>> calculations) {
+		return ImmutableRules.copyOf(this)
+			.withCalculations(calculations().addAll(calculations));
+	}
+
 	public ImmutableRules add(Calculation<?> calculation) {
 		return ImmutableRules.copyOf(this)
 			.withCalculations(calculations().add(calculation));
 	}
 
 	public ImmutableRules add(Calculation<?> calculation, Calculation<?> ... other) {
-		return addCalculations(ImmutableList.<Calculation<?>>builder()
-			.add(calculation)
-			.add(other)
-			.build());
+		return addCalculations(Lists.asList(calculation, other));
 	}
 
-	public ImmutableRules addCalculations(List<Calculation<?>> calculations) {
+	public ImmutableRules addValidations(Iterable<? extends Validation<?>> validations) {
 		return ImmutableRules.copyOf(this)
-			.withCalculations(calculations().addAll(calculations));
+			.withValidations(validations().addAll(validations));
 	}
 
 	public ImmutableRules add(Validation<?> validation) {
@@ -53,15 +54,18 @@ public abstract class Rules {
 	}
 
 	public ImmutableRules add(Validation<?> validation, Validation<?> ... other) {
-		return addValidations(ImmutableList.<Validation<?>>builder()
-			.add(validation)
-			.add(other)
-			.build());
+		return addValidations(Lists.asList(validation, other));
 	}
 
-	public ImmutableRules addValidations(List<Validation<?>> validations) {
-		return ImmutableRules.copyOf(this)
-			.withValidations(validations().addAll(validations));
+	public ImmutableRules addRules(Iterable<? extends Rules> rules) {
+		return ImmutableRules.of(
+			calculations().merge(Iterables.transform(rules, Rules::calculations)),
+			validations().merge(Iterables.transform(rules, Rules::validations))
+		);
+	}
+
+	public ImmutableRules add(Rules first, Rules ... others) {
+		return addRules(Lists.asList(first, others));
 	}
 
 	public static ImmutableRules empty() {

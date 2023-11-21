@@ -29,8 +29,8 @@ class FN0Test {
 
 	@Test
 	void withLabel() {
-		FN0<String> testee = FN0.withLabel(new NullableStringGenerator(true), "label");
-		assertThat(testee.get()).isNull();
+		FN0<String> testee = FN0.withLabel(new NullableStringGenerator(false), "label");
+		assertThat(testee.get()).isEqualTo("boo");
 		assertThat(HasHumanReadableLabel.asHumanReadable(testee)).isEqualTo("label");
 	}
 

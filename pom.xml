@@ -293,7 +293,7 @@
             <plugin>
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-maven</artifactId>
-                <version>1.7.5</version>
+                <version>1.15.3</version>
                 <executions>
                     <execution>
                         <goals>
@@ -305,6 +305,11 @@
                     <skip>${pitest.skip}</skip>
                     <excludedTestClasses>
                         <excludedTestClass>de.flapdoodle.formula.Nothing</excludedTestClass>
+                        <excludedTestClass>de.flapdoodle.formula.howto.**</excludedTestClass>
+                        <excludedTestClass>de.flapdoodle.formula.values.domain.HowToCalculateChangeableInstanceTest</excludedTestClass>
+                        <class>de.flapdoodle.formula.solver.GraphRenderer</class>
+                        <class>de.flapdoodle.formula.solver.Explanation</class>
+                        <class>de.flapdoodle.formula.values.TypeInfoHelper</class>
                     </excludedTestClasses>
                     <timestampedReports>false</timestampedReports>
                     <verbose>false</verbose>
@@ -313,7 +318,7 @@
                     <dependency>
                         <groupId>org.pitest</groupId>
                         <artifactId>pitest-junit5-plugin</artifactId>
-                        <version>1.1.0</version>
+                        <version>1.2.1</version>
                     </dependency>
                 </dependencies>
             </plugin>

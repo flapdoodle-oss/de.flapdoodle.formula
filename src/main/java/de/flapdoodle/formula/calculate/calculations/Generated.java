@@ -16,16 +16,15 @@
  */
 package de.flapdoodle.formula.calculate.calculations;
 
-import com.google.common.collect.ImmutableSet;
 import de.flapdoodle.formula.ValueSink;
 import de.flapdoodle.formula.ValueSource;
 import de.flapdoodle.formula.calculate.Calculation;
 import de.flapdoodle.formula.calculate.ValueLookup;
 import de.flapdoodle.formula.calculate.functions.FN0;
-import de.flapdoodle.formula.calculate.functions.FN1;
 import de.flapdoodle.formula.types.HasHumanReadableLabel;
 import org.immutables.value.Value;
 
+import java.util.Collections;
 import java.util.Set;
 
 @Value.Immutable(builder = false)
@@ -35,8 +34,9 @@ public abstract class Generated<X> implements Calculation<X>, HasHumanReadableLa
 	protected abstract FN0<X> transformation();
 
 	@Override
+	@Value.Auxiliary
 	public Set<ValueSource<?>> sources() {
-		return ImmutableSet.of();
+		return Collections.emptySet();
 	}
 
 	@Override

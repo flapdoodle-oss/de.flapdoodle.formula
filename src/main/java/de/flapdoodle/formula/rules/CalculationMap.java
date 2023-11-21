@@ -26,10 +26,12 @@ import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Lazy;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Immutable
 public abstract class CalculationMap {
@@ -65,10 +67,16 @@ public abstract class CalculationMap {
 			.build();
 	}
 
-	public CalculationMap addAll(List<Calculation<?>> calculations) {
+	public CalculationMap addAll(Iterable<? extends Calculation<?>> calculations) {
 		return ImmutableCalculationMap.builder().from(this)
 			.addAllAll(calculations)
 			.build();
+	}
+
+	public CalculationMap merge(Iterable<? extends CalculationMap> calculationMaps) {
+		ImmutableCalculationMap.Builder builder = ImmutableCalculationMap.builder().from(this);
+		calculationMaps.forEach(it -> builder.addAllAll(it.all()));
+		return builder.build();
 	}
 
 	public static CalculationMap empty() {

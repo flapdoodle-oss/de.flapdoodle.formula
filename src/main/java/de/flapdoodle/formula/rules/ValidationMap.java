@@ -25,6 +25,7 @@ import org.immutables.value.Value.Check;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Lazy;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,12 +66,19 @@ public abstract class ValidationMap {
 			.build();
 	}
 
-	public ValidationMap addAll(List<Validation<?>> validations) {
+	public ValidationMap addAll(Iterable<? extends Validation<?>> validations) {
 		return ImmutableValidationMap.builder()
 			.from(this)
 			.addAllAll(validations)
 			.build();
 	}
+
+	public ValidationMap merge(Iterable<? extends ValidationMap> validationMaps) {
+		ImmutableValidationMap.Builder builder = ImmutableValidationMap.builder().from(this);
+		validationMaps.forEach(it -> builder.addAllAll(it.all()));
+		return builder.build();
+	}
+
 
 	public static ValidationMap empty() {
 		return ImmutableValidationMap.builder().build();

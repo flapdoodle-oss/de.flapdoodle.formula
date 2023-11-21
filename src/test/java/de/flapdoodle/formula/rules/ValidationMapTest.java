@@ -39,10 +39,13 @@ class ValidationMapTest {
 		assertThatThrownBy(() -> testee.add(Validate.value(named("a", String.class))
 			.by((it) -> Validation.noErrors())));
 
+		assertThat(testee.contains(named("a", String.class)))
+			.isTrue();
 		assertThat(testee.get(named("a", String.class)))
 			.isNotNull();
 		assertThat(testee.get(named("b", String.class)).sources())
 			.hasSize(1);
+		assertThat(testee.contains(named("c", String.class))).isFalse();
 		assertThat(testee.get(named("c", String.class))).isNull();
 
 		assertThat(testee.contains(named("a", String.class)));
